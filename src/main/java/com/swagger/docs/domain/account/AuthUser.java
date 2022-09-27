@@ -1,4 +1,4 @@
-package com.swagger.docs.domain.user;
+package com.swagger.docs.domain.account;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 

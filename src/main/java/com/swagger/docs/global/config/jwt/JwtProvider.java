@@ -1,7 +1,7 @@
 package com.swagger.docs.global.config.jwt;
 
-import com.example.demo.domain.user.sevice.CustomAccountDetailsService;
-import com.example.demo.global.common.redis.RedisService;
+import com.swagger.docs.sevice.CustomAccountDetailsService;
+import com.swagger.docs.global.common.redis.RedisService;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

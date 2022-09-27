@@ -1,7 +1,7 @@
-package com.swagger.docs.domain.user.sevice;
+package com.swagger.docs.sevice;
 
 
-import com.example.demo.domain.user.Account;
+import com.swagger.docs.domain.account.Account;
 import lombok.Getter;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -14,7 +14,7 @@ import java.util.Objects;
 public class AuthAccount extends User {
     private final Account account;
     public AuthAccount(Account account) {
-        super(account.getEmail(), account.getPassword(), List.of(new SimpleGrantedAuthority(account.getRole())));
+        super(account.getUserEmail(), account.getPassword(), List.of(new SimpleGrantedAuthority(account.getRole())));
         this.account = account;
     }
 

@@ -1,9 +1,8 @@
-package com.swagger.docs.domain.user.sevice;
+package com.swagger.docs.sevice;
 
-
-import com.swagger.docs.domain.user.Account;
-import com.swagger.docs.domain.user.AccountRepository;
-import com.swagger.docs.domain.user.controller.LoginResponseDto;
+import com.swagger.docs.domain.account.Account;
+import com.swagger.docs.domain.account.AccountRepository;
+import com.swagger.docs.domain.account.controller.LoginResponseDto;
 import com.swagger.docs.global.common.exception.BadRequestException;
 import com.swagger.docs.global.config.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +49,7 @@ public class AccountService {
     public LoginResponseDto reIssueAccessToken(String email, String refreshToken) {
         Account account = accountRepository.findByEmail(email).orElseThrow(() -> new BadRequestException("존재하지 않는 유저입니다."));
         jwtProvider.createRefreshToken(email,refreshToken);
-        String accessToken = jwtProvider.createAccessToken(account.getEmail(), account.getRole());
+        String accessToken = jwtProvider.createAccessToken(account.getUserEmail(), account.getRole());
         return new LoginResponseDto(accessToken, refreshToken);
     }
 
@@ -58,8 +57,8 @@ public class AccountService {
         Account account = accountRepository
                 .findByEmail(email).orElseThrow(() -> new BadRequestException("아이디 혹은 비밀번호를 확인하세요"));
         checkPassword(password, account.getPassword());
-        String accessToken = jwtProvider.createAccessToken(account.getEmail(), account.getRole());
-        String refreshToken = jwtProvider.createRefreshToken(account.getEmail(), account.getRole());
+        String accessToken = jwtProvider.createAccessToken(account.getUserEmail(), account.getRole());
+        String refreshToken = jwtProvider.createRefreshToken(account.getUserEmail(), account.getRole());
         return new LoginResponseDto(accessToken, refreshToken);
     }
 }

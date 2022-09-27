@@ -1,8 +1,9 @@
-package com.swagger.docs.domain.user.sevice;
+package com.swagger.docs.sevice;
 
-import com.example.demo.domain.user.Account;
-import com.example.demo.domain.user.AccountRepository;
-import com.example.demo.global.common.exception.BadRequestException;
+
+import com.swagger.docs.domain.account.Account;
+import com.swagger.docs.domain.account.AccountRepository;
+import com.swagger.docs.global.common.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

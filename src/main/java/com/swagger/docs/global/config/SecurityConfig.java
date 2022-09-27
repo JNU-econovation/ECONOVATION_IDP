@@ -1,9 +1,9 @@
 package com.swagger.docs.global.config;
 
-import com.example.demo.global.common.BasicResponse;
-import com.example.demo.global.config.jwt.JwtAuthenticationFilter;
-import com.example.demo.global.config.jwt.JwtProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.swagger.docs.global.common.BasicResponse;
+import com.swagger.docs.global.config.jwt.JwtAuthenticationFilter;
+import com.swagger.docs.global.config.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;

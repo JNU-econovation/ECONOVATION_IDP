@@ -1,4 +1,4 @@
-package com.swagger.docs.domain.user;
+package com.swagger.docs.domain.account;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
