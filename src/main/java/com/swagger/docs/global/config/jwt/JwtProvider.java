@@ -1,7 +1,7 @@
 package com.swagger.docs.global.config.jwt;
 
-import com.example.demo.domain.user.sevice.CustomAccountDetailsService;
-import com.example.demo.global.common.redis.RedisService;
+import com.swagger.docs.global.common.redis.RedisService;
+import com.swagger.docs.sevice.UserService;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +19,7 @@ import java.util.Date;
 @Component
 @RequiredArgsConstructor
 public class JwtProvider {
-    private final CustomAccountDetailsService customAccountDetailsService;
+    private final UserService customAccountDetailsService;
     private final RedisService redisService;
     @Value("${spring.jwt.secret-key}")
     private String secretKey;

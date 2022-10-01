@@ -1,38 +1,72 @@
 package com.swagger.docs.domain.user;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.swagger.docs.dto.UserUpdateRequestDto;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.validator.constraints.Range;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
+@Setter
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor
+@DynamicInsert
+@Builder
 public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="ACCOUNT_ID")
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String email;
 
     @Column(nullable = false)
-    private String nickname;
+    @Range(min =1, max = 50)
+    @NotNull
+    private Long year;
 
     @Column(nullable = false)
+    @NotNull
+    private String userName;
+
+    @Column(nullable = false)
+    @NotNull
     private String password;
 
+    @Column(nullable = false)
+    @NotNull
+    private String userEmail;
+
+    @Column(nullable = false)
+    @NotNull
+    private String pinCode;
+
+    @Column(nullable = false)
     private String role;
 
-    private Account(String email, String nickname, String password) {
-        this.email = email;
-        this.nickname = nickname;
+    public Account(Long year, String userName, String password, String userEmail, String pinCode) {
+        this.year = year;
+        this.userName = userName;
         this.password = password;
-        role = "USER";
+        this.userEmail = userEmail;
+        this.pinCode = pinCode;
+        this.role = "USER";
     }
 
-    public static Account of(String email, String nickname, String password) {
-        return new Account(email, nickname, password);
+    public void update(UserUpdateRequestDto userUpdateRequestDto){
+        this.userEmail = userUpdateRequestDto.toEntity().getUserEmail();
+        this.userName = userUpdateRequestDto.toEntity().getUserName();
+        this.year = userUpdateRequestDto.toEntity().getYear();
+        this.pinCode = userUpdateRequestDto.toEntity().getPinCode();
+        this.role = userUpdateRequestDto.toEntity().getRole();
+    }
+
+
+    public static Account of(Long year, String userName, String password, String userEmail, String pinCode) {
+        return new Account(year, userName, password, userEmail, pinCode);
     }
 }

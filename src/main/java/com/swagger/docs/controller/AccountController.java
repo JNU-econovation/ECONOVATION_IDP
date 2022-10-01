@@ -1,8 +1,11 @@
-package com.swagger.docs.domain.user.controller;
+package com.swagger.docs.controller;
 
 import com.swagger.docs.domain.user.Account;
 import com.swagger.docs.domain.user.AuthUser;
-import com.swagger.docs.domain.user.sevice.AccountService;
+import com.swagger.docs.dto.LoginRequestDto;
+import com.swagger.docs.dto.LoginResponseDto;
+import com.swagger.docs.dto.SignUpRequestDto;
+import com.swagger.docs.sevice.*;
 import com.swagger.docs.global.common.BasicResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,7 +34,7 @@ public class AccountController {
     @GetMapping("/logout")
     public ResponseEntity<BasicResponse> logout(@AuthUser Account account, HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization").substring(7);
-        accountService.logout(account.getEmail(), accessToken);
+        accountService.logout(account.getUserEmail(), accessToken);
         BasicResponse response = new BasicResponse("로그아웃 완료", HttpStatus.OK);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -56,7 +59,7 @@ public class AccountController {
     })
     @PostMapping("sign-up")
     public ResponseEntity<BasicResponse> signUp(@RequestBody SignUpRequestDto signUpUser) {
-        accountService.signUp(signUpUser.getEmail(), signUpUser.getEmail(), signUpUser.getPassword());
+        accountService.signUp(signUpUser.getUserName(),signUpUser.getYear(),signUpUser.getEmail(), signUpUser.getPinCode(), signUpUser.getPassword());
         BasicResponse response = new BasicResponse("회원가입 성공", HttpStatus.CREATED);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

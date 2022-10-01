@@ -1,4 +1,4 @@
-package com.swagger.docs.domain.user.controller;
+package com.swagger.docs.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,7 +6,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class SignUpRequestDto {
-    private String email;
-    private String nickname;
+    private String userEmail;
+    private Long year;
+    private String userName;
     private String password;
+    private String pinCode;
 }

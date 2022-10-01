@@ -1,4 +1,4 @@
-package com.swagger.docs.domain.user.controller;
+package com.swagger.docs.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

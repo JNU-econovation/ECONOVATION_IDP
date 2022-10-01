@@ -1,10 +1,10 @@
-package com.swagger.docs.domain.user.controller;
+package com.swagger.docs.dto;
 
 
 import lombok.Getter;
 
 @Getter
 public class LoginRequestDto {
-    private String email;
+    private String userEmail;
     private String password;
 }

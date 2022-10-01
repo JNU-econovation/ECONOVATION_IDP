@@ -1,9 +1,9 @@
 package com.swagger.docs.global.common.exception;
 
 
-import com.example.demo.global.common.BasicResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.swagger.docs.global.common.BasicResponse;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;

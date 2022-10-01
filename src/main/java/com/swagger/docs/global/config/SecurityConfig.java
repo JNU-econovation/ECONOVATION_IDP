@@ -1,9 +1,9 @@
 package com.swagger.docs.global.config;
 
-import com.example.demo.global.common.BasicResponse;
-import com.example.demo.global.config.jwt.JwtAuthenticationFilter;
-import com.example.demo.global.config.jwt.JwtProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.swagger.docs.global.common.BasicResponse;
+import com.swagger.docs.global.config.jwt.JwtAuthenticationFilter;
+import com.swagger.docs.global.config.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtProvider jwtTokenProvider;
+    private final JwtProvider jwtProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final ObjectMapper objectMapper;
 
@@ -46,8 +46,7 @@ public class SecurityConfig {
                 .authorizeRequests()// 시큐리티 처리에 HttpServeltRequest를 사용합니다.
                 .anyRequest().permitAll()
                 .and()
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
-                        UsernamePasswordAuthenticationFilter.class)  //JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 전에 넣는다
+                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)  //JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 전에 넣는다
                 .exceptionHandling()    //Exception Handler
                 .authenticationEntryPoint(((request, response, authException) -> {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
