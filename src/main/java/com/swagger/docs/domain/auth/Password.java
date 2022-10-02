@@ -1,4 +1,4 @@
-package com.econovation.tcono.domain.auth;
+package com.swagger.docs.domain.auth;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -10,11 +10,10 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Documented
-@Constraint(validatedBy = com.econovation.tcono.domain.auth.PasswordValidator.class)
+@Constraint(validatedBy = PasswordValidator.class)
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
 public @interface Password {
-
     String message() default "Password is not allow";
 
     Class<?>[] groups() default {};

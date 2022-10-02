@@ -1,5 +1,6 @@
-package com.econovation.tcono.domain.auth;
+package com.swagger.docs.domain.auth;
 
+import com.swagger.docs.domain.auth.Password;
 import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintValidator;
@@ -34,4 +35,3 @@ public class PasswordValidator implements ConstraintValidator<Password, String> 
         return password.matches(regexPassword);
     }
 }
-

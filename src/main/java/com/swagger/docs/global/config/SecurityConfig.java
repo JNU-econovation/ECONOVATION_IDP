@@ -3,7 +3,6 @@ package com.swagger.docs.global.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swagger.docs.global.common.BasicResponse;
 import com.swagger.docs.global.config.jwt.JwtAuthenticationFilter;
-import com.swagger.docs.global.config.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
@@ -18,7 +17,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtProvider jwtProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final ObjectMapper objectMapper;
 
