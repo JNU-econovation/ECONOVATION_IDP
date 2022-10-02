@@ -18,11 +18,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
-
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
-@Tag(name = "Account 관련 서비스", description = "회원가입, 로그인 둥둥")
+@Tag(name = "Account 관련 서비스", description = "회원가입, 로그인 등등")
 public class AccountController {
     private final AccountService accountService;
 
@@ -31,7 +29,7 @@ public class AccountController {
     @ApiResponses({
             @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
     })
-    @GetMapping("/logout")
+    @GetMapping("/api/account/logout")
     public ResponseEntity<BasicResponse> logout(@AuthUser Account account, HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization").substring(7);
         accountService.logout(account.getUserEmail(), accessToken);
@@ -46,7 +44,7 @@ public class AccountController {
     @ApiResponses({
             @ApiResponse(responseCode = "HttpStatus.OK", description = "OK"),
     })
-    @GetMapping("/re-issue")
+    @GetMapping("/api/account/re-issue")
     public ResponseEntity<LoginResponseDto> reIssue(@RequestParam("email") String email, @RequestParam("refreshToken") String refreshToken) {
         LoginResponseDto responseDto = accountService.reIssueAccessToken(email, refreshToken);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -57,7 +55,7 @@ public class AccountController {
     @ApiResponses({
             @ApiResponse(responseCode = "HttpStatus.CREATED", description = "CREATED"),
     })
-    @PostMapping("sign-up")
+    @PostMapping("/api/account/sign-up")
     public ResponseEntity<BasicResponse> signUp(@RequestBody SignUpRequestDto signUpUser) {
         accountService.signUp(signUpUser.getUserName(),signUpUser.getYear(),signUpUser.getUserEmail(), signUpUser.getPinCode(), signUpUser.getPassword());
         BasicResponse response = new BasicResponse("회원가입 성공", HttpStatus.CREATED);
@@ -69,7 +67,7 @@ public class AccountController {
     @ApiResponses({
             @ApiResponse(responseCode = "HttpStatus.OK", description = "CREATED"),
     })
-    @PostMapping("login")
+    @PostMapping("/api/account/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginDto) {
         LoginResponseDto responseDto = accountService.login(loginDto.getUserEmail(), loginDto.getPassword());
         return new ResponseEntity<>(responseDto, HttpStatus.OK);

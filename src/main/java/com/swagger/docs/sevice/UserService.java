@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +39,7 @@ public class UserService implements UserDetailsService {
 
     private final AccountRepository userRepository;
     private final ConfirmationTokenService confirmationTokenService;
-
+    private final PasswordEncoder passwordEncoder;
 //    @Autowired
 //    public UserService(UserRepository userRepository) {
 //        this.userRepository = userRepository;
@@ -50,8 +51,6 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new BadRequestException("토큰을 확인해보세요"));
         return new AuthAccount(account);
     }
-
-
 
     @Transactional
     public String sendfindingPasswordConfirmationCode(String name, Long year){
@@ -73,7 +72,8 @@ public class UserService implements UserDetailsService {
         if(user.getPassword() == userPasswordUpdateDto.getPassword()){
             throw new IllegalArgumentException(OVERLAP_PASSWORD_MESSAGE);
         }
-        String password = userPasswordUpdateDto.getPassword();
+//        암호화
+        String password = passwordEncoder.encode(userPasswordUpdateDto.getPassword());
         user.setPassword(password);
         return password;
     }

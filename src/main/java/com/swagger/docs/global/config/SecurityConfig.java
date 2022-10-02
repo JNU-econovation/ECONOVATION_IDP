@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -22,15 +21,6 @@ public class SecurityConfig {
     private final JwtProvider jwtProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final ObjectMapper objectMapper;
-
-//    Swagger Configuration
-    @Bean
-    public WebSecurityCustomizer configure(){
-        return (web) -> web.ignoring().mvcMatchers(
-                "v3/api-docs"
-                ,"swagger-ui/**"
-        );
-    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -46,7 +36,8 @@ public class SecurityConfig {
                 .authorizeRequests()// 시큐리티 처리에 HttpServeltRequest를 사용합니다.
                 .anyRequest().permitAll()
                 .and()
-                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)  //JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 전에 넣는다
+//                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)  //JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 전에 넣는다
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)  //JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 전에 넣는다
                 .exceptionHandling()    //Exception Handler
                 .authenticationEntryPoint(((request, response, authException) -> {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -61,7 +52,7 @@ public class SecurityConfig {
 
     }
 //
-//    @Override
+//    @Bean
 //    protected void configure(HttpSecurity http) throws Exception {
 //        http
 //                .csrf().disable()  //  security login 해제
@@ -70,13 +61,13 @@ public class SecurityConfig {
 //                .authorizeRequests()
 //                .antMatchers("/join", "/login", "/user/signup", "/user/login", "/exception/**", "/configuration/**")
 //                .permitAll()
-//                .antMatchers("/v2/api-docs", "/swagger-ui*/**", "/webjars/**")
+//                .antMatchers("/swagger/api-docs", "/swagger-ui*/**", "/webjars/**")
 //                .permitAll()
 ////                .antMatchers("/admin/**").hasRole("ADMIN")
 ////                .antMatchers("/user/**").hasRole("USER")
 ////                .anyRequest().authenticated()
 //                .and()
-//                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
+//                .addFilterBefore(jwtAuthenticationFilter,
 //                        UsernamePasswordAuthenticationFilter.class);
 //
 //    }

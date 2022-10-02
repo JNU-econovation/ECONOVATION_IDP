@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-//@RequiredArgsConstructor
 @AllArgsConstructor
 //@Transactional(readOnly = true)
 @Transactional(rollbackFor = Exception.class)
@@ -28,7 +27,7 @@ public class AccountService {
         // 중복검증
         isDuplicateEmail(userEmail);
         String encodePassword = passwordEncoder.encode(password);
-        Account newAccount = Account.of(year,userName,password,userEmail,pinCode);
+        Account newAccount = Account.of(year,userName,encodePassword,userEmail,pinCode);
         accountRepository.save(newAccount);
     }
 
