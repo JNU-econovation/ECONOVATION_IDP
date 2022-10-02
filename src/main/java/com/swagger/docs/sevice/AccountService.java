@@ -51,7 +51,7 @@ public class AccountService {
     }
 
     public LoginResponseDto reIssueAccessToken(String email, String refreshToken) {
-        Account account = accountRepository.findByEmail(email).orElseThrow(() -> new BadRequestException("존재하지 않는 유저입니다."));
+        Account account = accountRepository.findAccountByUserEmail(email).orElseThrow(() -> new BadRequestException("존재하지 않는 유저입니다."));
         jwtProvider.createRefreshToken(email,refreshToken);
         String accessToken = jwtProvider.createAccessToken(account.getUserEmail(), account.getRole());
         return new LoginResponseDto(accessToken, refreshToken);
@@ -59,7 +59,7 @@ public class AccountService {
 
     public LoginResponseDto login(String email, String password) {
         Account account = accountRepository
-                .findByEmail(email).orElseThrow(() -> new BadRequestException("아이디 혹은 비밀번호를 확인하세요"));
+                .findAccountByUserEmail(email).orElseThrow(() -> new BadRequestException("아이디 혹은 비밀번호를 확인하세요"));
         checkPassword(password, account.getPassword());
         String accessToken = jwtProvider.createAccessToken(account.getUserEmail(), account.getRole());
         String refreshToken = jwtProvider.createRefreshToken(account.getUserEmail(), account.getRole());

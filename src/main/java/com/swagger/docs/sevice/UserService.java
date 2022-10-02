@@ -46,7 +46,7 @@ public class UserService implements UserDetailsService {
 //    }
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Account account = userRepository.findByEmail(email)
+        Account account = userRepository.findAccountByUserEmail(email)
                 .orElseThrow(() -> new BadRequestException("토큰을 확인해보세요"));
         return new AuthAccount(account);
     }

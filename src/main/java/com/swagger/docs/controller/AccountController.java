@@ -59,7 +59,7 @@ public class AccountController {
     })
     @PostMapping("sign-up")
     public ResponseEntity<BasicResponse> signUp(@RequestBody SignUpRequestDto signUpUser) {
-        accountService.signUp(signUpUser.getUserName(),signUpUser.getYear(),signUpUser.getEmail(), signUpUser.getPinCode(), signUpUser.getPassword());
+        accountService.signUp(signUpUser.getUserName(),signUpUser.getYear(),signUpUser.getUserEmail(), signUpUser.getPinCode(), signUpUser.getPassword());
         BasicResponse response = new BasicResponse("회원가입 성공", HttpStatus.CREATED);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -71,7 +71,7 @@ public class AccountController {
     })
     @PostMapping("login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginDto) {
-        LoginResponseDto responseDto = accountService.login(loginDto.getEmail(), loginDto.getPassword());
+        LoginResponseDto responseDto = accountService.login(loginDto.getUserEmail(), loginDto.getPassword());
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 

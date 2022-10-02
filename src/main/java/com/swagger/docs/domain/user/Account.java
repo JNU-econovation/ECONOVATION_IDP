@@ -2,7 +2,6 @@ package com.swagger.docs.domain.user;
 
 import com.swagger.docs.dto.UserUpdateRequestDto;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.validator.constraints.Range;
 
