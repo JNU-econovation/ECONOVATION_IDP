@@ -53,6 +53,10 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
+    public List<Account> findAll(){
+        return userRepository.findAll();
+    }
+    @Transactional
     public String sendfindingPasswordConfirmationCode(String name, Long year){
         //**이름, 기수를 받아 회원을 조회
 //         * 회원 이메일을 추출

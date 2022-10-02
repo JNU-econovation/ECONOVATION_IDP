@@ -22,8 +22,11 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-//    @GetMapping("/api/user/all/{page}")
-//    public List<Account> findUserAll(@PathVariable int page){return userService.findAll(page);}
+
+    @Deprecated
+    @GetMapping("/api/user/all/{page}")
+    public List<Account> findUserAll(@PathVariable int page){return userService.findAll();}
+
     @Operation(summary = "findUserById", description = "Id로 회원조회")
     @ApiResponses({
             @ApiResponse(responseCode = "Account Object", description = "검색 유저 return")

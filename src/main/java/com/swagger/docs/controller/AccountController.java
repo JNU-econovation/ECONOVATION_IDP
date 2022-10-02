@@ -42,7 +42,8 @@ public class AccountController {
 //    @ApiOperation(value = "reIssue")
     @Operation(summary = "토큰 재발행", description = "Refresh, Access Token 재발행")
     @ApiResponses({
-            @ApiResponse(responseCode = "HttpStatus.OK", description = "OK"),
+            @ApiResponse(description = "access, refreshToken"),
+            @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
     })
     @GetMapping("/api/account/re-issue")
     public ResponseEntity<LoginResponseDto> reIssue(@RequestParam("email") String email, @RequestParam("refreshToken") String refreshToken) {
@@ -53,7 +54,7 @@ public class AccountController {
     //  회원가입 기능 구현
     @Operation(summary = "회원가입", description = "회원 가입")
     @ApiResponses({
-            @ApiResponse(responseCode = "HttpStatus.CREATED", description = "CREATED"),
+            @ApiResponse(responseCode = "HttpStatus.CREATED", description = "CREATED")
     })
     @PostMapping("/api/account/sign-up")
     public ResponseEntity<BasicResponse> signUp(@RequestBody SignUpRequestDto signUpUser) {
@@ -65,7 +66,8 @@ public class AccountController {
     //     로그인 기능 구현
     @Operation(summary = "로그인", description = "로그인")
     @ApiResponses({
-            @ApiResponse(responseCode = "HttpStatus.OK", description = "CREATED"),
+            @ApiResponse(description = "access, refreshToken"),
+            @ApiResponse(responseCode = "HttpStatus.OK", description = "CREATED")
     })
     @PostMapping("/api/account/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginDto) {
