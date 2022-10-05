@@ -71,15 +71,15 @@ public class UserService implements UserDetailsService {
 
 
     @Transactional
-    public String setPassword(UserPasswordUpdateDto userPasswordUpdateDto){
+    public Account setPassword(UserPasswordUpdateDto userPasswordUpdateDto){
         Account user = userRepository.findUserByUserNameAndYear(userPasswordUpdateDto.getUserName(),userPasswordUpdateDto.getYear());
-        if(user.getPassword() == userPasswordUpdateDto.getPassword()){
+        String encodedPassword = passwordEncoder.encode(userPasswordUpdateDto.getPassword());
+        if(user.getPassword() == encodedPassword){
             throw new IllegalArgumentException(OVERLAP_PASSWORD_MESSAGE);
         }
-//        암호화
-        String password = passwordEncoder.encode(userPasswordUpdateDto.getPassword());
-        user.setPassword(password);
-        return password;
+        user.setPassword(encodedPassword);
+        return userRepository.save(user);
+
     }
 
 //    /**
@@ -92,10 +92,12 @@ public class UserService implements UserDetailsService {
         Pageable pageable = PageRequest.of(page, 8);
         return userRepository.findAll(pageable).stream().filter(u->u.getRole() == role).collect(Collectors.toList());
     }
+
     @Transactional
     public Long countAllUser(){
         return userRepository.count();
     }
+
     @Transactional
     public Long countUserByRole(String role){
         return userRepository.countAllByRole(role);
@@ -152,30 +154,6 @@ public class UserService implements UserDetailsService {
     }
 //    ----Account Authentication------------------------------------------------------------------
 
-    /**
-     * create One Account Data
-     * @Param userEmail : String!, password : String!, year : Int!, userName : String!
-     * @return Account
-     */
-    /*@Transactional
-    public Account createUser(UserCreateRequestDto userCreateRequestDto) {
-//        이메일 인증 절차
-        Account user = userCreateRequestDto.toEntity();
-//        중복 이메일 검사
-        Optional<Account> existUserEmail = userRepository.findByUserEmail(user.getUserEmail());
-
-//        없는 이메일일 경우에만 회원가입을 실시
-        if(userRepository.existsByUserEmail(userCreateRequestDto.getUserEmail())){
-            Account save = userRepository.save(user);
-            log.info(user.getUserName());
-            UUID token = confirmationTokenService.createEmailConfirmationToken(save.getId(), save.getUserEmail());
-            log.info("userId : ", save.getId());
-            return save;
-        }
-        throw new IllegalArgumentException(EXIST_ALREADY_USER_MESSAGE);
-    }
-*/
-//    ----------------------------------------
 
 
     /**

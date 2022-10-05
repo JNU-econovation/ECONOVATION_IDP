@@ -24,10 +24,13 @@ public class UserUpdateRequestDto {
     @NotNull
     private String role;
 
+    private String pinCode;
 
-    public UserUpdateRequestDto(String userEmail, Long year, String userName,String role) {
+
+    public UserUpdateRequestDto(String userEmail, Long year, String pinCode ,String userName,String role) {
         this.userEmail = userEmail;
         this.year = year;
+        this.pinCode = pinCode;
         this.userName = userName;
         this.role = role;
     }
@@ -37,6 +40,7 @@ public class UserUpdateRequestDto {
                 .userEmail(userEmail)
                 .year(year)
                 .userName(userName)
+                .pinCode(pinCode)
                 .role(role)
                 .build();
     }

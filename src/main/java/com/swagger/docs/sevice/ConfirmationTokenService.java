@@ -40,7 +40,7 @@ public class ConfirmationTokenService {
         mailMessage.setTo(receiverEmail);
         mailMessage.setSubject("회원가입 이메일 인증");
         mailMessage.setText("Econovation TechBlog 회원가입 인증 URL");
-        mailMessage.setText("http://168.131.30.127:8080/api/confirm-email/" + emailConfirmationToken.getId());
+        mailMessage.setText("http://localhost:8080/api/confirm-email/" + emailConfirmationToken.getId());
         emailSenderService.sendEmail(mailMessage);
 
         return emailConfirmationToken.getId();

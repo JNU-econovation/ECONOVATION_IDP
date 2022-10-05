@@ -52,7 +52,6 @@ public class JwtProvider {
                 .compact();
     }
 
-
 // accessToken 은 redis에 저장하지 않는다.
     public String createAccessToken(String userId, String role) {
         long tokenInvalidTime = 1000L * 60 * 3;//3m

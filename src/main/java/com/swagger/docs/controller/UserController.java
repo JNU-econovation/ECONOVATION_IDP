@@ -126,8 +126,7 @@ public class UserController {
             @ApiResponse(description = "비밀번호 수정")
     })
     @PostMapping("/api/user/set-password/")
-    public String setPassword(@Valid @ModelAttribute UserPasswordUpdateDto userPasswordUpdateDto){
+    public Account setPassword(@Valid @ModelAttribute UserPasswordUpdateDto userPasswordUpdateDto){
         return userService.setPassword(userPasswordUpdateDto);
     }
-
 }

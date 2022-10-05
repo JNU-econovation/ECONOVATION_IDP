@@ -1,6 +1,5 @@
 package com.swagger.docs.controller;
 
-import com.swagger.docs.domain.user.Account;
 import com.swagger.docs.domain.user.AuthUser;
 import com.swagger.docs.dto.LoginRequestDto;
 import com.swagger.docs.dto.LoginResponseDto;
@@ -30,9 +29,10 @@ public class AccountController {
             @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
     })
     @GetMapping("/api/account/logout")
-    public ResponseEntity<BasicResponse> logout(@AuthUser Account account, HttpServletRequest request) {
+//    public ResponseEntity<BasicResponse> logout(@AuthUser @RequestParam String userEmail, HttpServletRequest request) {
+    public ResponseEntity<BasicResponse> logout(@RequestParam String userEmail, HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization").substring(7);
-        accountService.logout(account.getUserEmail(), accessToken);
+        accountService.logout(userEmail, accessToken);
         BasicResponse response = new BasicResponse("로그아웃 완료", HttpStatus.OK);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -46,8 +46,8 @@ public class AccountController {
             @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
     })
     @GetMapping("/api/account/re-issue")
-    public ResponseEntity<LoginResponseDto> reIssue(@RequestParam("email") String email, @RequestParam("refreshToken") String refreshToken) {
-        LoginResponseDto responseDto = accountService.reIssueAccessToken(email, refreshToken);
+    public ResponseEntity<LoginResponseDto> reIssue(@RequestParam("userEmail") String userEmail, @RequestParam("refreshToken") String refreshToken) {
+        LoginResponseDto responseDto = accountService.reIssueAccessToken(userEmail, refreshToken);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
