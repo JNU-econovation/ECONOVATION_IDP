@@ -40,6 +40,7 @@ public class Account {
     @NotNull
     private String userEmail;
 
+    @Deprecated
     @Column(nullable = false)
     @NotNull
     private String pinCode;

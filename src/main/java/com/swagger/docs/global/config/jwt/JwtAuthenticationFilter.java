@@ -3,6 +3,7 @@ package com.swagger.docs.global.config.jwt;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,10 +17,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private final String NO_AUTHENTICATION_MESSAGE = "인증받지 못한 유저입니다.";
 
 //    public JwtAuthenticationFilter(JwtProvider jwtProvider) {
 //        this.jwtProvider = jwtProvider;
@@ -31,6 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null) {
             Authentication authentication = jwtProvider.validateToken(request, token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            log.info(NO_AUTHENTICATION_MESSAGE);
         }
         filterChain.doFilter(request, response);
     }
