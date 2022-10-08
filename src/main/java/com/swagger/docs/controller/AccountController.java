@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Account 관련 서비스", description = "회원가입, 로그인 등등")
 public class AccountController {
     private final AccountService accountService;
@@ -31,6 +33,7 @@ public class AccountController {
     @GetMapping("/api/account/logout")
 //    public ResponseEntity<BasicResponse> logout(@AuthUser @RequestParam String userEmail, HttpServletRequest request) {
     public ResponseEntity<BasicResponse> logout(@RequestParam String userEmail, HttpServletRequest request) {
+//        7번부터 빼야 bearer(+스페이스바) 빼고 토큰만 추출 가능
         String accessToken = request.getHeader("Authorization").substring(7);
         accountService.logout(userEmail, accessToken);
         BasicResponse response = new BasicResponse("로그아웃 완료", HttpStatus.OK);

@@ -67,12 +67,16 @@ public class JwtProvider {
         return refreshToken;
     }
 
-
     private String getUserEmail(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
     }
+
     private Date getExpiredTime(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getExpiration();
+        try {
+            return ((Claims)Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody()).getExpiration();
+        }catch (Exception e) {
+            return null;
+        }
     }
 
     public Authentication validateToken(HttpServletRequest request, String token) {

@@ -22,7 +22,6 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-
     @Deprecated
     @GetMapping("/api/user/all/{page}")
     public List<Account> findUserAll(@PathVariable int page){return userService.findAll();}
