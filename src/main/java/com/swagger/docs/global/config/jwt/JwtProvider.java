@@ -4,10 +4,12 @@ import com.swagger.docs.global.common.redis.RedisService;
 import com.swagger.docs.sevice.UserService;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -18,8 +20,9 @@ import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtProvider {
-    private final UserService customAccountDetailsService;
+    private final UserDetailsService customAccountDetailsService;
     private final RedisService redisService;
     @Value("${spring.jwt.secret-key}")
     private String secretKey;
@@ -52,7 +55,6 @@ public class JwtProvider {
                 .compact();
     }
 
-
 // accessToken 은 redis에 저장하지 않는다.
     public String createAccessToken(String userId, String role) {
         long tokenInvalidTime = 1000L * 60 * 3;//3m
@@ -66,12 +68,16 @@ public class JwtProvider {
         return refreshToken;
     }
 
-
     private String getUserEmail(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
     }
+
     private Date getExpiredTime(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getExpiration();
+        try {
+            return ((Claims)Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody()).getExpiration();
+        }catch (Exception e) {
+            return null;
+        }
     }
 
     public Authentication validateToken(HttpServletRequest request, String token) {

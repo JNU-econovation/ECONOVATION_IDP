@@ -23,13 +23,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-
 @AllArgsConstructor
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class UserService implements UserDetailsService {
-
 
     private static final String NOT_FOUND_USER_MESSAGE = "해당 회원을 찾을 수 없습니다";
     private static final String NOT_FOUND_EMAIL_MESSAGE = "해당 이메일을 찾을 수 없습니다.";
@@ -40,11 +38,7 @@ public class UserService implements UserDetailsService {
     private final AccountRepository userRepository;
     private final ConfirmationTokenService confirmationTokenService;
     private final PasswordEncoder passwordEncoder;
-//    @Autowired
-//    public UserService(UserRepository userRepository) {
-//        this.userRepository = userRepository;
-//        this.confirmationTokenService = confirmationTokenService;
-//    }
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Account account = userRepository.findAccountByUserEmail(email)
@@ -53,45 +47,40 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public String sendfindingPasswordConfirmationCode(String name, Long year){
-        //**이름, 기수를 받아 회원을 조회
-//         * 회원 이메일을 추출
-//         * 그 이메일로 난수 6글자를 보냄
-//         * *//*
-        List<Account> byUserName = userRepository.findByUserName(name).stream().filter(u->u.getYear() == year)
-                .collect(Collectors.toList());
-        Account first = byUserName.stream().findFirst().get();
-        String userEmail = first.getUserEmail();
-        return confirmationTokenService.createEmailConfirmationToken(userEmail);
+    public List<Account> findAll(){
+        return userRepository.findAll();
     }
+
 
 
     @Transactional
-    public String setPassword(UserPasswordUpdateDto userPasswordUpdateDto){
+    public Account setPassword(UserPasswordUpdateDto userPasswordUpdateDto){
         Account user = userRepository.findUserByUserNameAndYear(userPasswordUpdateDto.getUserName(),userPasswordUpdateDto.getYear());
-        if(user.getPassword() == userPasswordUpdateDto.getPassword()){
+        userRepository.findUserBy
+        String encodedPassword = passwordEncoder.encode(userPasswordUpdateDto.getPassword());
+        if(user.getPassword() == encodedPassword){
             throw new IllegalArgumentException(OVERLAP_PASSWORD_MESSAGE);
         }
-//        암호화
-        String password = passwordEncoder.encode(userPasswordUpdateDto.getPassword());
-        user.setPassword(password);
-        return password;
+        user.setPassword(encodedPassword);
+        return userRepository.save(user);
     }
 
-//    /**
-//     * Get All Account
-//     * @param int : page
-//     * @return Account
-//     */
+    /**
+     * Get All Account
+     * @param int : page, String role
+     * @return Account
+     */
     @Transactional
     public List<Account> findUserByRole(int page, String role){
         Pageable pageable = PageRequest.of(page, 8);
         return userRepository.findAll(pageable).stream().filter(u->u.getRole() == role).collect(Collectors.toList());
     }
+
     @Transactional
     public Long countAllUser(){
         return userRepository.count();
     }
+
     @Transactional
     public Long countUserByRole(String role){
         return userRepository.countAllByRole(role);
@@ -128,9 +117,9 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public Account findUserByYearAndUserName(UserFindDto userFindDto){
-        List<Account> findUser = userRepository.findByUserName(userFindDto.getUserName()).stream()
-                .filter(m -> m.getUserName().equals(userFindDto.getUserName()))
+    public Account findUserByYearAndUserName(String userName, Long year){
+        List<Account> findUser = userRepository.findByUserName(userName).stream()
+                .filter(m -> m.getYear().equals(year))
                 .collect(Collectors.toList());
         if(findUser.isEmpty()){
             throw new IllegalArgumentException(NOT_CORRECT_USER_MESSAGE);
@@ -148,30 +137,6 @@ public class UserService implements UserDetailsService {
     }
 //    ----Account Authentication------------------------------------------------------------------
 
-    /**
-     * create One Account Data
-     * @Param userEmail : String!, password : String!, year : Int!, userName : String!
-     * @return Account
-     */
-    /*@Transactional
-    public Account createUser(UserCreateRequestDto userCreateRequestDto) {
-//        이메일 인증 절차
-        Account user = userCreateRequestDto.toEntity();
-//        중복 이메일 검사
-        Optional<Account> existUserEmail = userRepository.findByUserEmail(user.getUserEmail());
-
-//        없는 이메일일 경우에만 회원가입을 실시
-        if(userRepository.existsByUserEmail(userCreateRequestDto.getUserEmail())){
-            Account save = userRepository.save(user);
-            log.info(user.getUserName());
-            UUID token = confirmationTokenService.createEmailConfirmationToken(save.getId(), save.getUserEmail());
-            log.info("userId : ", save.getId());
-            return save;
-        }
-        throw new IllegalArgumentException(EXIST_ALREADY_USER_MESSAGE);
-    }
-*/
-//    ----------------------------------------
 
 
     /**

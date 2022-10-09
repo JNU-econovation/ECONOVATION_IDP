@@ -1,6 +1,7 @@
 package com.swagger.docs.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.swagger.docs.exception.ErrorResult;
 import com.swagger.docs.global.common.BasicResponse;
 import com.swagger.docs.global.config.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -11,14 +12,30 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.io.PrintWriter;
 
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final ObjectMapper objectMapper;
+    private final String UNAUTHORIZEd_CUSTOM_MESSAGE = "넌 accessHandler에서 걸렸어 임마";
+
+/*
+    private final AccessDeniedHandler accessDeniedHandler =
+            (request, response, accessDeniedException) -> {
+                ErrorResult fail = new ErrorResult("401", "fail했다 임마");
+                response.setStatus(HttpStatus.FORBIDDEN.value());
+                String json = objectMapper.writeValueAsString(fail);
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                PrintWriter writer = response.getWriter();
+                writer.write(json);
+                writer.flush();
+            };
+*/
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -26,47 +43,35 @@ public class SecurityConfig {
                 .authorizeRequests()
 //                .antMatchers("/api/v1/**").hasAuthority(USER.name())
                 .and()
-                .httpBasic().disable()
+//                .httpBasic().disable()
                 .cors().disable()
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                특정 URL 차단 및 접근권한 설정
                 .and()
                 .authorizeRequests()// 시큐리티 처리에 HttpServeltRequest를 사용합니다.
-                .anyRequest().permitAll()
+                .antMatchers("/api/user/**").hasAuthority("USER")
+                .antMatchers("/api/account/**").permitAll()
+//                ErrorHandling 처리
                 .and()
 //                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)  //JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 전에 넣는다
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)  //JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 전에 넣는다
-                .exceptionHandling()    //Exception Handler
+                .exceptionHandling()
+//                .accessDeniedHandler(accessDeniedHandler)
+                //Exception Handler ( 예외 발생 시, UNAUTHORIZED 처리 )
                 .authenticationEntryPoint(((request, response, authException) -> {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    PrintWriter writer = response.getWriter();
+                    String json = objectMapper.writeValueAsString(UNAUTHORIZEd_CUSTOM_MESSAGE);
+                    writer.write(json);
+                    writer.flush();
+
                     objectMapper.writeValue(
                             response.getOutputStream(),
                             new BasicResponse("exception event",HttpStatus.FORBIDDEN)
                     );
                 })).and().build();
-//                AccessDenied Handler
-
-
+//                .build();
     }
-//
-//    @Bean
-//    protected void configure(HttpSecurity http) throws Exception {
-//        http
-//                .csrf().disable()  //  security login 해제
-//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 토큰 기반 인증이므로 세션 X
-//                .and()
-//                .authorizeRequests()
-//                .antMatchers("/join", "/login", "/user/signup", "/user/login", "/exception/**", "/configuration/**")
-//                .permitAll()
-//                .antMatchers("/swagger/api-docs", "/swagger-ui*/**", "/webjars/**")
-//                .permitAll()
-////                .antMatchers("/admin/**").hasRole("ADMIN")
-////                .antMatchers("/user/**").hasRole("USER")
-////                .anyRequest().authenticated()
-//                .and()
-//                .addFilterBefore(jwtAuthenticationFilter,
-//                        UsernamePasswordAuthenticationFilter.class);
-//
-//    }
 }

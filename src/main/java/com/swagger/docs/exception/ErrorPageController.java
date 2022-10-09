@@ -23,6 +23,7 @@ public class ErrorPageController {
     public static final String ERROR_REQUEST_URI = "javax.servlet.error.request_uri";
     public static final String ERROR_SERVLET_NAME = "javax.servlet.error.servlet_name";
     public static final String ERROR_STATUS_CODE = "javax.servlet.error.status_code";
+
     @RequestMapping("/error-page/404")
     public String errorPage404(HttpServletRequest request, HttpServletResponse
             response) {
@@ -30,6 +31,7 @@ public class ErrorPageController {
         printErrorInfo(request);
         return "error-page/404";
     }
+
 /*    @RequestMapping("/error-page/500")
     public String errorPage500(HttpServletRequest request, HttpServletResponse
             response) {
@@ -37,6 +39,7 @@ public class ErrorPageController {
         printErrorInfo(request);
         return "error-page/500";
     }*/
+
     @RequestMapping(value = "/error-page/500", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> errorPage500Api(HttpServletRequest request, HttpServletResponse response) {
         log.info("API errorPage 500");
