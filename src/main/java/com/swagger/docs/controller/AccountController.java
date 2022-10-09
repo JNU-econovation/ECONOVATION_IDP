@@ -1,6 +1,5 @@
 package com.swagger.docs.controller;
 
-import com.swagger.docs.domain.user.AuthUser;
 import com.swagger.docs.dto.LoginRequestDto;
 import com.swagger.docs.dto.LoginResponseDto;
 import com.swagger.docs.dto.SignUpRequestDto;
@@ -23,7 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 @Tag(name = "Account 관련 서비스", description = "회원가입, 로그인 등등")
 public class AccountController {
-    private final AccountService accountService;
+    private final AccountJwtService accountJwtService;
+    private final AccountSignUpService accountSignUpService;
 
     //    로그아웃 기능 구현
     @Operation(summary = "logout", description = "로그아웃")
@@ -35,7 +35,7 @@ public class AccountController {
     public ResponseEntity<BasicResponse> logout(@RequestParam String userEmail, HttpServletRequest request) {
 //        7번부터 빼야 bearer(+스페이스바) 빼고 토큰만 추출 가능
         String accessToken = request.getHeader("Authorization").substring(7);
-        accountService.logout(userEmail, accessToken);
+        accountJwtService.logout(userEmail, accessToken);
         BasicResponse response = new BasicResponse("로그아웃 완료", HttpStatus.OK);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -50,7 +50,7 @@ public class AccountController {
     })
     @GetMapping("/api/account/re-issue")
     public ResponseEntity<LoginResponseDto> reIssue(@RequestParam("userEmail") String userEmail, @RequestParam("refreshToken") String refreshToken) {
-        LoginResponseDto responseDto = accountService.reIssueAccessToken(userEmail, refreshToken);
+        LoginResponseDto responseDto = accountJwtService.reIssueAccessToken(userEmail, refreshToken);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
@@ -61,7 +61,7 @@ public class AccountController {
     })
     @PostMapping("/api/account/sign-up")
     public ResponseEntity<BasicResponse> signUp(@RequestBody SignUpRequestDto signUpUser) {
-        accountService.signUp(signUpUser.getUserName(),signUpUser.getYear(),signUpUser.getUserEmail(), signUpUser.getPinCode(), signUpUser.getPassword());
+        accountSignUpService.signUp(signUpUser.getUserName(),signUpUser.getYear(),signUpUser.getUserEmail(), signUpUser.getPinCode(), signUpUser.getPassword());
         BasicResponse response = new BasicResponse("회원가입 성공", HttpStatus.CREATED);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -74,7 +74,7 @@ public class AccountController {
     })
     @PostMapping("/api/account/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginDto) {
-        LoginResponseDto responseDto = accountService.login(loginDto.getUserEmail(), loginDto.getPassword());
+        LoginResponseDto responseDto = accountJwtService.login(loginDto.getUserEmail(), loginDto.getPassword());
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 

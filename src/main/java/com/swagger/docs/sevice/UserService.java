@@ -40,11 +40,7 @@ public class UserService implements UserDetailsService {
     private final AccountRepository userRepository;
     private final ConfirmationTokenService confirmationTokenService;
     private final PasswordEncoder passwordEncoder;
-//    @Autowired
-//    public UserService(UserRepository userRepository) {
-//        this.userRepository = userRepository;
-//        this.confirmationTokenService = confirmationTokenService;
-//    }
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Account account = userRepository.findAccountByUserEmail(email)
@@ -82,11 +78,11 @@ public class UserService implements UserDetailsService {
 
     }
 
-//    /**
-//     * Get All Account
-//     * @param int : page
-//     * @return Account
-//     */
+    /**
+     * Get All Account
+     * @param int : page, String role
+     * @return Account
+     */
     @Transactional
     public List<Account> findUserByRole(int page, String role){
         Pageable pageable = PageRequest.of(page, 8);

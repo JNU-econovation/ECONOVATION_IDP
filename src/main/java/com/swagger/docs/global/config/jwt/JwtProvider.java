@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -21,7 +22,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtProvider {
-    private final UserService customAccountDetailsService;
+    private final UserDetailsService customAccountDetailsService;
     private final RedisService redisService;
     @Value("${spring.jwt.secret-key}")
     private String secretKey;
