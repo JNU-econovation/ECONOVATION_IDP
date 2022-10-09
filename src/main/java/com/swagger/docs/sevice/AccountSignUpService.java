@@ -12,12 +12,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @AllArgsConstructor
 @Transactional(rollbackFor = Exception.class)
 public class AccountSignUpService {
     private final PasswordEncoder passwordEncoder;
     private final AccountRepository accountRepository;
+    private final ConfirmationTokenService confirmationTokenService;
     //   회원가입
     @Transactional
     public void signUp(String userName,Long year,String userEmail,String pinCode, String password) {
@@ -34,6 +38,21 @@ public class AccountSignUpService {
         if(isDuplicate){
             throw new BadRequestException("이미 존재하는 회원입니다");
         }
+    }
+
+
+    /**이름, 기수를 받아 회원을 조회
+     * 회원 이메일을 추출
+     * 그 이메일로 난수 6글자를 보냄
+     * 회원가입
+     * */
+    @Transactional
+    public String sendfindingPasswordConfirmationCode(String name, Long year){
+        List<Account> byUserName = accountRepository.findByUserName(name).stream().filter(u->u.getYear() == year)
+                .collect(Collectors.toList());
+        String userEmail = byUserName.stream().findFirst().get().getUserEmail();
+//        String userEmail = first.getUserEmail();
+        return confirmationTokenService.createEmailConfirmationToken(userEmail);
     }
 
 }

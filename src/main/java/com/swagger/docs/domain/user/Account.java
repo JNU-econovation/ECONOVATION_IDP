@@ -9,7 +9,6 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -47,6 +46,10 @@ public class Account {
 
     @Column(nullable = false)
     private String role;
+
+    public void setPassword(String password){
+        this.password = password;
+    }
 
     public Account(Long year, String userName, String password, String userEmail, String pinCode) {
         this.year = year;

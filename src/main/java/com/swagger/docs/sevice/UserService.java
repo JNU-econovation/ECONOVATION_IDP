@@ -23,13 +23,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-
 @AllArgsConstructor
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class UserService implements UserDetailsService {
-
 
     private static final String NOT_FOUND_USER_MESSAGE = "해당 회원을 찾을 수 없습니다";
     private static final String NOT_FOUND_EMAIL_MESSAGE = "해당 이메일을 찾을 수 없습니다.";
@@ -52,30 +50,19 @@ public class UserService implements UserDetailsService {
     public List<Account> findAll(){
         return userRepository.findAll();
     }
-    @Transactional
-    public String sendfindingPasswordConfirmationCode(String name, Long year){
-        //**이름, 기수를 받아 회원을 조회
-//         * 회원 이메일을 추출
-//         * 그 이메일로 난수 6글자를 보냄
-//         * *//*
-        List<Account> byUserName = userRepository.findByUserName(name).stream().filter(u->u.getYear() == year)
-                .collect(Collectors.toList());
-        Account first = byUserName.stream().findFirst().get();
-        String userEmail = first.getUserEmail();
-        return confirmationTokenService.createEmailConfirmationToken(userEmail);
-    }
+
 
 
     @Transactional
     public Account setPassword(UserPasswordUpdateDto userPasswordUpdateDto){
         Account user = userRepository.findUserByUserNameAndYear(userPasswordUpdateDto.getUserName(),userPasswordUpdateDto.getYear());
+        userRepository.findUserBy
         String encodedPassword = passwordEncoder.encode(userPasswordUpdateDto.getPassword());
         if(user.getPassword() == encodedPassword){
             throw new IllegalArgumentException(OVERLAP_PASSWORD_MESSAGE);
         }
         user.setPassword(encodedPassword);
         return userRepository.save(user);
-
     }
 
     /**
@@ -130,9 +117,9 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public Account findUserByYearAndUserName(UserFindDto userFindDto){
-        List<Account> findUser = userRepository.findByUserName(userFindDto.getUserName()).stream()
-                .filter(m -> m.getUserName().equals(userFindDto.getUserName()))
+    public Account findUserByYearAndUserName(String userName, Long year){
+        List<Account> findUser = userRepository.findByUserName(userName).stream()
+                .filter(m -> m.getYear().equals(year))
                 .collect(Collectors.toList());
         if(findUser.isEmpty()){
             throw new IllegalArgumentException(NOT_CORRECT_USER_MESSAGE);

@@ -21,7 +21,7 @@ import java.util.List;
 @Tag(name = "WebApplication User 제공 서비스", description = "유저 정보 조회")
 public class UserController {
     private final UserService userService;
-
+    private final AccountSignUpService accountSignUpService;
     @Deprecated
     @GetMapping("/api/user/all/{page}")
     public List<Account> findUserAll(@PathVariable int page){return userService.findAll();}
@@ -79,8 +79,8 @@ public class UserController {
             @ApiResponse(description = "Email에 따른 회원 조횐 return")
     })
     @GetMapping("/api/user/find-email/")
-    public Account findEmail(@Valid @ModelAttribute UserFindDto userFindDto){
-            return userService.findUserByYearAndUserName(userFindDto);
+    public Account findEmail(@Valid UserFindDto userFindDto){
+            return userService.findUserByYearAndUserName(userFindDto.getUserName(),userFindDto.getYear());
             }
 
     @Operation(summary = "Email로 회원 조회", description = "이메일로 회원 조회")
@@ -95,7 +95,7 @@ public class UserController {
             @ApiResponse(description = "Role에 따른 회원 조회 return")
     })
     @PostMapping("/api/user/{userId}")
-    public Account updateUser(@PathVariable Long userId, @ModelAttribute UserUpdateRequestDto userUpdateRequestDto) {
+    public Account updateUser(@PathVariable Long userId, UserUpdateRequestDto userUpdateRequestDto) {
             return userService.updateUser(userId, userUpdateRequestDto);
             }
 
@@ -115,9 +115,9 @@ public class UserController {
             @ApiResponse(description = "이메일 보낸 인증 Code")
     })
     @PostMapping("/api/user/find-password")
-    public String findPassword(@Valid @ModelAttribute UserFindDto userFindDto){
+    public String findPassword(@Valid UserFindDto userFindDto){
     //        Code를 이메일로 보내기
-            return userService.sendfindingPasswordConfirmationCode(userFindDto.getUserName(),userFindDto.getYear());
+            return accountSignUpService.sendfindingPasswordConfirmationCode(userFindDto.getUserName(),userFindDto.getYear());
         }
 
     @Operation(summary = "비밀번호 수정", description = "비밀번호 수정")
@@ -125,7 +125,7 @@ public class UserController {
             @ApiResponse(description = "비밀번호 수정")
     })
     @PostMapping("/api/user/set-password/")
-    public Account setPassword(@Valid @ModelAttribute UserPasswordUpdateDto userPasswordUpdateDto){
+    public Account setPassword(@Valid UserPasswordUpdateDto userPasswordUpdateDto){
         return userService.setPassword(userPasswordUpdateDto);
     }
 }

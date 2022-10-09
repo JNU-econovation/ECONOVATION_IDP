@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Range;
 
-@Data
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserPasswordUpdateDto {
