@@ -21,7 +21,6 @@ import java.util.List;
 @Tag(name = "WebApplication User 제공 서비스", description = "유저 정보 조회")
 public class UserController {
     private final UserService userService;
-    private final AccountSignUpService accountSignUpService;
     @Deprecated
     @GetMapping("/api/user/all/{page}")
     public List<Account> findUserAll(@PathVariable int page){return userService.findAll();}
@@ -109,20 +108,9 @@ public class UserController {
             return userId;
             }
 
-    //  비밀번호 수정을 위한 인증번호 출력.
     @Operation(summary = "비밀번호 수정전 인증 이메일 보내기", description = "비밀번호수정 이메일 보내기 ")
     @ApiResponses({
             @ApiResponse(description = "이메일 보낸 인증 Code")
-    })
-    @PostMapping("/api/user/find-password")
-    public String findPassword(@Valid UserFindDto userFindDto){
-    //        Code를 이메일로 보내기
-            return accountSignUpService.sendfindingPasswordConfirmationCode(userFindDto.getUserName(),userFindDto.getYear());
-        }
-
-    @Operation(summary = "비밀번호 수정", description = "비밀번호 수정")
-    @ApiResponses({
-            @ApiResponse(description = "비밀번호 수정")
     })
     @PostMapping("/api/user/set-password/")
     public Account setPassword(@Valid UserPasswordUpdateDto userPasswordUpdateDto){

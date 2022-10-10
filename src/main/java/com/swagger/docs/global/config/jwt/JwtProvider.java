@@ -37,14 +37,17 @@ public class JwtProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public void logout(String userId, String accessToken) {
-        long expiredAccessTokenTime = getExpiredTime(accessToken).getTime() - new Date().getTime();
-        redisService.setValues(blackListATPrefix + accessToken, userId, Duration.ofMillis(expiredAccessTokenTime));
-        redisService.deleteValues(userId); // Delete RefreshToken In Redis
+    public void logout(String refreshToken) {
+        long expiredAccessTokenTime = getExpiredTime(refreshToken).getTime() - new Date().getTime();
+//        이메일 조회
+//        accessToken To userEmail
+        String userEmail = getUserEmail(refreshToken);
+        redisService.setValues(blackListATPrefix + refreshToken, userEmail, Duration.ofMillis(expiredAccessTokenTime));
+        redisService.deleteValues(userEmail); // Delete RefreshToken In Redis
     }
 
-    private String createToken(String userId, String role, long tokenInvalidTime) {
-        Claims claims = Jwts.claims().setSubject(userId);
+    private String createToken(String userEmail, String role, long tokenInvalidTime) {
+        Claims claims = Jwts.claims().setSubject(userEmail);
         claims.put("roles", role);
         Date date = new Date();
         return Jwts.builder()
@@ -60,6 +63,7 @@ public class JwtProvider {
         long tokenInvalidTime = 1000L * 60 * 3;//3m
         return this.createToken(userId, role, tokenInvalidTime);
     }
+
 // refreshToken 은 redis 에 저장해야한다.
     public String createRefreshToken(String userId, String role) {
         Long tokenInvalidTime = 1000L * 60 * 60 * 24; // 1d

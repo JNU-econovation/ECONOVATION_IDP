@@ -4,6 +4,7 @@ import com.swagger.docs.domain.auth.ConfirmationToken;
 import com.swagger.docs.domain.auth.ConfirmationTokenRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,8 @@ import java.util.UUID;
 public class ConfirmationTokenService {
     private final ConfirmationTokenRepository confirmationTokenRepository;
     private final EmailSenderService emailSenderService;
+    @Value("${sending.email}")
+    private String destinationEmail;
 
     @Autowired
     public ConfirmationTokenService(ConfirmationTokenRepository confirmationTokenRepository, EmailSenderService emailSenderService) {
@@ -28,7 +31,7 @@ public class ConfirmationTokenService {
 //    ValidationConstant.TOKEN_NOT_FOUND
 
     /**
-     * 이메일 인증 토큰 생성
+     * 이메일 인증 랜덤 토큰 생성
      * 토큰 생성 != 인증
      * 이후 인증을 해야 토큰에 인증 expired 를 true로 바꿔준다.
      */
@@ -40,19 +43,23 @@ public class ConfirmationTokenService {
         mailMessage.setTo(receiverEmail);
         mailMessage.setSubject("회원가입 이메일 인증");
         mailMessage.setText("Econovation TechBlog 회원가입 인증 URL");
-        mailMessage.setText("http://localhost:8080/api/confirm-email/" + emailConfirmationToken.getId());
+        mailMessage.setText("http://"+destinationEmail+"/api/confirm-email/" + emailConfirmationToken.getId());
         emailSenderService.sendEmail(mailMessage);
 
         return emailConfirmationToken.getId();
     }
-
+    /**
+     * 이메일 인증 번호(6자리) 생성
+     * 토큰 생성 != 인증
+     * 이후 인증을 해야 토큰에 인증 expired 를 true로 바꿔준다.
+     */
     public String createEmailConfirmationToken(String receiverEmail) {
         String code = makeRandomCode();
-
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(receiverEmail);
         mailMessage.setSubject("비밀번호 검색 인증");
         mailMessage.setText("Econovation TechBlog 회원가입 인증 URL");
+
         mailMessage.setText(code);
         emailSenderService.sendEmail(mailMessage);
         return code;

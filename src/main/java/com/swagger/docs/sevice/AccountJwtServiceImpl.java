@@ -26,19 +26,24 @@ public class AccountJwtServiceImpl implements AccountJwtService{
         return new LoginResponseDto(accessToken, refreshToken);
     }
 
+    @Transactional
+    public LoginResponseDto getToken(Account account){
+        String accessToken = jwtProvider.createAccessToken(account.getUserEmail(), account.getRole());
+        String refreshToken = jwtProvider.createRefreshToken(account.getUserEmail(), account.getRole());
+        return new LoginResponseDto(accessToken, refreshToken);
+    }
+
     @Override
     @Transactional
     public LoginResponseDto login(String email, String password) {
         Account account = accountRepository
                 .findAccountByUserEmail(email).orElseThrow(() -> new BadRequestException("아이디 혹은 비밀번호를 확인하세요"));
         checkPassword(password, account.getPassword());
-        String accessToken = jwtProvider.createAccessToken(account.getUserEmail(), account.getRole());
-        String refreshToken = jwtProvider.createRefreshToken(account.getUserEmail(), account.getRole());
-        return new LoginResponseDto(accessToken, refreshToken);
+        return getToken(account);
     }
     @Override
-    public void logout(String email, String accessToken) {
-        jwtProvider.logout(email, accessToken);
+    public void logout(String refreshToken) {
+        jwtProvider.logout(refreshToken);
     }
 
 

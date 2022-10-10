@@ -40,7 +40,6 @@ public class AccountSignUpService {
         }
     }
 
-
     /**이름, 기수를 받아 회원을 조회
      * 회원 이메일을 추출
      * 그 이메일로 난수 6글자를 보냄

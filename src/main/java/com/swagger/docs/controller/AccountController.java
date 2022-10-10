@@ -11,11 +11,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,24 +30,28 @@ public class AccountController {
     private final AccountJwtService accountJwtService;
     private final AccountSignUpService accountSignUpService;
 
+    @Value("${login.redirect_url}")
+    private String loginPageUrl;
+
     //    로그아웃 기능 구현
-    @Operation(summary = "logout", description = "로그아웃")
+    @Operation(summary = "logout", description = "로그아웃_에이전트, 로그아웃시 redirect 페이지로 이동")
     @ApiResponses({
             @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
     })
     @GetMapping("/api/account/logout")
-//    public ResponseEntity<BasicResponse> logout(@AuthUser @RequestParam String userEmail, HttpServletRequest request) {
-    public ResponseEntity<BasicResponse> logout(@RequestParam String userEmail, HttpServletRequest request) {
+    public ResponseEntity<BasicResponse> logout(@RequestParam String redirectUrl, HttpServletRequest request) throws URISyntaxException {
 //        7번부터 빼야 bearer(+스페이스바) 빼고 토큰만 추출 가능
-        String accessToken = request.getHeader("Authorization").substring(7);
-        accountJwtService.logout(userEmail, accessToken);
+        String refreshToken = request.getHeader("Authorization").substring(7);
+
+        accountJwtService.logout(refreshToken);
+        URI redirectUri = new URI(redirectUrl);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(redirectUri);
+
         BasicResponse response = new BasicResponse("로그아웃 완료", HttpStatus.OK);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response,httpHeaders, HttpStatus.OK);
     }
 
-
-    //    RefreshToken, AccessToken 재발행
-//    @ApiOperation(value = "reIssue")
     @Operation(summary = "토큰 재발행", description = "Refresh, Access Token 재발행")
     @ApiResponses({
             @ApiResponse(description = "access, refreshToken"),
@@ -66,16 +75,32 @@ public class AccountController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    //     로그인 기능 구현
-    @Operation(summary = "로그인", description = "로그인")
+    // 로그인 기능 구현
+    @Operation(summary = "로그인 Agent URL 이동", description = "로그인 페이지로 이동")
+    @ApiResponses({
+            @ApiResponse(responseCode = "HttpStatus.OK", description = "Header.Location : requestUrl ")
+    })
+    @PostMapping("/api/account/login")
+    public ResponseEntity<Model> login(String requestUrl, Model model) throws URISyntaxException {
+        URI redirectUri = new URI(loginPageUrl);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(redirectUri);
+        model.addAttribute("requestUrl", requestUrl);
+        return new ResponseEntity<>(model,httpHeaders, HttpStatus.OK);
+    }
+
+    // 로그인 인증
+    @Operation(summary = "로그인 페이지 처리", description = "로그인완료 후 원래 페이지로 이동")
     @ApiResponses({
             @ApiResponse(description = "access, refreshToken"),
             @ApiResponse(responseCode = "HttpStatus.OK", description = "CREATED")
     })
-    @PostMapping("/api/account/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginDto) {
+    @PostMapping("/api/account/login/process")
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginDto) throws URISyntaxException {
         LoginResponseDto responseDto = accountJwtService.login(loginDto.getUserEmail(), loginDto.getPassword());
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        URI redirectUri = new URI(loginDto.getRedirectUrl());
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(redirectUri);
+        return new ResponseEntity<>(responseDto, httpHeaders, HttpStatus.OK);
     }
-
 }

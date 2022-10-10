@@ -2,6 +2,7 @@ package com.swagger.docs.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpHeaders;
 
 @Getter
 @AllArgsConstructor
