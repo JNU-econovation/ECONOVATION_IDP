@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,7 +39,6 @@ public class AccountController {
             @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
     })
     @GetMapping("/api/account/logout")
-//    public ResponseEntity<BasicResponse> logout(@AuthUser @RequestParam String userEmail, HttpServletRequest request) {
     public ResponseEntity<BasicResponse> logout(@RequestParam String userEmail, HttpServletRequest request) {
 //        7번부터 빼야 bearer(+스페이스바) 빼고 토큰만 추출 가능
         String accessToken = request.getHeader("Authorization").substring(7);
@@ -73,24 +73,32 @@ public class AccountController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    //     로그인 기능 구현
-    @Operation(summary = "로그인 Agent", description = "로그인후 원래 페이지로 이동")
+    // 로그인 기능 구현
+    @Operation(summary = "로그인 Agent URL 이동", description = "로그인 페이지로 이동")
+    @ApiResponses({
+            @ApiResponse(responseCode = "HttpStatus.OK", description = "Header.Location : requestUrl ")
+    })
+    @PostMapping("/api/account/login/{requestUrl}")
+    public ResponseEntity<Model> login(@RequestParam String requestUrl, Model model) throws URISyntaxException {
+        URI redirectUri = new URI(url);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(redirectUri);
+        model.addAttribute("requestUrl", requestUrl);
+        return new ResponseEntity<>(model,httpHeaders, HttpStatus.OK);
+    }
+
+    // 로그인 인증
+    @Operation(summary = "로그인 페이지 처리", description = "로그인완료 후 원래 페이지로 이동")
     @ApiResponses({
             @ApiResponse(description = "access, refreshToken"),
             @ApiResponse(responseCode = "HttpStatus.OK", description = "CREATED")
     })
-//    @PostMapping("/api/account/login")
-//    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginDto) {
-//        LoginResponseDto responseDto = accountJwtService.login(loginDto.getUserEmail(), loginDto.getPassword());
-//        return new ResponseEntity<>(responseDto, HttpStatus.OK);
-//    }
-    @PostMapping("/api/account/login")
+    @PostMapping("/api/account/login/")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginDto) throws URISyntaxException {
         LoginResponseDto responseDto = accountJwtService.login(loginDto.getUserEmail(), loginDto.getPassword());
-        URI redirectUri = new URI(url);
+        URI redirectUri = new URI(loginDto.getRedirectUrl());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
         return new ResponseEntity<>(responseDto, httpHeaders, HttpStatus.OK);
     }
-
 }
