@@ -42,8 +42,8 @@ public class AccountJwtServiceImpl implements AccountJwtService{
         return getToken(account);
     }
     @Override
-    public void logout(String email, String accessToken) {
-        jwtProvider.logout(email, accessToken);
+    public void logout(String refreshToken) {
+        jwtProvider.logout(refreshToken);
     }
 
 
