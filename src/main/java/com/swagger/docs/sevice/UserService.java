@@ -19,8 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -51,12 +49,9 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-
-
     @Transactional
     public Account setPassword(UserPasswordUpdateDto userPasswordUpdateDto){
         Account user = userRepository.findUserByUserNameAndYear(userPasswordUpdateDto.getUserName(),userPasswordUpdateDto.getYear());
-        userRepository.findUserBy
         String encodedPassword = passwordEncoder.encode(userPasswordUpdateDto.getPassword());
         if(user.getPassword() == encodedPassword){
             throw new IllegalArgumentException(OVERLAP_PASSWORD_MESSAGE);

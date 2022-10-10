@@ -11,11 +11,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,6 +28,9 @@ import javax.servlet.http.HttpServletRequest;
 public class AccountController {
     private final AccountJwtService accountJwtService;
     private final AccountSignUpService accountSignUpService;
+
+    @Value("${login.redirect_url}")
+    private String url;
 
     //    로그아웃 기능 구현
     @Operation(summary = "logout", description = "로그아웃")
@@ -67,15 +74,23 @@ public class AccountController {
     }
 
     //     로그인 기능 구현
-    @Operation(summary = "로그인", description = "로그인")
+    @Operation(summary = "로그인 Agent", description = "로그인후 원래 페이지로 이동")
     @ApiResponses({
             @ApiResponse(description = "access, refreshToken"),
             @ApiResponse(responseCode = "HttpStatus.OK", description = "CREATED")
     })
+//    @PostMapping("/api/account/login")
+//    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginDto) {
+//        LoginResponseDto responseDto = accountJwtService.login(loginDto.getUserEmail(), loginDto.getPassword());
+//        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+//    }
     @PostMapping("/api/account/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginDto) {
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginDto) throws URISyntaxException {
         LoginResponseDto responseDto = accountJwtService.login(loginDto.getUserEmail(), loginDto.getPassword());
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        URI redirectUri = new URI(url);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(redirectUri);
+        return new ResponseEntity<>(responseDto, httpHeaders, HttpStatus.OK);
     }
 
 }
