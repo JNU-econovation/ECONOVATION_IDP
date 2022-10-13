@@ -110,8 +110,8 @@ public class AccountController {
             @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
     })
     @GetMapping("/api/account/re-issue")
-    public ResponseEntity<LoginResponseDto> reIssue( @RequestParam("refreshToken") String refreshToken) {
-        return;
+    public ResponseEntity<BasicResponse> checkValideToken( @RequestParam("refreshToken") String refreshToken) {
+        return
     }
 
 }
