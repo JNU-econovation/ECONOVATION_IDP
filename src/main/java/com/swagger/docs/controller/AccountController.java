@@ -86,6 +86,7 @@ public class AccountController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
         model.addAttribute("requestUrl", requestUrl);
+        log.info("requestUrl" + requestUrl);
         return new ResponseEntity<>(model,httpHeaders, HttpStatus.OK);
     }
 
@@ -101,6 +102,18 @@ public class AccountController {
         URI redirectUri = new URI(loginDto.getRedirectUrl());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
+        log.info("redirectUrl" + redirectUrl);
         return new ResponseEntity<>(responseDto, httpHeaders, HttpStatus.OK);
     }
+
+    @Operation(summary = "토큰 사용가능 여부 확인", description = "Access Token 사용 가능 여부 확인")
+    @ApiResponses({
+            @ApiResponse(description = "access, refreshToken"),
+            @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
+    })
+    @GetMapping("/api/account/re-issue")
+    public ResponseEntity<BasicResponse> checkValideToken( @RequestParam("refreshToken") String refreshToken) {
+        return
+    }
+
 }
