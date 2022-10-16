@@ -86,6 +86,7 @@ public class AccountController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
         model.addAttribute("requestUrl", requestUrl);
+        log.info("requestUrl" + requestUrl);
         return new ResponseEntity<>(model,httpHeaders, HttpStatus.OK);
     }
 
