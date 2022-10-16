@@ -101,6 +101,7 @@ public class AccountController {
         URI redirectUri = new URI(loginDto.getRedirectUrl());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
+        log.info("redirectUrl" + redirectUrl);
         return new ResponseEntity<>(responseDto, httpHeaders, HttpStatus.OK);
     }
 
