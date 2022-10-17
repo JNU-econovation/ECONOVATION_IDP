@@ -3,6 +3,7 @@ package com.swagger.docs.controller;
 import com.swagger.docs.dto.LoginRequestDto;
 import com.swagger.docs.dto.LoginResponseDto;
 import com.swagger.docs.dto.SignUpRequestDto;
+import com.swagger.docs.global.config.jwt.JwtProvider;
 import com.swagger.docs.sevice.*;
 import com.swagger.docs.global.common.BasicResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +31,7 @@ import java.net.URISyntaxException;
 public class AccountController {
     private final AccountJwtService accountJwtService;
     private final AccountSignUpService accountSignUpService;
-
+    private final JwtProvider jwtProvider;
     @Value("${login.redirect_url}")
     private String loginPageUrl;
 
@@ -102,7 +104,7 @@ public class AccountController {
         URI redirectUri = new URI(loginDto.getRedirectUrl());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
-        log.info("redirectUrl" + redirectUrl);
+        log.info("redirectUrl" + redirectUri);
         return new ResponseEntity<>(responseDto, httpHeaders, HttpStatus.OK);
     }
 
@@ -112,8 +114,13 @@ public class AccountController {
             @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
     })
     @GetMapping("/api/account/re-issue")
-    public ResponseEntity<BasicResponse> checkValideToken( @RequestParam("refreshToken") String refreshToken) {
-        return
+    public ResponseEntity<BasicResponse> checkValideToken(HttpServletRequest request, @RequestParam("refreshToken") String refreshToken) {
+        Authentication authentication = jwtProvider.validateToken(request, refreshToken);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        if(authentication.isAuthenticated()){
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
 }

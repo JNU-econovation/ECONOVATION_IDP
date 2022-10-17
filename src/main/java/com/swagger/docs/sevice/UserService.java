@@ -34,7 +34,6 @@ public class UserService implements UserDetailsService {
     private static final String OVERLAP_PASSWORD_MESSAGE = "기존의 비밀번호를 입력했습니다.";
 
     private final AccountRepository userRepository;
-    private final ConfirmationTokenService confirmationTokenService;
     private final PasswordEncoder passwordEncoder;
 
     @Override
