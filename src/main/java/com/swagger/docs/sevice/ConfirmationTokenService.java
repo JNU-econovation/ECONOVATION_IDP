@@ -2,8 +2,10 @@ package com.swagger.docs.sevice;
 
 import com.swagger.docs.domain.auth.ConfirmationToken;
 import com.swagger.docs.domain.auth.ConfirmationTokenRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
@@ -14,18 +16,19 @@ import java.util.Random;
 import java.util.UUID;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class ConfirmationTokenService {
     private final ConfirmationTokenRepository confirmationTokenRepository;
     private final EmailSenderService emailSenderService;
-    @Value("${sending.email}")
+    //    @Value("${sending.email}")
+    @Value("localhost:8080")
     private String destinationEmail;
 
-    @Autowired
-    public ConfirmationTokenService(ConfirmationTokenRepository confirmationTokenRepository, EmailSenderService emailSenderService) {
-        this.confirmationTokenRepository = confirmationTokenRepository;
-        this.emailSenderService = emailSenderService;
-    }
+    //    public ConfirmationTokenService(ConfirmationTokenRepository confirmationTokenRepository, EmailSenderService emailSenderService) {
+//        this.confirmationTokenRepository = confirmationTokenRepository;
+//        this.emailSenderService = emailSenderService;
+//    }
 
     private final String TOKEN_NOT_FOUND = "Token 존재하지 않는다";
 //    ValidationConstant.TOKEN_NOT_FOUND

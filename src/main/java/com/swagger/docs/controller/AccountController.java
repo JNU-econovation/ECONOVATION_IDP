@@ -113,7 +113,7 @@ public class AccountController {
             @ApiResponse(description = "access, refreshToken"),
             @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
     })
-    @GetMapping("/api/account/re-issue")
+    @GetMapping("/api/account/re-check")
     public ResponseEntity<BasicResponse> checkValideToken(HttpServletRequest request, @RequestParam("refreshToken") String refreshToken) {
         Authentication authentication = jwtProvider.validateToken(request, refreshToken);
         if(authentication.isAuthenticated()){
