@@ -37,9 +37,7 @@ public class AccountController {
 
     //    로그아웃 기능 구현
     @Operation(summary = "logout", description = "로그아웃_에이전트, 로그아웃시 redirect 페이지로 이동")
-    @ApiResponses({
-            @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
-    })
+    @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
     @GetMapping("/api/account/logout")
     public ResponseEntity<BasicResponse> logout(@RequestParam String redirectUrl, HttpServletRequest request) throws URISyntaxException {
 //        7번부터 빼야 bearer(+스페이스바) 빼고 토큰만 추출 가능
@@ -67,9 +65,7 @@ public class AccountController {
 
     //  회원가입 기능 구현
     @Operation(summary = "회원가입", description = "회원 가입")
-    @ApiResponses({
-            @ApiResponse(responseCode = "HttpStatus.CREATED", description = "CREATED")
-    })
+    @ApiResponse(responseCode = "HttpStatus.CREATED", description = "CREATED")
     @PostMapping("/api/account/sign-up")
     public ResponseEntity<BasicResponse> signUp(@RequestBody SignUpRequestDto signUpUser) {
         accountSignUpService.signUp(signUpUser.getUserName(),signUpUser.getYear(),signUpUser.getUserEmail(), signUpUser.getPinCode(), signUpUser.getPassword());
