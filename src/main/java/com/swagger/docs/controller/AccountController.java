@@ -3,6 +3,7 @@ package com.swagger.docs.controller;
 import com.swagger.docs.dto.LoginRequestDto;
 import com.swagger.docs.dto.LoginResponseDto;
 import com.swagger.docs.dto.SignUpRequestDto;
+import com.swagger.docs.global.config.jwt.JwtProvider;
 import com.swagger.docs.sevice.*;
 import com.swagger.docs.global.common.BasicResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,15 +31,13 @@ import java.net.URISyntaxException;
 public class AccountController {
     private final AccountJwtService accountJwtService;
     private final AccountSignUpService accountSignUpService;
-
+    private final JwtProvider jwtProvider;
     @Value("${login.redirect_url}")
     private String loginPageUrl;
 
     //    로그아웃 기능 구현
     @Operation(summary = "logout", description = "로그아웃_에이전트, 로그아웃시 redirect 페이지로 이동")
-    @ApiResponses({
-            @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
-    })
+    @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
     @GetMapping("/api/account/logout")
     public ResponseEntity<BasicResponse> logout(@RequestParam String redirectUrl, HttpServletRequest request) throws URISyntaxException {
 //        7번부터 빼야 bearer(+스페이스바) 빼고 토큰만 추출 가능
@@ -65,9 +65,7 @@ public class AccountController {
 
     //  회원가입 기능 구현
     @Operation(summary = "회원가입", description = "회원 가입")
-    @ApiResponses({
-            @ApiResponse(responseCode = "HttpStatus.CREATED", description = "CREATED")
-    })
+    @ApiResponse(responseCode = "HttpStatus.CREATED", description = "CREATED")
     @PostMapping("/api/account/sign-up")
     public ResponseEntity<BasicResponse> signUp(@RequestBody SignUpRequestDto signUpUser) {
         accountSignUpService.signUp(signUpUser.getUserName(),signUpUser.getYear(),signUpUser.getUserEmail(), signUpUser.getPinCode(), signUpUser.getPassword());
@@ -102,7 +100,7 @@ public class AccountController {
         URI redirectUri = new URI(loginDto.getRedirectUrl());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
-        log.info("redirectUrl" + redirectUrl);
+        log.info("redirectUrl" + redirectUri);
         return new ResponseEntity<>(responseDto, httpHeaders, HttpStatus.OK);
     }
 
@@ -111,9 +109,13 @@ public class AccountController {
             @ApiResponse(description = "access, refreshToken"),
             @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
     })
-    @GetMapping("/api/account/re-issue")
-    public ResponseEntity<BasicResponse> checkValideToken( @RequestParam("refreshToken") String refreshToken) {
-        return
+    @GetMapping("/api/account/re-check")
+    public ResponseEntity<BasicResponse> checkValideToken(HttpServletRequest request, @RequestParam("refreshToken") String refreshToken) {
+        Authentication authentication = jwtProvider.validateToken(request, refreshToken);
+        if(authentication.isAuthenticated()){
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
 }
