@@ -1,18 +1,15 @@
 package com.swagger.docs.sevice;
 
-
 import com.swagger.docs.domain.user.Account;
 import com.swagger.docs.domain.user.AccountRepository;
-import com.swagger.docs.dto.LoginResponseDto;
 import com.swagger.docs.global.common.exception.BadRequestException;
-import com.swagger.docs.global.config.jwt.JwtProvider;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,10 +44,13 @@ public class AccountSignUpService {
      * */
     @Transactional
     public String sendfindingPasswordConfirmationCode(String name, Long year){
-        List<Account> byUserName = accountRepository.findByUserName(name).stream().filter(u->u.getYear() == year)
+        List<Account> byUserName = accountRepository.findByUserName(name).stream().filter(u->u.getYear().equals(year))
                 .collect(Collectors.toList());
-        String userEmail = byUserName.stream().findFirst().get().getUserEmail();
-//        String userEmail = first.getUserEmail();
+        Optional<Account> first = byUserName.stream().findFirst();
+        if(first.isEmpty()){
+            throw new BadRequestException("잘못된 이름과 기수를 입력했습니다.");
+        }
+        String userEmail = first.get().getUserEmail();
         return confirmationTokenService.createEmailConfirmationToken(userEmail);
     }
 

@@ -2,6 +2,7 @@ package com.swagger.docs.sevice;
 
 import com.swagger.docs.domain.auth.ConfirmationToken;
 import com.swagger.docs.domain.auth.ConfirmationTokenRepository;
+import com.swagger.docs.global.common.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,6 +89,9 @@ public class ConfirmationTokenService {
      */
     public ConfirmationToken findByIdAndExpirationDateAfterAndExpired(UUID confirmationTokenId) {
         Optional<ConfirmationToken> confirmationToken = confirmationTokenRepository.findByIdAndExpirationDateAfterAndExpired(confirmationTokenId, LocalDateTime.now(), false);
+        if(confirmationToken.isEmpty()){
+            throw new BadRequestException("잘못된 토큰입니다.");
+        }
         return confirmationToken.get();
     }
 }

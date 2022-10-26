@@ -11,12 +11,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.Basic;
 import javax.validation.Valid;
+import java.nio.charset.Charset;
 import java.util.List;
 
 
@@ -30,7 +33,9 @@ public class UserController {
     @GetMapping("/api/user/all/{page}")
     public ResponseEntity<List<Account>> findUserAll(@PathVariable int page){
         List<Account> listAccount = userService.findAll();
-        return new ResponseEntity<>(listAccount, HttpStatus.OK);
+        HttpHeaders headers= new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
+        return new ResponseEntity<>(listAccount, headers, HttpStatus.OK);
     }
 
     @Operation(summary = "findUserById", description = "Id로 회원조회")
@@ -39,8 +44,11 @@ public class UserController {
     })
     @GetMapping("/api/user/{userId}")
     public ResponseEntity<Account> findUserById(@PathVariable Long userId) {
+        HttpHeaders headers= new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
+
         Account account = userService.findUserById(userId);
-        return new ResponseEntity<>(account, HttpStatus.OK);
+        return new ResponseEntity<>(account, headers, HttpStatus.OK);
     }
 
     @Operation(summary = "findUserByPinCode", description = "PinCode로 회원조회")
