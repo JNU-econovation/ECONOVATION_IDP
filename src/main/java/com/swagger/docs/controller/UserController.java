@@ -33,9 +33,7 @@ public class UserController {
     @GetMapping("/api/user/all/{page}")
     public ResponseEntity<List<Account>> findUserAll(@PathVariable int page){
         List<Account> listAccount = userService.findAll();
-        HttpHeaders headers= new HttpHeaders();
-        headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
-        return new ResponseEntity<>(listAccount, headers, HttpStatus.OK);
+        return new ResponseEntity<>(listAccount, HttpStatus.OK);
     }
 
     @Operation(summary = "findUserById", description = "Id로 회원조회")
