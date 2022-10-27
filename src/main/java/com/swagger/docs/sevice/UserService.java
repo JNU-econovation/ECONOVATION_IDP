@@ -127,7 +127,7 @@ public class UserService implements UserDetailsService {
      */
     @Transactional
     public Account findUserByUserEmail(String userEmail) {
-        return userRepository.findByUserEmail(userEmail).get();
+        return userRepository.findByUserEmail(userEmail).orElseThrow(() -> new BadRequestException("없는 이메일입니다."));
     }
 //    ----Account Authentication------------------------------------------------------------------
 
