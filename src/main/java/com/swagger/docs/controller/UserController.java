@@ -26,6 +26,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @AllArgsConstructor
+@CrossOrigin(origins = "*")
 @Tag(name = "WebApplication User 제공 서비스", description = "유저 정보 조회")
 public class UserController {
     private final UserService userService;

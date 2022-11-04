@@ -27,6 +27,7 @@ import java.net.URISyntaxException;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "*")
 @Tag(name = "Account 관련 서비스", description = "회원가입, 로그인 등등")
 public class AccountController {
     private final AccountJwtService accountJwtService;
