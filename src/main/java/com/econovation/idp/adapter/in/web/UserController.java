@@ -30,10 +30,15 @@ import java.util.List;
 @Tag(name = "WebApplication User 제공 서비스", description = "유저 정보 조회")
 public class UserController {
     private final UserService userService;
+
+
+    /**
+     * @deprecated (when, why, etc...)
+     */
     @Deprecated
     @GetMapping("/api/user/all/{page}")
     public ResponseEntity<List<Account>> findUserAll(@PathVariable int page){
-        List<Account> listAccount = userService.findAll();
+        List<Account> listAccount = userService.findAll(page);
         return new ResponseEntity<>(listAccount, HttpStatus.OK);
     }
 
@@ -50,6 +55,7 @@ public class UserController {
         return new ResponseEntity<>(account, headers, HttpStatus.OK);
     }
 
+    @Deprecated(forRemoval = true)
     @Operation(summary = "findUserByPinCode", description = "PinCode로 회원조회")
     @ApiResponses({
             @ApiResponse(responseCode = "Account Object", description = "검색 유저 return")
@@ -115,14 +121,7 @@ public class UserController {
         return new ResponseEntity<>(userByYearAndUserName, HttpStatus.OK);
     }
 
-    @Operation(summary = "회원정보 수정", description = "회원정보 수정")
-    @ApiResponses({
-            @ApiResponse(description = "Role에 따른 회원 조회 return")
-    })
-    @PostMapping("/api/user/{userId}")
-    public Account updateUser(@PathVariable Long userId, UserUpdateRequestDto userUpdateRequestDto) {
-            return userService.updateUser(userId, userUpdateRequestDto);
-            }
+
 
     @Operation(summary = "Email로 회원 조회", description = "이메일로 회원 조회")
     @ApiResponses({
@@ -132,6 +131,15 @@ public class UserController {
     public ResponseEntity<Account> findUserByEmail(@PathVariable String userEmail) {
         Account userByUserEmail = userService.findUserByUserEmail(userEmail);
         return new ResponseEntity<>(userByUserEmail,HttpStatus.OK);
+    }
+
+    @Operation(summary = "회원정보 수정", description = "회원정보 수정")
+    @ApiResponses({
+            @ApiResponse(description = "Role에 따른 회원 조회 return")
+    })
+    @PostMapping("/api/user/{userId}")
+    public Account updateUser(@PathVariable Long userId, UserUpdateRequestDto userUpdateRequestDto) {
+        return userService.updateUser(userId, userUpdateRequestDto);
     }
 
     @Operation(summary = "회원삭제", description = "회원 삭제")
@@ -154,4 +162,5 @@ public class UserController {
         Account account = userService.setPassword(userPasswordUpdateDto);
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
+
 }

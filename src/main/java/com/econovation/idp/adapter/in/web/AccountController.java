@@ -5,7 +5,6 @@ import com.econovation.idp.application.port.in.SignUpRequestDto;
 import com.econovation.idp.application.port.out.LoginResponseDto;
 
 import javax.validation.Valid;
-
 import com.econovation.idp.application.service.AccountJwtService;
 import com.econovation.idp.global.config.jwt.JwtProvider;
 import com.econovation.idp.application.service.AccountSignUpService;
@@ -28,6 +27,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Email;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -64,7 +66,10 @@ public class AccountController {
             @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
     })
     @GetMapping("/api/account/re-issue")
-    public ResponseEntity<LoginResponseDto> reIssue(@Email String userEmail, String refreshToken) {
+    public ResponseEntity<LoginResponseDto> reIssue(@Email String userEmail, String refreshToken, HttpServletRequest request) {
+        if(!jwtProvider.validateToken(request,refreshToken).isAuthenticated()){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
         LoginResponseDto responseDto = accountJwtService.reIssueAccessToken(userEmail, refreshToken);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
@@ -118,12 +123,55 @@ public class AccountController {
     @GetMapping("/api/account/re-check")
     public ResponseEntity<BasicResponse> checkValideToken(HttpServletRequest request, String refreshToken) {
         Authentication authentication = jwtProvider.validateToken(request, refreshToken);
-        if (authentication.isAuthenticated()) {
+        if (!authentication.isAuthenticated()) {
+
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+//        토큰 형식이 잘못되면 BadRequest 반환 예외처리 추가예정
+
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
+
+    // 로그인 인증
+    @Operation(summary = "로그인 페이지 만료시간 포함 처리", description = "로그인완료 후 원래 페이지로 이동")
+    @ApiResponses({
+            @ApiResponse(description = "access, refreshToken"),
+            @ApiResponse(responseCode = "HttpStatus.OK", description = "로그인 내부 인증 처리")
+    })
+    @PostMapping("/api/account/login/process/expired")
+    public ResponseEntity<Map<Date,LoginResponseDto>> loginWithExpiredTime(@Valid LoginRequestDto loginDto) throws URISyntaxException {
+        LoginResponseDto responseDto = accountJwtService.login(loginDto.getUserEmail(), loginDto.getPassword());
+        Date expiredTime = jwtProvider.getExpiredTime(responseDto.getRefreshToken());
+        URI redirectUri = new URI(loginDto.getRedirectUrl());
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(redirectUri);
+        log.info("redirectUrl" + redirectUri);
+        Map<Date, LoginResponseDto> loginResponseDto = new HashMap<>();
+        loginResponseDto.put(expiredTime, responseDto);
+        return new ResponseEntity<>(loginResponseDto, httpHeaders, HttpStatus.OK);
+    }
+
+    /**
+     *  Token 이 유효하지 않을 때 재요청 하는 로직
+    * */
+
+    /**
+     *  Token 이 없을때 simple Request하는 로직
+     * */
+
     /**
      * Token 요청에 따른 개인정보 요청
     * */
+
+    /**
+     * 토큰을 주면 uid 하나만 반환하는 simple 요청
+    * */
+
+    /**
+     * 토큰 반환이 유효하지 않은 토큰을 줄때, 토큰재발행 -> 재요청 실시 요청
+    * */
+
+    /**
+     * 토큰이 없어도 조회가 가능한 서비스 ( private 서비스 )
+     * */
 }

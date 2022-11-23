@@ -10,6 +10,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
+import java.net.http.HttpRequest;
+
 @RequiredArgsConstructor
 @Service
 public class AccountJwtServiceImpl implements AccountJwtService{
@@ -21,13 +24,13 @@ public class AccountJwtServiceImpl implements AccountJwtService{
     @Transactional
     public LoginResponseDto reIssueAccessToken(String email, String refreshedToken) {
         Account account = accountRepository.findAccountByUserEmail(email).orElseThrow(() -> new BadRequestException("존재하지 않는 유저입니다."));
-        String refreshToken = jwtProvider.createRefreshToken(email,refreshedToken);
+        String refreshToken = jwtProvider.createRefreshToken(email,account.getRole());
         String accessToken = jwtProvider.createAccessToken(account.getUserEmail(), account.getRole());
         return new LoginResponseDto(accessToken, refreshToken);
     }
 
     @Transactional
-    public LoginResponseDto getToken(Account account){
+    public LoginResponseDto createToken(Account account){
         String accessToken = jwtProvider.createAccessToken(account.getUserEmail(), account.getRole());
         String refreshToken = jwtProvider.createRefreshToken(account.getUserEmail(), account.getRole());
         return new LoginResponseDto(accessToken, refreshToken);
@@ -39,7 +42,7 @@ public class AccountJwtServiceImpl implements AccountJwtService{
         Account account = accountRepository
                 .findAccountByUserEmail(email).orElseThrow(() -> new BadRequestException("아이디 혹은 비밀번호를 확인하세요"));
         checkPassword(password, account.getPassword());
-        return getToken(account);
+        return createToken(account);
     }
     @Override
     public void logout(String refreshToken) {
