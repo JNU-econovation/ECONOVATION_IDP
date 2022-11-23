@@ -56,6 +56,5 @@ public class SecurityConfig {
                             new BasicResponse("exception event",HttpStatus.FORBIDDEN)
                     );
                 })).and().build();
-//                .build();
     }
 }

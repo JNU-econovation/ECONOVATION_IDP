@@ -75,7 +75,7 @@ public class JwtProvider {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
     }
 
-    private Date getExpiredTime(String token) {
+    public Date getExpiredTime(String token) {
         try {
             return ((Claims)Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody()).getExpiration();
         }catch (Exception e) {
@@ -105,5 +105,4 @@ public class JwtProvider {
         UserDetails userDetails = customAccountDetailsService.loadUserByUsername(getUserEmail(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
-
 }

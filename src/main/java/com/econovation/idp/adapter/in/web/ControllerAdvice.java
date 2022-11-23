@@ -3,12 +3,16 @@ package com.econovation.idp.adapter.in.web;
 import com.econovation.idp.application.port.out.ErrorResult;
 import com.econovation.idp.global.common.exception.BadRequestException;
 import jdk.jshell.spi.ExecutionControl;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.ap.internal.util.IgnoreJRERequirement;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.Optional;
 
 @Slf4j
 @RestControllerAdvice
