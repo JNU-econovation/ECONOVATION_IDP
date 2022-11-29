@@ -39,10 +39,13 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+<<<<<<< HEAD
 	// Spring actuator
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
+=======
+>>>>>>> 0ffd24c0c6b3597abd103ea1bdbaf2a1aef46898
 	compileOnly 'org.projectlombok:lombok'
 //	implementation 'mysql-connector-java:8.0.22'
 	//	runtimeOnly 'com.h2database:h2:2.1.214'
