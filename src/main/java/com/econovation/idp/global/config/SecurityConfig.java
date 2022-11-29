@@ -4,16 +4,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.econovation.idp.global.common.BasicResponse;
 import com.econovation.idp.global.config.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.server.SecurityWebFilterChain;
 
 import java.io.PrintWriter;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @EnableWebSecurity
 @RequiredArgsConstructor

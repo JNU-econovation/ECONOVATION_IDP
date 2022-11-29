@@ -135,8 +135,7 @@ public class AccountController {
     // 로그인 인증
     @Operation(summary = "로그인 페이지 만료시간 포함 처리", description = "로그인완료 후 원래 페이지로 이동")
     @ApiResponses({
-            @ApiResponse(description = "access, refreshToken"),
-            @ApiResponse(responseCode = "HttpStatus.OK", description = "로그인 내부 인증 처리")
+            @ApiResponse(description = "expiredToken, access, refreshToken",responseCode = "HttpStatus.OK"),
     })
     @PostMapping("/api/account/login/process/expired")
     public ResponseEntity<Map<Date,LoginResponseDto>> loginWithExpiredTime(@Valid LoginRequestDto loginDto) throws URISyntaxException {
