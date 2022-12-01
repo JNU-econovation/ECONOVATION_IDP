@@ -55,7 +55,7 @@ public class AccountController {
         URI redirectUri = new URI(redirectUrl);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
-
+        log.info(redirectUrl + "으로 이동");
         BasicResponse response = new BasicResponse("로그아웃 완료", HttpStatus.OK);
         return new ResponseEntity<>(response, httpHeaders, HttpStatus.OK);
     }
