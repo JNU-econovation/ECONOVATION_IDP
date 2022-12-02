@@ -112,6 +112,9 @@ public class AccountController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
         log.info("redirectUrl" + redirectUri);
+        Date expiredTime = jwtProvider.getExpiredTime(responseDto.getRefreshToken());
+        Map<Date, LoginResponseDto> loginResponseDto = new HashMap<>();
+        loginResponseDto.put(expiredTime, responseDto);
         return new ResponseEntity<>(responseDto, httpHeaders, HttpStatus.OK);
     }
 
