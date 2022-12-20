@@ -55,18 +55,6 @@ public class UserController {
         return new ResponseEntity<>(account, headers, HttpStatus.OK);
     }
 
-    @Deprecated(forRemoval = true)
-    @Operation(summary = "findUserByPinCode", description = "PinCode로 회원조회")
-    @ApiResponses({
-            @ApiResponse(responseCode = "Account Object", description = "검색 유저 return")
-    })
-    @GetMapping("/api/user/pinCode/{pinCode}")
-    public ResponseEntity<Account> findUserBypinCode(@PathVariable String pinCode) {
-        Account account = userService.findUserByPinCode(pinCode);
-        return new ResponseEntity<>(account, HttpStatus.OK);
-
-    }
-
     @Operation(summary = "countUserByRole", description = "Role(USER,GUEST,ADMIN)로 회원수 조회")
     @ApiResponses({
             @ApiResponse(description = "Role에 따른 회원 조횐 return")
@@ -137,9 +125,9 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(description = "Role에 따른 회원 조회 return")
     })
-    @PostMapping("/api/user/{userId}")
-    public Account updateUser(@PathVariable Long userId, UserUpdateRequestDto userUpdateRequestDto) {
-        return userService.updateUser(userId, userUpdateRequestDto);
+    @PostMapping("/api/user")
+    public Account updateUser(UserUpdateRequestDto userUpdateRequestDto) {
+        return userService.updateUser(userUpdateRequestDto);
     }
 
     @Operation(summary = "회원삭제", description = "회원 삭제")

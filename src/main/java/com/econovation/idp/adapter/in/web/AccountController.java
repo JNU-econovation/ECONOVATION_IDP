@@ -40,6 +40,7 @@ public class AccountController {
     private final AccountJwtService accountJwtService;
     private final AccountSignUpService accountSignUpService;
     private final JwtProvider jwtProvider;
+
     @Value("${login.redirect_url}")
     private String loginPageUrl;
 
@@ -79,7 +80,7 @@ public class AccountController {
     @ApiResponse(responseCode = "HttpStatus.CREATED", description = "CREATED")
     @PostMapping("/api/account/sign-up")
     public ResponseEntity<BasicResponse> signUp(@Valid SignUpRequestDto signUpUser) {
-        accountSignUpService.signUp(signUpUser.getUserName(), signUpUser.getYear(), signUpUser.getUserEmail(), signUpUser.getPinCode(), signUpUser.getPassword());
+        accountSignUpService.signUp(signUpUser.getUserName(), signUpUser.getYear(), signUpUser.getUserEmail(), signUpUser.getPassword());
         BasicResponse response = new BasicResponse("회원가입 성공", HttpStatus.CREATED);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -131,7 +132,6 @@ public class AccountController {
             return new ResponseEntity<>(HttpStatus.OK);
         }
 //        토큰 형식이 잘못되면 BadRequest 반환 예외처리 추가예정
-
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 

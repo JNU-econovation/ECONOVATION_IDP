@@ -38,12 +38,6 @@ public class Account {
     @Column(nullable = false)
     @NotNull
     private String userEmail;
-
-    @Deprecated
-    @Column(nullable = false)
-    @NotNull
-    private String pinCode;
-
     @Column(nullable = false)
     private String role;
 
@@ -51,12 +45,11 @@ public class Account {
         this.password = password;
     }
 
-    public Account(Long year, String userName, String password, String userEmail, String pinCode) {
+    public Account(Long year, String userName, String password, String userEmail) {
         this.year = year;
         this.userName = userName;
         this.password = password;
         this.userEmail = userEmail;
-        this.pinCode = pinCode;
         this.role = "USER";
     }
 
@@ -64,12 +57,10 @@ public class Account {
         this.userEmail = userUpdateRequestDto.toEntity().getUserEmail();
         this.userName = userUpdateRequestDto.toEntity().getUserName();
         this.year = userUpdateRequestDto.toEntity().getYear();
-        this.pinCode = userUpdateRequestDto.toEntity().getPinCode();
-        this.role = userUpdateRequestDto.toEntity().getRole();
     }
 
 
-    public static Account of(Long year, String userName, String password, String userEmail, String pinCode) {
-        return new Account(year, userName, password, userEmail, pinCode);
+    public static Account of(Long year, String userName, String password, String userEmail) {
+        return new Account(year, userName, password, userEmail);
     }
 }

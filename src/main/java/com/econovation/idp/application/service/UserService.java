@@ -102,11 +102,6 @@ public class UserService implements UserDetailsService {
         return users;
     }
 
-    public Account findUserByPinCode(String pinCode){
-        return userRepository.findUserByPinCode(pinCode)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_USER_MESSAGE));
-    }
-
     @Transactional
     public Account findUserByYearAndUserName(String userName, Long year){
         List<Account> findUser = userRepository.findByUserName(userName).stream()
@@ -168,9 +163,10 @@ public class UserService implements UserDetailsService {
      * @Param userEmail : String!, password : String!, year : Int!, userName : String!
      * @return boolean
      */
-    public Account updateUser(Long userId, UserUpdateRequestDto userUpdateRequestDto) {
-        Account user = userRepository.findById(userId)
-                .orElseThrow(()->new IllegalArgumentException(NOT_FOUND_USER_MESSAGE));
+    public Account updateUser(UserUpdateRequestDto userUpdateRequestDto) {
+        Account user = userRepository.findByUserEmail(userUpdateRequestDto.getUserEmail())
+                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_USER_MESSAGE));
+
         user.update(userUpdateRequestDto);
         return user;
     }

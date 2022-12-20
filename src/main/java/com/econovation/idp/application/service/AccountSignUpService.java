@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,11 +22,11 @@ public class AccountSignUpService {
     private final ConfirmationTokenService confirmationTokenService;
     //   회원가입
     @Transactional
-    public void signUp(String userName,Long year,String userEmail,String pinCode, String password) {
+    public void signUp(String userName, Long year, String userEmail, String password) {
         // 중복검증
         isDuplicateEmail(userEmail);
         String encodePassword = passwordEncoder.encode(password);
-        Account newAccount = Account.of(year,userName,encodePassword,userEmail,pinCode);
+        Account newAccount = Account.of(year,userName,encodePassword,userEmail);
         accountRepository.save(newAccount);
     }
 
