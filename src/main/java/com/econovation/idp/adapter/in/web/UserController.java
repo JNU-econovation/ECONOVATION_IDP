@@ -6,6 +6,7 @@ import com.econovation.idp.application.port.in.UserUpdateRequestDto;
 import com.econovation.idp.application.service.UserService;
 import com.econovation.idp.domain.user.Account;
 import com.econovation.idp.global.common.BasicResponse;
+import com.econovation.idp.global.config.jwt.JwtProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -18,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -30,13 +32,13 @@ import java.util.List;
 @Tag(name = "WebApplication User 제공 서비스", description = "유저 정보 조회")
 public class UserController {
     private final UserService userService;
-
+    private final JwtProvider jwtProvider;
 
     /**
      * @deprecated (when, why, etc...)
      */
     @Deprecated
-    @GetMapping("/api/user/all/{page}")
+    @GetMapping("/api/users/{page}")
     public ResponseEntity<List<Account>> findUserAll(@PathVariable int page){
         List<Account> listAccount = userService.findAll(page);
         return new ResponseEntity<>(listAccount, HttpStatus.OK);
@@ -46,7 +48,7 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(responseCode = "Account Object", description = "검색 유저 return")
     })
-    @GetMapping("/api/user/{userId}")
+    @GetMapping("/api/users/{userId}")
     public ResponseEntity<Account> findUserById(@PathVariable Long userId) {
         HttpHeaders headers= new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
@@ -59,7 +61,7 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(description = "Role에 따른 회원 조횐 return")
     })
-    @GetMapping("/api/user/count/{role}")
+    @GetMapping("/api/users/count/{role}")
     public ResponseEntity<Long> countUserByRole(@PathVariable String role){
         Long numberIsRole = userService.countUserByRole(role);
         return new ResponseEntity<>(numberIsRole, HttpStatus.OK);
@@ -70,7 +72,7 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(description = "Role에 따른 회원 조횐 return")
     })
-    @GetMapping("/api/user/count")
+    @GetMapping("/api/users/count")
     public ResponseEntity<Long> countAllUser(){
         Long numberAllAccount = userService.countAllUser();
         return new ResponseEntity<>(numberAllAccount, HttpStatus.OK);
@@ -81,7 +83,7 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(description = "이름으로 회원 조회")
     })
-    @GetMapping("/api/usernames/{userName}")
+    @GetMapping("/api/users/{userName}")
     public ResponseEntity<List<Account>> findUserByUserName(@PathVariable String userName){
         List<Account> userListByUserName = userService.findUserByUserName(userName);
         return new ResponseEntity<>(userListByUserName, HttpStatus.OK);
@@ -92,7 +94,7 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(description = "Role에 따른 회원 조횐 return")
     })
-    @GetMapping("/api/user/role/{page}/{role}")
+    @GetMapping("/api/users/role/{page}/{role}")
     public ResponseEntity<List<Account>> findUserByRole(@PathVariable int page, @PathVariable String role){
         List<Account> userByRole = userService.findUserByRole(page, role);
         return new ResponseEntity<>(userByRole, HttpStatus.OK);
@@ -103,10 +105,10 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(description = "Email에 따른 회원 조횐 return")
     })
-    @GetMapping("/api/user/find-email/")
-    public ResponseEntity<Account> findEmail(@Valid UserFindDto userFindDto){
+    @GetMapping("/api/users/find-email/")
+    public ResponseEntity<String> findEmail(@Valid UserFindDto userFindDto){
         Account userByYearAndUserName = userService.findUserByYearAndUserName(userFindDto.getUserName(), userFindDto.getYear());
-        return new ResponseEntity<>(userByYearAndUserName, HttpStatus.OK);
+        return new ResponseEntity<>(userByYearAndUserName.getUserEmail(), HttpStatus.OK);
     }
 
 
@@ -115,7 +117,7 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(description = "Role에 따른 회원 조횐 return")
     })
-    @GetMapping("/api/user/email/{userEmail}")
+    @GetMapping("/api/users/{userEmail}")
     public ResponseEntity<Account> findUserByEmail(@PathVariable String userEmail) {
         Account userByUserEmail = userService.findUserByUserEmail(userEmail);
         return new ResponseEntity<>(userByUserEmail,HttpStatus.OK);
@@ -123,29 +125,34 @@ public class UserController {
 
     @Operation(summary = "회원정보 수정", description = "회원정보 수정")
     @ApiResponses({
-            @ApiResponse(description = "Role에 따른 회원 조회 return")
+            @ApiResponse(description = "수정된 회원 조회 return")
     })
-    @PostMapping("/api/user")
-    public Account updateUser(UserUpdateRequestDto userUpdateRequestDto) {
-        return userService.updateUser(userUpdateRequestDto);
+    @PostMapping("/api/users/")
+    public ResponseEntity<Account> updateUser(HttpServletRequest request, UserUpdateRequestDto userUpdateRequestDto) {
+        String refreshToken = request.getHeader("Authorization").substring(7);
+
+        if(!jwtProvider.validateToken(request,refreshToken).isAuthenticated()){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        return new ResponseEntity<>(userService.updateUser(userUpdateRequestDto),HttpStatus.OK);
     }
 
     @Operation(summary = "회원삭제", description = "회원 삭제")
     @ApiResponses({
             @ApiResponse(description = "회원 삭제 Response")
     })
-    @DeleteMapping("/api/user/{userId}")
+    @DeleteMapping("/api/users/{userId}")
     public ResponseEntity<BasicResponse> deleteUser(@PathVariable Long userId) {
         userService.deleteUserById(userId);
         BasicResponse successDeleteResponse = new BasicResponse("회원 삭제 성공", HttpStatus.OK);
         return new ResponseEntity<>(successDeleteResponse, HttpStatus.OK);
     }
 
-    @Operation(summary = "비밀번호 수정전 인증 이메일 보내기", description = "비밀번호수정 이메일 보내기 ")
+    @Operation(summary = "비밀번호 수정", description = "비밀번호 수정")
     @ApiResponses({
             @ApiResponse(description = "이메일 보낸 인증 Code")
     })
-    @PostMapping("/api/user/set-password/")
+    @PostMapping("/api/users/update/password")
     public ResponseEntity<Account> setPassword(@Valid UserPasswordUpdateDto userPasswordUpdateDto){
         Account account = userService.setPassword(userPasswordUpdateDto);
         return new ResponseEntity<>(account, HttpStatus.OK);

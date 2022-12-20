@@ -47,7 +47,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public Account setPassword(UserPasswordUpdateDto userPasswordUpdateDto){
-        Account user = userRepository.findUserByUserNameAndYear(userPasswordUpdateDto.getUserName(),userPasswordUpdateDto.getYear());
+        Account user = findUserByYearAndUserName(userPasswordUpdateDto.getUserName(), userPasswordUpdateDto.getYear());
         String encodedPassword = passwordEncoder.encode(userPasswordUpdateDto.getPassword());
         if(user.getPassword() == encodedPassword){
             throw new IllegalArgumentException(OVERLAP_PASSWORD_MESSAGE);
@@ -164,7 +164,7 @@ public class UserService implements UserDetailsService {
      * @return boolean
      */
     public Account updateUser(UserUpdateRequestDto userUpdateRequestDto) {
-        Account user = userRepository.findByUserEmail(userUpdateRequestDto.getUserEmail())
+        Account user = userRepository.findUserByUserNameAndYear(userUpdateRequestDto.getUserName(), userUpdateRequestDto.getYear())
                 .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_USER_MESSAGE));
 
         user.update(userUpdateRequestDto);

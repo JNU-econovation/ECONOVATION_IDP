@@ -12,8 +12,6 @@ import javax.validation.constraints.NotNull;
 @Data
 @Getter
 public class UserUpdateRequestDto {
-    @Email
-    private String userEmail;
 
     @NotNull
     @Range(min =1, max = 50)
@@ -23,15 +21,13 @@ public class UserUpdateRequestDto {
     private String userName;
 
 
-    public UserUpdateRequestDto(String userEmail, Long year,String userName) {
-        this.userEmail = userEmail;
+    public UserUpdateRequestDto(Long year,String userName) {
         this.year = year;
         this.userName = userName;
     }
 
     public Account toEntity(){
         return Account.builder()
-                .userEmail(userEmail)
                 .year(year)
                 .userName(userName)
                 .build();

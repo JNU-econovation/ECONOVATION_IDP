@@ -31,7 +31,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     @Query("SELECT u FROM Account u WHERE u.password = :password")
     Optional<Account> findByPassword(@Param("password")String password);
 
-    Account findUserByUserNameAndYear(String userName, Long Year);
+    Optional<Account> findUserByUserNameAndYear(String userName, Long Year);
 
     /* 유효성 검사 - 중복 체크
      * 중복 : true
