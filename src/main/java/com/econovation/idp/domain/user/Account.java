@@ -1,6 +1,6 @@
 package com.econovation.idp.domain.user;
 
-import com.econovation.idp.application.port.in.UserUpdateRequestDto;
+import com.econovation.idp.domain.dto.UserUpdateRequestDto;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.validator.constraints.Range;

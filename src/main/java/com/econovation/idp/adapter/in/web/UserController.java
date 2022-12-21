@@ -1,8 +1,8 @@
 package com.econovation.idp.adapter.in.web;
 
-import com.econovation.idp.application.port.in.UserFindDto;
-import com.econovation.idp.application.port.in.UserPasswordUpdateDto;
-import com.econovation.idp.application.port.in.UserUpdateRequestDto;
+import com.econovation.idp.domain.dto.UserFindDto;
+import com.econovation.idp.domain.dto.UserPasswordUpdateDto;
+import com.econovation.idp.domain.dto.UserUpdateRequestDto;
 import com.econovation.idp.application.service.UserService;
 import com.econovation.idp.domain.user.Account;
 import com.econovation.idp.global.common.BasicResponse;
