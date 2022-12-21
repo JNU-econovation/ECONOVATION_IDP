@@ -23,7 +23,6 @@ public class Account extends BaseTimeEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="ACCOUNT_ID")
     private Long id;
 
 

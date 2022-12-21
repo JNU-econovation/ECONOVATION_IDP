@@ -4,6 +4,7 @@ import com.econovation.idp.domain.user.Account;
 import com.econovation.idp.domain.user.AccountRepository;
 import com.econovation.idp.global.common.exception.BadRequestException;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,8 +19,9 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 @Transactional(rollbackFor = Exception.class)
-public class AccountSignUpService implements UserDetailsService {
+public class AccountSignUpService {
     private final PasswordEncoder passwordEncoder;
     private final AccountRepository accountRepository;
     private final ConfirmationTokenService confirmationTokenService;
@@ -57,26 +59,5 @@ public class AccountSignUpService implements UserDetailsService {
         String userEmail = first.get().getUserEmail();
         return confirmationTokenService.createEmailConfirmationToken(userEmail);
     }
-
-    @Override
-    public UserDetails loadUserByUsername(String userEmail) throws UsernameNotFoundException {
-        //adminUser 정보 조회
-        Optional<Account> adminUser = accountRepository.findAccountByUserEmail(userEmail);
-
-        if(adminUser.isPresent()) {
-            Account admin = adminUser.get();
-
-            Account authAdmin = Account.builder()
-                    .id(admin.getId())
-                    .userName(admin.getUsername())
-                    .password(admin.getPassword())
-                    .role(admin.getRole())
-                    .userEmail(admin.getUserEmail())
-                    .createdAt(admin.getCreatedAt())
-                    .updatedAt(admin.getUpdatedAt())
-                    .build();
-
-            log.info("authAdmin : {}", authAdmin);
-            return authAdmin;
-    }
 }
+
