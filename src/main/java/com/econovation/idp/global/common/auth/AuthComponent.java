@@ -24,7 +24,6 @@ public class AuthComponent {
         if(!jwtProvider.validateToken(request,accessToken).isAuthenticated()){
             log.info("[ " + Time.now() + " ] not USER is Approach");
         }
-
     }
 
     public void validateAdmin(HttpServletRequest request) {

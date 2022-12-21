@@ -39,7 +39,7 @@ public class SecurityConfig {
 //                특정 URL 차단 및 접근권한 설정
                 .and()
                 .authorizeRequests()// 시큐리티 처리에 HttpServeltRequest를 사용합니다.
-                .antMatchers("/api/user/**").hasAuthority("USER")
+                .antMatchers("/api/user/**").permitAll()
                 .antMatchers("/api/account/**").permitAll()
 //                ErrorHandling 처리
                 .and()

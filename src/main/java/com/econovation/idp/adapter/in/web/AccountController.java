@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -119,6 +121,7 @@ public class AccountController {
         return new ResponseEntity<>(responseDto, httpHeaders, HttpStatus.OK);
     }
 
+    @PostAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "토큰 사용가능 여부 확인", description = "Access Token 사용 가능 여부 확인")
     @ApiResponses({
             @ApiResponse(description = "access, refreshToken"),
