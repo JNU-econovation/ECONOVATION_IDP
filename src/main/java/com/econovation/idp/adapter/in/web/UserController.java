@@ -111,8 +111,6 @@ public class UserController {
         return new ResponseEntity<>(userByYearAndUserName.getUserEmail(), HttpStatus.OK);
     }
 
-
-
     @Operation(summary = "Email로 회원 조회", description = "이메일로 회원 조회")
     @ApiResponses({
             @ApiResponse(description = "Role에 따른 회원 조횐 return")
@@ -123,15 +121,15 @@ public class UserController {
         return new ResponseEntity<>(userByUserEmail,HttpStatus.OK);
     }
 
-    @Operation(summary = "회원정보 수정", description = "회원정보 수정")
+    @Operation(summary = "회원정보 수정", description = "로그인된 상태에서, 회원정보 수정")
     @ApiResponses({
             @ApiResponse(description = "수정된 회원 조회 return")
     })
     @PostMapping("/api/users/")
     public ResponseEntity<Account> updateUser(HttpServletRequest request, UserUpdateRequestDto userUpdateRequestDto) {
-        String refreshToken = request.getHeader("Authorization").substring(7);
+        String accessToken = request.getHeader("Authorization").substring(7);
 
-        if(!jwtProvider.validateToken(request,refreshToken).isAuthenticated()){
+        if(!jwtProvider.validateToken(request,accessToken).isAuthenticated()){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(userService.updateUser(userUpdateRequestDto),HttpStatus.OK);
