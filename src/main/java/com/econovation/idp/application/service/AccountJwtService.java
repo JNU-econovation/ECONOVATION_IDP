@@ -24,7 +24,8 @@ public class AccountJwtService implements AccountJwtUseCase {
     @Override
     @Transactional
     public LoginResponseDto reIssueAccessToken(String email, String refreshedToken) {
-        Account account = accountRepository.findAccountByUserEmail(email).orElseThrow(() -> new BadRequestException("존재하지 않는 유저입니다."));
+//        Account account = accountRepository.findAccountByUserEmail(email).orElseThrow(() -> new BadRequestException("존재하지 않는 유저입니다."));
+        Account account = accountPersistenceAdapter.loadAccountByUserEmail(email);
         String refreshToken = jwtProviderUseCase.createRefreshToken(email,account.getRole());
         String accessToken = jwtProviderUseCase.createAccessToken(account.getUserEmail(), account.getRole());
         return new LoginResponseDto(accessToken, refreshToken);

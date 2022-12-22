@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Slf4j
@@ -21,28 +22,31 @@ public class ControllerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalArgumentException.class)
     public ErrorResult illegalExHandle(IllegalArgumentException e) {
-        log.error("[exceptionHandle] ex", e);
-        return new ErrorResult("BAD", e.getMessage());
+        log.error(new Date().getTime() + "  [부적절한 사용자 요청] : ", e.getMessage());
+        return new ErrorResult("사용자의 잘못된 요청입니다.", e.getMessage());
     }
+
     @ExceptionHandler
     public ResponseEntity<ErrorResult> userExHandle(ExecutionControl.UserException e) {
-        log.error("[exceptionHandle] ex", e);
+        log.error(new Date().getTime() + "  [Exception] : ", e.getMessage());
         ErrorResult errorResult = new ErrorResult("USER", e.getMessage());
         return new ResponseEntity<>(errorResult, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorResult> signUpExHandle(Exception e){
-        log.error("[exceptionHandle] signup", e);
+    public ResponseEntity<ErrorResult> signUpExHandle(Exception e) {
+        log.error(new Date().getTime() + "  [BadRequestException] : ", e.getMessage());
         ErrorResult errorResult = new ErrorResult("SIGN_UP", e.getMessage());
         return new ResponseEntity<>(errorResult, HttpStatus.CONFLICT);
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler
-    public ErrorResult exHandle(Exception e) {
-        log.error("[exceptionHandle] ex", e);
-        return new ErrorResult("EX", "내부 오류");
+    public ResponseEntity<ErrorResult> exHandle(Exception e) {
+        log.error(new Date().getTime() + "  [INTERNAL_SERVER_ERROR] : ", e.getMessage());
+        ErrorResult errorResult = new ErrorResult("INTERNAL_SERVER_ERROR ", e.getMessage());
+        return new ResponseEntity<>(errorResult, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
 
 }

@@ -13,8 +13,11 @@ import javax.validation.constraints.NotNull;
 public class SignUpRequestDto {
     @Email
     private String userEmail;
+
     private Long year;
+
     private String userName;
+
     @Password
     private String password;
 }
