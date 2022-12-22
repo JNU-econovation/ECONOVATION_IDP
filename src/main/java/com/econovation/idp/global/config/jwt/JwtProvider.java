@@ -82,7 +82,7 @@ public class JwtProvider implements JwtProviderUseCase {
     @Override
     public Date getExpiredTime(String token) {
         try {
-            return ((Claims)Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody()).getExpiration();
+            return (Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody()).getExpiration();
         }catch (Exception e) {
             return null;
         }

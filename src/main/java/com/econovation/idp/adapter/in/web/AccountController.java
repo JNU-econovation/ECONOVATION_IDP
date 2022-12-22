@@ -1,5 +1,6 @@
 package com.econovation.idp.adapter.in.web;
 
+import com.econovation.idp.application.port.in.AccountSignUpUseCase;
 import com.econovation.idp.domain.dto.LoginRequestDto;
 import com.econovation.idp.domain.dto.SignUpRequestDto;
 import com.econovation.idp.application.port.in.JwtProviderUseCase;
@@ -38,7 +39,7 @@ import java.util.Map;
 @Tag(name = "Account 관련 서비스", description = "회원가입, 로그인 등등")
 public class AccountController {
     private final AccountJwtUseCase accountJwtUseCase;
-    private final AccountSignUpService accountSignUpService;
+    private final AccountSignUpUseCase accountSignUpUseCase;
     private final JwtProviderUseCase jwtProviderUseCase;
 
     //    로그아웃 기능 구현
@@ -77,7 +78,7 @@ public class AccountController {
     @ApiResponse(responseCode = "HttpStatus.CREATED", description = "CREATED")
     @PostMapping("/api/account/sign-up")
     public ResponseEntity<BasicResponse> signUp(@Valid SignUpRequestDto signUpUser) {
-        accountSignUpService.signUp(signUpUser.getUserName(), signUpUser.getYear(), signUpUser.getUserEmail(), signUpUser.getPassword());
+        accountSignUpUseCase.signUp(signUpUser.getUserName(), signUpUser.getYear(), signUpUser.getUserEmail(), signUpUser.getPassword());
         BasicResponse response = new BasicResponse("회원가입 성공", HttpStatus.CREATED);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

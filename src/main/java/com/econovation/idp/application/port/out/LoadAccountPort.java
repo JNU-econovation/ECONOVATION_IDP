@@ -12,14 +12,14 @@ import java.util.Optional;
 public interface LoadAccountPort {
     boolean existsAccountByUserEmail(String email);
 
-    List<Account> findByUserName(String userName);
+    List<Account> loadByUserName(String userName);
 
-    Optional<Account> findByUserEmail(String userEmail);
+    Optional<Account> loadByUserEmail(String userEmail);
 
-    Page<Account> findAllByPage(Pageable pageable);
+    Page<Account> loadAllByPage(Pageable pageable);
 
     Long countAllByRole(String role);
 
-    Optional<Account> findUserByUserNameAndYear(String userName, Long Year);
+    Optional<Account> loadUserByUserNameAndYear(String userName, Long Year);
 
 }

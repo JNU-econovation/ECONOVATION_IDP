@@ -1,5 +1,6 @@
 package com.econovation.idp.adapter.in.web;
 
+import com.econovation.idp.application.port.in.JwtProviderUseCase;
 import com.econovation.idp.domain.dto.UserFindDto;
 import com.econovation.idp.domain.dto.UserPasswordUpdateDto;
 import com.econovation.idp.domain.dto.UserUpdateRequestDto;
@@ -32,7 +33,7 @@ import java.util.List;
 @Tag(name = "WebApplication User 제공 서비스", description = "유저 정보 조회")
 public class UserController {
     private final UserService userService;
-    private final JwtProvider jwtProvider;
+    private final JwtProviderUseCase jwtProviderUseCase;
 
     /**
      * @deprecated (when, why, etc...)
@@ -129,7 +130,7 @@ public class UserController {
     public ResponseEntity<Account> updateUser(HttpServletRequest request, UserUpdateRequestDto userUpdateRequestDto) {
         String accessToken = request.getHeader("Authorization").substring(7);
 
-        if(!jwtProvider.validateToken(request,accessToken).isAuthenticated()){
+        if(!jwtProviderUseCase.validateToken(request,accessToken).isAuthenticated()){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(userService.updateUser(userUpdateRequestDto),HttpStatus.OK);

@@ -1,5 +1,6 @@
 package com.econovation.idp.domain.dto;
 
+import com.econovation.idp.domain.auth.Password;
 import com.econovation.idp.domain.user.Account;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -15,7 +16,7 @@ public class UserPasswordUpdateDto {
     private Long year;
     @NotNull
     private String userName;
-
+    @Password
     private String password;
 
     public Account toEntity(){
