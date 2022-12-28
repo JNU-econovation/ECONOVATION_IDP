@@ -1,13 +1,13 @@
 plugins {
-	id 'org.springframework.boot' version '2.7.0'
-	id 'org.springdoc.openapi-gradle-plugin' version "1.4.0"
-	id 'io.spring.dependency-management' version '1.0.14.RELEASE'
+	id 'org.springframework.boot' version '3.0.0'
+//	id 'org.springdoc.openapi-gradle-plugin' version "1.4.0"
+	id 'io.spring.dependency-management' version '1.1.0'
 	id 'java'
 }
 
 group = 'com.econovation'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+sourceCompatibility = '17'
 
 configurations {
 	compileOnly {
@@ -28,6 +28,8 @@ dependencies {
 
 //	Swagger
 //	implementation 'org.springdoc:springdoc-openapi-security:1.6.11'
+	implementation 'org.springdoc:springdoc-openapi-common:1.6.9'
+	implementation 'org.springdoc:springdoc-openapi-webmvc-core:1.6.9'
 	implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
 
 //	Spring Security

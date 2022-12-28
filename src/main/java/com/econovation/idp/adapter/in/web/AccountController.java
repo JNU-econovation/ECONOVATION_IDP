@@ -6,7 +6,7 @@ import com.econovation.idp.domain.dto.SignUpRequestDto;
 import com.econovation.idp.application.port.in.JwtProviderUseCase;
 import com.econovation.idp.domain.dto.LoginResponseDto;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import com.econovation.idp.application.port.in.AccountJwtUseCase;
 import com.econovation.idp.application.service.AccountSignUpService;
 import com.econovation.idp.global.common.BasicResponse;
@@ -24,8 +24,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Email;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.Email;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;

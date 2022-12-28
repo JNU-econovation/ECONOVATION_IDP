@@ -2,16 +2,10 @@ package com.econovation.idp.global.common.auth;
 
 
 import com.econovation.idp.global.config.jwt.JwtProvider;
-import com.sun.tools.jconsole.JConsoleContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.jni.Time;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.Console;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RequiredArgsConstructor
 @Component
