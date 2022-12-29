@@ -1,12 +1,11 @@
 package com.econovation.idp.global.config.jwt;
 
+import com.econovation.idp.application.port.in.JwtProviderUseCase;
 import com.econovation.idp.global.common.redis.RedisService;
 import io.jsonwebtoken.*;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,7 +21,7 @@ import java.util.Date;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class JwtProvider {
+public class JwtProvider implements JwtProviderUseCase {
     private final UserDetailsService customAccountDetailsService;
     private final RedisService redisService;
     @Value("${spring.jwt.secret-key}")
@@ -38,6 +37,7 @@ public class JwtProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
+    @Override
     public void logout(String refreshToken) {
         long expiredAccessTokenTime = getExpiredTime(refreshToken).getTime() - new Date().getTime();
 //        이메일 조회
@@ -60,12 +60,14 @@ public class JwtProvider {
     }
 
 // accessToken 은 redis에 저장하지 않는다.
+    @Override
     public String createAccessToken(String userId, String role) {
         long tokenInvalidTime = 1000L * 60 * 3;//3m
         return this.createToken(userId, role, tokenInvalidTime);
     }
 
 // refreshToken 은 redis 에 저장해야한다.
+    @Override
     public String createRefreshToken(String userId, String role) {
         Long tokenInvalidTime = 1000L * 60 * 60 * 24; // 1d
         String refreshToken = this.createToken(userId, role, tokenInvalidTime);
@@ -77,14 +79,16 @@ public class JwtProvider {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
     }
 
+    @Override
     public Date getExpiredTime(String token) {
         try {
-            return ((Claims)Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody()).getExpiration();
+            return (Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody()).getExpiration();
         }catch (Exception e) {
             return null;
         }
     }
 
+    @Override
     public Authentication validateToken(HttpServletRequest request, String token) {
         String exception = "exception";
         try {

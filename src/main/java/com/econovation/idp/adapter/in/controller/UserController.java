@@ -1,12 +1,12 @@
-package com.econovation.idp.adapter.in.web;
+package com.econovation.idp.adapter.in.controller;
 
-import com.econovation.idp.application.port.in.UserFindDto;
-import com.econovation.idp.application.port.in.UserPasswordUpdateDto;
-import com.econovation.idp.application.port.in.UserUpdateRequestDto;
+import com.econovation.idp.application.port.in.JwtProviderUseCase;
 import com.econovation.idp.application.service.UserService;
+import com.econovation.idp.domain.dto.UserFindDto;
+import com.econovation.idp.domain.dto.UserPasswordUpdateDto;
+import com.econovation.idp.domain.dto.UserUpdateRequestDto;
 import com.econovation.idp.domain.user.Account;
 import com.econovation.idp.global.common.BasicResponse;
-import com.econovation.idp.global.config.jwt.JwtProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -32,7 +32,7 @@ import java.util.List;
 @Tag(name = "WebApplication User 제공 서비스", description = "유저 정보 조회")
 public class UserController {
     private final UserService userService;
-    private final JwtProvider jwtProvider;
+    private final JwtProviderUseCase jwtProviderUseCase;
 
     /**
      * @deprecated (when, why, etc...)
@@ -129,7 +129,7 @@ public class UserController {
     public ResponseEntity<Account> updateUser(HttpServletRequest request, UserUpdateRequestDto userUpdateRequestDto) {
         String accessToken = request.getHeader("Authorization").substring(7);
 
-        if(!jwtProvider.validateToken(request,accessToken).isAuthenticated()){
+        if(!jwtProviderUseCase.validateToken(request,accessToken).isAuthenticated()){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(userService.updateUser(userUpdateRequestDto),HttpStatus.OK);

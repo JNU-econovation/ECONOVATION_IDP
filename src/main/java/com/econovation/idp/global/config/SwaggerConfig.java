@@ -8,7 +8,6 @@ import org.springdoc.core.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-
 @Configuration
 public class SwaggerConfig{
 
@@ -16,9 +15,9 @@ public class SwaggerConfig{
     public GroupedOpenApi AccountApi() {
         return GroupedOpenApi.builder()
                 .group("AccountController")
-                .packagesToScan("com.swagger.docs.controller")
-                .pathsToExclude("/api/user/**")
-                .pathsToMatch("/api/account/**")
+                .packagesToScan("com.econovation.idp.adapter.in.controller")
+                .pathsToExclude("/api/users/**")
+                .pathsToMatch("/api/accounts/**")
                 .build();
     }
 
@@ -26,9 +25,9 @@ public class SwaggerConfig{
     public GroupedOpenApi UserApi() {
         return GroupedOpenApi.builder()
                 .group("UserController")
-                .packagesToScan("com.swagger.docs.controller")
-                .pathsToExclude("/api/account/**")
-                .pathsToMatch("/api/user/**")
+                .packagesToScan("com.econovation.idp.adapter.in.controller")
+                .pathsToExclude("/api/accounts/**")
+                .pathsToMatch("/api/users/**")
                 .build();
     }
     @Bean

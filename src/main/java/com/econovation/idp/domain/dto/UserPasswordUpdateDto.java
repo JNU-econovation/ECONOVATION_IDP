@@ -1,35 +1,30 @@
-package com.econovation.idp.application.port.in;
+package com.econovation.idp.domain.dto;
 
+import com.econovation.idp.domain.auth.Password;
 import com.econovation.idp.domain.user.Account;
-import lombok.Data;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Range;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@Data
 @Getter
-public class UserUpdateRequestDto {
-
-    @NotNull
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class UserPasswordUpdateDto {
     @Range(min =1, max = 50)
     private Long year;
-
     @NotNull
     private String userName;
-
-
-    public UserUpdateRequestDto(Long year,String userName) {
-        this.year = year;
-        this.userName = userName;
-    }
+    @Password
+    private String password;
 
     public Account toEntity(){
         return Account.builder()
                 .year(year)
                 .userName(userName)
-                .build();
+                .password(password).
+                build();
     }
 }
+

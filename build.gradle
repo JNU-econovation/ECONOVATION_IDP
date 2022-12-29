@@ -1,13 +1,13 @@
 plugins {
-	id 'org.springframework.boot' version '2.7.0'
-	id 'org.springdoc.openapi-gradle-plugin' version "1.4.0"
-	id 'io.spring.dependency-management' version '1.0.14.RELEASE'
+	id 'org.springframework.boot' version '2.7.6'
+//	id 'org.springdoc.openapi-gradle-plugin' version "1.4.0"
+	id 'io.spring.dependency-management' version '1.1.0'
 	id 'java'
 }
 
-group = 'com.econovation'
+group = 'com.econovation.idp'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+sourceCompatibility = '17'
 
 configurations {
 	compileOnly {
@@ -18,7 +18,6 @@ configurations {
 repositories {
 	mavenCentral()
 }
-
 dependencies {
 	//	jwt
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
@@ -28,7 +27,9 @@ dependencies {
 
 //	Swagger
 //	implementation 'org.springdoc:springdoc-openapi-security:1.6.11'
-	implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
+//	implementation 'org.springdoc:springdoc-openapi-common:1.6.9'
+//	implementation 'org.springdoc:springdoc-openapi-webmvc-core:1.6.9'
+	implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.14'
 
 //	Spring Security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -51,10 +52,8 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	implementation 'org.mapstruct:mapstruct:1.5.3.Final'
-		annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
-		annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
-
-
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
+	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
 	jar { enabled = false }
 
@@ -63,3 +62,6 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+
+

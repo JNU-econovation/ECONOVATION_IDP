@@ -1,7 +1,10 @@
 package com.econovation.idp.domain.user;
 
-import com.econovation.idp.application.port.in.UserUpdateRequestDto;
-import lombok.*;
+import com.econovation.idp.domain.dto.UserUpdateRequestDto;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.security.core.GrantedAuthority;
