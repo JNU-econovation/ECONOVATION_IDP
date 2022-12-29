@@ -2,7 +2,7 @@ package com.econovation.idp.application.port.in;
 
 import org.springframework.security.core.Authentication;
 
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 public interface JwtProviderUseCase {

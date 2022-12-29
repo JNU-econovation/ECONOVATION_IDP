@@ -1,13 +1,12 @@
-package com.econovation.idp.adapter.in.web;
+package com.econovation.idp.adapter.in.controller;
 
 import com.econovation.idp.application.port.in.JwtProviderUseCase;
+import com.econovation.idp.application.service.UserService;
 import com.econovation.idp.domain.dto.UserFindDto;
 import com.econovation.idp.domain.dto.UserPasswordUpdateDto;
 import com.econovation.idp.domain.dto.UserUpdateRequestDto;
-import com.econovation.idp.application.service.UserService;
 import com.econovation.idp.domain.user.Account;
 import com.econovation.idp.global.common.BasicResponse;
-import com.econovation.idp.global.config.jwt.JwtProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -20,8 +19,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.nio.charset.Charset;
 import java.util.List;
 

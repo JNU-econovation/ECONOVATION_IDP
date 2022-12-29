@@ -4,9 +4,7 @@ import com.econovation.idp.domain.auth.Password;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.Email;
 
 @Getter
 @AllArgsConstructor

@@ -31,13 +31,6 @@ public class UserService implements UserDetailsService {
     private final AccountRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Account account = userRepository.findAccountByUserEmail(email)
-                .orElseThrow(() -> new BadRequestException("토큰을 확인해보세요"));
-        return new AuthAccount(account);
-    }
-
     @Transactional
     public List<Account> findAll(Integer page){
         Pageable pageable = PageRequest.of(page, 20);
@@ -169,7 +162,20 @@ public class UserService implements UserDetailsService {
         user.update(userUpdateRequestDto);
         return user;
     }
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
+        Account user = findUserByUserEmail(username);
+
+        if (user == null) {
+            throw new UsernameNotFoundException(username + "is not found.");
+        }
+        return user;
+    }
+
+    private List<Object> getUserRolesList(String username) {
+        return null;
+    }
     /**
      * update Account's Role (ex. ADMIN -> USER,  GUEST -> USER)
      * @Param userId : Int!, role : Role!

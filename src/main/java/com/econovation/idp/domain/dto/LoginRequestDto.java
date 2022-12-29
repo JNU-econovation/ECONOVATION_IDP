@@ -4,7 +4,7 @@ import com.econovation.idp.domain.auth.Password;
 import lombok.Getter;
 import org.hibernate.validator.constraints.URL;
 
-import jakarta.validation.constraints.Email;
+import javax.validation.constraints.Email;
 
 @Getter
 public class LoginRequestDto {
