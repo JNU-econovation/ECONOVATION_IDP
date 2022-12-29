@@ -1,4 +1,4 @@
-package com.econovation.idp.application.port.out;
+package com.econovation.idp.domain.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

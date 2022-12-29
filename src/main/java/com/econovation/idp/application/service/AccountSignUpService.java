@@ -1,9 +1,11 @@
 package com.econovation.idp.application.service;
 
+import com.econovation.idp.application.port.in.AccountSignUpUseCase;
 import com.econovation.idp.domain.user.Account;
 import com.econovation.idp.domain.user.AccountRepository;
 import com.econovation.idp.global.common.exception.BadRequestException;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,23 +16,25 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 @Transactional(rollbackFor = Exception.class)
-public class AccountSignUpService {
+public class AccountSignUpService implements AccountSignUpUseCase {
     private final PasswordEncoder passwordEncoder;
     private final AccountRepository accountRepository;
     private final ConfirmationTokenService confirmationTokenService;
     //   회원가입
+    @Override
     @Transactional
-    public void signUp(String userName,Long year,String userEmail,String pinCode, String password) {
+    public void signUp(String userName, Long year, String userEmail, String password) {
         // 중복검증
         isDuplicateEmail(userEmail);
         String encodePassword = passwordEncoder.encode(password);
-        Account newAccount = Account.of(year,userName,encodePassword,userEmail,pinCode);
+        Account newAccount = Account.of(year,userName,encodePassword,userEmail);
         accountRepository.save(newAccount);
     }
 
     // 중복된 이메일 확인
-    public void isDuplicateEmail(String email) {
+    private void isDuplicateEmail(String email) {
         boolean isDuplicate = accountRepository.existsAccountByUserEmail(email);
         if(isDuplicate){
             throw new BadRequestException("이미 존재하는 회원입니다");
@@ -42,6 +46,7 @@ public class AccountSignUpService {
      * 그 이메일로 난수 6글자를 보냄
      * 회원가입
      * */
+    @Override
     @Transactional
     public String sendfindingPasswordConfirmationCode(String name, Long year){
         List<Account> byUserName = accountRepository.findByUserName(name).stream().filter(u->u.getYear().equals(year))
@@ -53,5 +58,5 @@ public class AccountSignUpService {
         String userEmail = first.get().getUserEmail();
         return confirmationTokenService.createEmailConfirmationToken(userEmail);
     }
-
 }
+

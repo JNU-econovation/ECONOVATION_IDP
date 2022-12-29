@@ -1,4 +1,4 @@
-package com.econovation.idp.application.port.in;
+package com.econovation.idp.domain.dto;
 
 import com.econovation.idp.domain.user.Account;
 import lombok.AccessLevel;

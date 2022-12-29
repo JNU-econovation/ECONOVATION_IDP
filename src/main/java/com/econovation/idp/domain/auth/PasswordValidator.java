@@ -29,8 +29,4 @@ public class PasswordValidator implements ConstraintValidator<Password, String> 
         }
         return isValidPassword;
     }
-
-    public boolean isValid(String password) {
-        return password.matches(regexPassword);
-    }
 }

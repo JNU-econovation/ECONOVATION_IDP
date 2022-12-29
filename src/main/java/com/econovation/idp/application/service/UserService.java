@@ -1,13 +1,12 @@
 package com.econovation.idp.application.service;
 
-import com.econovation.idp.application.port.in.UserPasswordUpdateDto;
-import com.econovation.idp.application.port.in.UserUpdateRequestDto;
+import com.econovation.idp.domain.dto.UserPasswordUpdateDto;
+import com.econovation.idp.domain.dto.UserUpdateRequestDto;
 import com.econovation.idp.domain.user.Account;
 import com.econovation.idp.domain.user.AccountRepository;
 import com.econovation.idp.global.common.exception.BadRequestException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -32,13 +31,6 @@ public class UserService implements UserDetailsService {
     private final AccountRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Account account = userRepository.findAccountByUserEmail(email)
-                .orElseThrow(() -> new BadRequestException("토큰을 확인해보세요"));
-        return new AuthAccount(account);
-    }
-
     @Transactional
     public List<Account> findAll(Integer page){
         Pageable pageable = PageRequest.of(page, 20);
@@ -47,7 +39,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public Account setPassword(UserPasswordUpdateDto userPasswordUpdateDto){
-        Account user = userRepository.findUserByUserNameAndYear(userPasswordUpdateDto.getUserName(),userPasswordUpdateDto.getYear());
+        Account user = findUserByYearAndUserName(userPasswordUpdateDto.getUserName(), userPasswordUpdateDto.getYear());
         String encodedPassword = passwordEncoder.encode(userPasswordUpdateDto.getPassword());
         if(user.getPassword() == encodedPassword){
             throw new IllegalArgumentException(OVERLAP_PASSWORD_MESSAGE);
@@ -100,11 +92,6 @@ public class UserService implements UserDetailsService {
             throw new IllegalArgumentException(NOT_FOUND_USER_MESSAGE);
         }
         return users;
-    }
-
-    public Account findUserByPinCode(String pinCode){
-        return userRepository.findUserByPinCode(pinCode)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_USER_MESSAGE));
     }
 
     @Transactional
@@ -168,13 +155,27 @@ public class UserService implements UserDetailsService {
      * @Param userEmail : String!, password : String!, year : Int!, userName : String!
      * @return boolean
      */
-    public Account updateUser(Long userId, UserUpdateRequestDto userUpdateRequestDto) {
-        Account user = userRepository.findById(userId)
-                .orElseThrow(()->new IllegalArgumentException(NOT_FOUND_USER_MESSAGE));
+    public Account updateUser(UserUpdateRequestDto userUpdateRequestDto) {
+        Account user = userRepository.findUserByUserNameAndYear(userUpdateRequestDto.getUserName(), userUpdateRequestDto.getYear())
+                .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_USER_MESSAGE));
+
         user.update(userUpdateRequestDto);
         return user;
     }
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
+        Account user = findUserByUserEmail(username);
+
+        if (user == null) {
+            throw new UsernameNotFoundException(username + "is not found.");
+        }
+        return user;
+    }
+
+    private List<Object> getUserRolesList(String username) {
+        return null;
+    }
     /**
      * update Account's Role (ex. ADMIN -> USER,  GUEST -> USER)
      * @Param userId : Int!, role : Role!
