@@ -1,5 +1,6 @@
 package com.econovation.idp.application.service;
 
+import com.econovation.idp.application.port.in.UserUseCase;
 import com.econovation.idp.domain.dto.UserPasswordUpdateDto;
 import com.econovation.idp.domain.dto.UserUpdateRequestDto;
 import com.econovation.idp.domain.user.Account;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class UserService implements UserDetailsService {
+public class UserService implements UserDetailsService, UserUseCase {
     private static final String NOT_FOUND_USER_MESSAGE = "해당 회원을 찾을 수 없습니다";
     private static final String NOT_CORRECT_USER_MESSAGE = "비밀번호나 이메일이 일치하지 않습니다.";
     private static final String OVERLAP_PASSWORD_MESSAGE = "기존의 비밀번호를 입력했습니다.";
@@ -31,6 +32,7 @@ public class UserService implements UserDetailsService {
     private final AccountRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Override
     @Transactional
     public List<Account> findAll(Integer page){
         Pageable pageable = PageRequest.of(page, 20);
@@ -59,15 +61,19 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll(pageable).stream().filter(u->u.getRole() == role).collect(Collectors.toList());
     }
 
+
     @Transactional
     public Long countAllUser(){
         return userRepository.count();
     }
 
+    @Override
     @Transactional
     public Long countUserByRole(String role){
         return userRepository.countAllByRole(role);
     }
+
+
     /**
      * Get Account By One userId
      * @param Long : userId
@@ -94,6 +100,7 @@ public class UserService implements UserDetailsService {
         return users;
     }
 
+    @Override
     @Transactional
     public Account findUserByYearAndUserName(String userName, Long year){
         List<Account> findUser = userRepository.findByUserName(userName).stream()
@@ -113,6 +120,7 @@ public class UserService implements UserDetailsService {
     public Account findUserByUserEmail(String userEmail) {
         return userRepository.findByUserEmail(userEmail).orElseThrow(() -> new BadRequestException("없는 이메일입니다."));
     }
+
 //    ----Account Authentication------------------------------------------------------------------
 
 
@@ -155,6 +163,7 @@ public class UserService implements UserDetailsService {
      * @Param userEmail : String!, password : String!, year : Int!, userName : String!
      * @return boolean
      */
+    @Override
     public Account updateUser(UserUpdateRequestDto userUpdateRequestDto) {
         Account user = userRepository.findUserByUserNameAndYear(userUpdateRequestDto.getUserName(), userUpdateRequestDto.getYear())
                 .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_USER_MESSAGE));

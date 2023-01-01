@@ -1,5 +1,6 @@
 package com.econovation.idp.domain.user;
 
+import com.econovation.idp.domain.dto.NonAccountResponseDto;
 import com.econovation.idp.domain.dto.UserUpdateRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -67,6 +68,9 @@ public class Account extends BaseTimeEntity implements UserDetails {
     }
 
 
+    public NonAccountResponseDto toNonLoginUser(Account account) {
+        return new NonAccountResponseDto(account.getYear(), account.getUsername(), account.getUserEmail());
+    }
     public static Account of(Long year, String userName, String password, String userEmail) {
         return new Account(year, userName, password, userEmail);
     }
@@ -83,7 +87,7 @@ public class Account extends BaseTimeEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userEmail;
+        return userName;
     }
 
     @Override

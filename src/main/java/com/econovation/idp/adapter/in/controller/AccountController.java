@@ -6,7 +6,6 @@ import com.econovation.idp.application.port.in.JwtProviderUseCase;
 import com.econovation.idp.domain.dto.LoginRequestDto;
 import com.econovation.idp.domain.dto.LoginResponseDto;
 import com.econovation.idp.domain.dto.SignUpRequestDto;
-import com.econovation.idp.global.common.BasicResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -47,7 +46,7 @@ public class AccountController {
     @Operation(summary = "logout", description = "로그아웃_에이전트, 로그아웃시 redirect 페이지로 이동")
     @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
     @GetMapping("/api/accounts/logout")
-    public ResponseEntity<BasicResponse> logout(String redirectUrl, HttpServletRequest request) throws URISyntaxException {
+    public ResponseEntity<String> logout(String redirectUrl, HttpServletRequest request) throws URISyntaxException {
 //        7번부터 빼야 bearer(+스페이스바) 빼고 토큰만 추출 가능
         String refreshToken = request.getHeader("Authorization").substring(7);
 
@@ -56,8 +55,7 @@ public class AccountController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
         log.info(redirectUrl + "으로 이동");
-        BasicResponse response = new BasicResponse("로그아웃 완료", HttpStatus.OK);
-        return new ResponseEntity<>(response, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>("로그아웃 성공", httpHeaders, HttpStatus.OK);
     }
 
     @Operation(summary = "토큰 재발행", description = "Refresh, Access Token 재발행")
@@ -95,10 +93,9 @@ public class AccountController {
     @Operation(summary = "회원가입", description = "회원 가입")
     @ApiResponse(responseCode = "HttpStatus.CREATED", description = "CREATED")
     @PostMapping("/api/accounts/sign-up")
-    public ResponseEntity<BasicResponse> signUp(@Valid SignUpRequestDto signUpUser) {
+    public ResponseEntity<String> signUp(@Valid SignUpRequestDto signUpUser) {
         accountSignUpUseCase.signUp(signUpUser.getUserName(), signUpUser.getYear(), signUpUser.getUserEmail(), signUpUser.getPassword());
-        BasicResponse response = new BasicResponse("회원가입 성공", HttpStatus.CREATED);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return new ResponseEntity<>("회원가입 성공", HttpStatus.CREATED);
     }
     @Operation(summary = "로그인 페이지 처리", description = "로그인완료 후 원래 페이지로 이동")
     @ApiResponses({
@@ -106,15 +103,17 @@ public class AccountController {
             @ApiResponse(responseCode = "HttpStatus.OK", description = "로그인 내부 인증 처리")
     })
     @PostMapping("/api/accounts/login/process")
-    public ResponseEntity<Map> login(@Valid LoginRequestDto loginDto) throws URISyntaxException {
+    public ResponseEntity<Map<String,Object>> login(LoginRequestDto loginDto) throws URISyntaxException {
         LoginResponseDto responseDto = accountJwtUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
         URI redirectUri = new URI(loginDto.getRedirectUrl());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
         log.info("redirectUrl" + redirectUri);
         Date expiredTime = jwtProviderUseCase.getExpiredTime(responseDto.getRefreshToken());
-        Map<Date, LoginResponseDto> loginResponseDto = new HashMap<>();
-        loginResponseDto.put(expiredTime, responseDto);
+
+        Map<String, Object> loginResponseDto = new HashMap<>();
+        loginResponseDto.put("token",responseDto);
+        loginResponseDto.put("expiredTime", expiredTime);
         return new ResponseEntity<>(loginResponseDto, httpHeaders, HttpStatus.OK);
     }
 
@@ -125,14 +124,13 @@ public class AccountController {
             @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
     })
     @GetMapping("/api/accounts/re-check")
-    public ResponseEntity<BasicResponse> checkValideToken(HttpServletRequest request, String refreshToken) {
+    public ResponseEntity<String> checkValideToken(HttpServletRequest request, String refreshToken) {
         Authentication authentication = jwtProviderUseCase.validateToken(request, refreshToken);
         if (!authentication.isAuthenticated()) {
-
             return new ResponseEntity<>(HttpStatus.OK);
         }
 //        토큰 형식이 잘못되면 BadRequest 반환 예외처리 추가예정
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>("유효하지 않은 토큰입니다.",HttpStatus.UNAUTHORIZED);
     }
 
     // 로그인 인증

@@ -19,7 +19,7 @@ public class ControllerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalArgumentException.class)
     public ErrorResult illegalExHandle(IllegalArgumentException e) {
-        log.error(new Date().getTime() + "  [부적절한 사용자 요청] : ", e.getMessage());
+        log.error("[부적절한 사용자 요청] : ", e.getMessage());
         return new ErrorResult("사용자의 잘못된 요청입니다.", e.getMessage());
     }
 

@@ -29,7 +29,8 @@ public class AccountSignUpService implements AccountSignUpUseCase {
         // 중복검증
         isDuplicateEmail(userEmail);
         String encodePassword = passwordEncoder.encode(password);
-        Account newAccount = Account.of(year,userName,encodePassword,userEmail);
+        Account newAccount = new Account(year, userName, encodePassword, userEmail);
+//        Account newAccount = Account.of(year,userName,encodePassword,userEmail);
         accountRepository.save(newAccount);
     }
 
@@ -48,12 +49,12 @@ public class AccountSignUpService implements AccountSignUpUseCase {
      * */
     @Override
     @Transactional
-    public String sendfindingPasswordConfirmationCode(String name, Long year){
+    public String sendfindingPasswordConfirmationCode(String name, Long year) throws IllegalAccessException {
         List<Account> byUserName = accountRepository.findByUserName(name).stream().filter(u->u.getYear().equals(year))
                 .collect(Collectors.toList());
         Optional<Account> first = byUserName.stream().findFirst();
         if(first.isEmpty()){
-            throw new BadRequestException("잘못된 이름과 기수를 입력했습니다.");
+            throw new IllegalAccessException("잘못된 이름과 기수를 입력했습니다.");
         }
         String userEmail = first.get().getUserEmail();
         return confirmationTokenService.createEmailConfirmationToken(userEmail);
