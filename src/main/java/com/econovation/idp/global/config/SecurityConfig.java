@@ -118,6 +118,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                특정 URL 차단 및 접근권한 설정
                 .and()
                 .authorizeRequests()// 시큐리티 처리에 HttpServeltRequest를 사용합니다.
+                .antMatchers("/**").permitAll()
                 .antMatchers("/non/**").permitAll()
                 .antMatchers("/api/users/**").hasAuthority("USER")
                 .antMatchers("/api/accounts/**").permitAll()

@@ -155,7 +155,8 @@ public class UserService implements UserDetailsService, UserUseCase {
 //        관리자만 삭제할 수 있게 관리자 인증 추가 예정
         Account user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_USER_MESSAGE));
-        userRepository.delete(user);
+        // 삭제 마킹하기
+        user.isEnabled();
     }
 
     /**

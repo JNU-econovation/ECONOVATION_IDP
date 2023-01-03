@@ -49,6 +49,7 @@ public class Account extends BaseTimeEntity implements UserDetails {
     @Column(nullable = false)
     private String role;
 
+    private boolean isEnabled;
     public void setPassword(String password){
         this.password = password;
     }
@@ -59,6 +60,7 @@ public class Account extends BaseTimeEntity implements UserDetails {
         this.password = password;
         this.userEmail = userEmail;
         this.role = "USER";
+        this.isEnabled = true;
     }
 
     public void update(UserUpdateRequestDto userUpdateRequestDto){
@@ -75,6 +77,10 @@ public class Account extends BaseTimeEntity implements UserDetails {
         return new Account(year, userName, password, userEmail);
     }
 
+    public void notEnabled(Account account){
+        this.isEnabled = false;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
@@ -84,6 +90,7 @@ public class Account extends BaseTimeEntity implements UserDetails {
         }
         return authorities;
     }
+
 
     @Override
     public String getUsername() {

@@ -38,7 +38,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 //        로그인 하지 않은 사람의 처치
         else{
 //            일반 요청이라면
-            if(request.getRequestURI().startsWith("/api/accounts") || request.getRequestURI().startsWith("non/api/")){
+            if(request.getRequestURI().startsWith("/api/accounts") || request.getRequestURI().startsWith("non/api/") ||
+                    request.getRequestURI().startsWith("/swagger") || request.getRequestURI().startsWith("/api-docs")){
                 filterChain.doFilter(request,response);
                 return;
             }

@@ -3,9 +3,11 @@ package com.econovation.idp.application.service;
 import com.econovation.idp.application.port.in.AccountSignUpUseCase;
 import com.econovation.idp.domain.user.Account;
 import com.econovation.idp.domain.user.AccountRepository;
+import com.econovation.idp.global.common.BasicResponse;
 import com.econovation.idp.global.common.exception.BadRequestException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +29,10 @@ public class AccountSignUpService implements AccountSignUpUseCase {
     @Transactional
     public void signUp(String userName, Long year, String userEmail, String password) {
         // 중복검증
-        isDuplicateEmail(userEmail);
+        BasicResponse duplicateEmail = isDuplicateEmail(userEmail);
+        if (duplicateEmail.getStatus().equals(HttpStatus.CONFLICT)) {
+            throw new BadRequestException("중복된 이메일입니다");
+        }
         String encodePassword = passwordEncoder.encode(password);
         Account newAccount = new Account(year, userName, encodePassword, userEmail);
 //        Account newAccount = Account.of(year,userName,encodePassword,userEmail);
@@ -35,11 +40,13 @@ public class AccountSignUpService implements AccountSignUpUseCase {
     }
 
     // 중복된 이메일 확인
-    private void isDuplicateEmail(String email) {
+    @Override
+    public BasicResponse isDuplicateEmail(String email) {
         boolean isDuplicate = accountRepository.existsAccountByUserEmail(email);
         if(isDuplicate){
-            throw new BadRequestException("이미 존재하는 회원입니다");
+            return new BasicResponse("중복된 이메일입니다.", HttpStatus.CONFLICT);
         }
+        return new BasicResponse("사용가능한 이메일입니다.", HttpStatus.OK);
     }
 
     /**이름, 기수를 받아 회원을 조회
