@@ -1,6 +1,5 @@
-package com.econovation.idp.adapter.in.controller;
+package com.econovation.idp.domain.dto;
 
-import com.econovation.idp.domain.dto.LoginResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

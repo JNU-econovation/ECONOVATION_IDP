@@ -31,7 +31,7 @@ public class Account extends BaseTimeEntity implements UserDetails {
 
 
     @Column(nullable = false)
-    @Range(min =1, max = 50)
+    @Range(min =0, max = 50)
     @NotNull
     private Long year;
 

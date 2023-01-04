@@ -5,6 +5,7 @@ import com.econovation.idp.application.port.in.AccountSignUpUseCase;
 import com.econovation.idp.application.port.in.JwtProviderUseCase;
 import com.econovation.idp.domain.dto.LoginRequestDto;
 import com.econovation.idp.domain.dto.LoginResponseDto;
+import com.econovation.idp.domain.dto.LoginResponseDtoWithExpiredTime;
 import com.econovation.idp.domain.dto.SignUpRequestDto;
 import com.econovation.idp.global.common.BasicResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,7 +55,7 @@ public class AccountController {
         accountJwtUseCase.logout(refreshToken);
         URI redirectUri = new URI(redirectUrl);
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setLocation(redirectUri);
+        httpHeaders.setLocation(redirectUri );
         log.info(redirectUrl + "으로 이동");
         BasicResponse result = new BasicResponse("로그아웃 성공", HttpStatus.OK);
         return new ResponseEntity<>(result, httpHeaders, HttpStatus.OK);
