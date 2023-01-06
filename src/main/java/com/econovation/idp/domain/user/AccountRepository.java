@@ -16,20 +16,22 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     List<Account> findAll();
     boolean existsAccountByUserEmail(String userEmail);
 
-    Optional<Account> findAccountByUserEmail(String userEmail);
+//    Optional<Account> findByUserEmail(String userEmail);
 
     @Query("SELECT u FROM Account u WHERE u.userName = :userName")
     List<Account> findByUserName(@Param("userName") String userName);
 
-    @Query("SELECT u FROM Account u WHERE u.userEmail = :userEmail")
-    Optional<Account> findByUserEmail(@Param("userEmail")String userEmail);
+//    @Query("SELECT u FROM Account u WHERE u.userEmail = :userEmail")
+//    Optional<Account> findByUserEmail(@Param("userEmail") String userEmail);
+
+    Optional<Account> findByUserEmail(String userEmail);
 
     Page<Account> findAll(Pageable pageable);
 
     Long countAllByRole(String role);
 
     @Query("SELECT u FROM Account u WHERE u.password = :password")
-    Optional<Account> findByPassword(@Param("password")String password);
+    Optional<Account> findByPassword(@Param("password") String password);
 
     Optional<Account> findUserByUserNameAndYear(String userName, Long Year);
 

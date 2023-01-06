@@ -5,6 +5,7 @@ import com.econovation.idp.application.port.out.RecordAccountPort;
 import com.econovation.idp.domain.user.Account;
 import com.econovation.idp.domain.user.AccountRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class AccountPersistenceAdapter implements LoadAccountPort, RecordAccountPort {
     private final AccountRepository accountRepository;

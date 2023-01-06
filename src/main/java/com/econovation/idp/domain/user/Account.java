@@ -1,5 +1,6 @@
 package com.econovation.idp.domain.user;
 
+import com.econovation.idp.domain.dto.NonAccountResponseDto;
 import com.econovation.idp.domain.dto.UserUpdateRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,7 +31,7 @@ public class Account extends BaseTimeEntity implements UserDetails {
 
 
     @Column(nullable = false)
-    @Range(min =1, max = 50)
+    @Range(min =0, max = 50)
     @NotNull
     private Long year;
 
@@ -48,6 +49,7 @@ public class Account extends BaseTimeEntity implements UserDetails {
     @Column(nullable = false)
     private String role;
 
+    private boolean isEnabled;
     public void setPassword(String password){
         this.password = password;
     }
@@ -58,6 +60,7 @@ public class Account extends BaseTimeEntity implements UserDetails {
         this.password = password;
         this.userEmail = userEmail;
         this.role = "USER";
+        this.isEnabled = true;
     }
 
     public void update(UserUpdateRequestDto userUpdateRequestDto){
@@ -67,8 +70,15 @@ public class Account extends BaseTimeEntity implements UserDetails {
     }
 
 
+    public NonAccountResponseDto toNonLoginUser(Account account) {
+        return new NonAccountResponseDto(account.getYear(), account.getUsername(), account.getUserEmail());
+    }
     public static Account of(Long year, String userName, String password, String userEmail) {
         return new Account(year, userName, password, userEmail);
+    }
+
+    public void notEnabled(Account account){
+        this.isEnabled = false;
     }
 
     @Override
@@ -81,9 +91,10 @@ public class Account extends BaseTimeEntity implements UserDetails {
         return authorities;
     }
 
+
     @Override
     public String getUsername() {
-        return userEmail;
+        return userName;
     }
 
     @Override

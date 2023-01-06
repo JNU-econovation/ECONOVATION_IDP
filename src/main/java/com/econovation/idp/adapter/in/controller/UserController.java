@@ -1,7 +1,7 @@
 package com.econovation.idp.adapter.in.controller;
 
 import com.econovation.idp.application.port.in.JwtProviderUseCase;
-import com.econovation.idp.application.service.UserService;
+import com.econovation.idp.application.port.in.UserUseCase;
 import com.econovation.idp.domain.dto.UserFindDto;
 import com.econovation.idp.domain.dto.UserPasswordUpdateDto;
 import com.econovation.idp.domain.dto.UserUpdateRequestDto;
@@ -15,13 +15,11 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.nio.charset.Charset;
 import java.util.List;
 
 
@@ -31,14 +29,14 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 @Tag(name = "WebApplication User 제공 서비스", description = "유저 정보 조회")
 public class UserController {
-    private final UserService userService;
+    private final UserUseCase userService;
     private final JwtProviderUseCase jwtProviderUseCase;
 
     /**
      * @deprecated (when, why, etc...)
      */
     @Deprecated
-    @GetMapping("/api/users/{page}")
+    @GetMapping("/api/users/page/{page}")
     public ResponseEntity<List<Account>> findUserAll(@PathVariable int page){
         List<Account> listAccount = userService.findAll(page);
         return new ResponseEntity<>(listAccount, HttpStatus.OK);
@@ -51,8 +49,6 @@ public class UserController {
     @GetMapping("/api/users/{userId}")
     public ResponseEntity<Account> findUserById(@PathVariable Long userId) {
         HttpHeaders headers= new HttpHeaders();
-        headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
-
         Account account = userService.findUserById(userId);
         return new ResponseEntity<>(account, headers, HttpStatus.OK);
     }
@@ -83,8 +79,8 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(description = "이름으로 회원 조회")
     })
-    @GetMapping("/api/users/{userName}")
-    public ResponseEntity<List<Account>> findUserByUserName(@PathVariable String userName){
+    @GetMapping("/api/users")
+    public ResponseEntity<List<Account>> findUserByUserName(String userName){
         List<Account> userListByUserName = userService.findUserByUserName(userName);
         return new ResponseEntity<>(userListByUserName, HttpStatus.OK);
     }
@@ -111,15 +107,15 @@ public class UserController {
         return new ResponseEntity<>(userByYearAndUserName.getUserEmail(), HttpStatus.OK);
     }
 
-    @Operation(summary = "Email로 회원 조회", description = "이메일로 회원 조회")
-    @ApiResponses({
-            @ApiResponse(description = "Role에 따른 회원 조횐 return")
-    })
-    @GetMapping("/api/users/{userEmail}")
-    public ResponseEntity<Account> findUserByEmail(@PathVariable String userEmail) {
-        Account userByUserEmail = userService.findUserByUserEmail(userEmail);
-        return new ResponseEntity<>(userByUserEmail,HttpStatus.OK);
-    }
+//    @Operation(summary = "Email로 회원 조회", description = "이메일로 회원 조회")
+//    @ApiResponses({
+//            @ApiResponse(description = "Role에 따른 회원 조횐 return")
+//    })
+//    @GetMapping("/api/users/{userEmail}")
+//    public ResponseEntity<Account> findUserByEmail(@PathVariable String userEmail) {
+//        Account userByUserEmail = userService.findUserByUserEmail(userEmail);
+//        return new ResponseEntity<>(userByUserEmail,HttpStatus.OK);
+//    }
 
     @Operation(summary = "회원정보 수정", description = "로그인된 상태에서, 회원정보 수정")
     @ApiResponses({
