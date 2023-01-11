@@ -8,5 +8,5 @@ import lombok.Data;
 public class NonAccountResponseDto {
     private Long year;
     private String name;
-    private String email;
+    private Long id;
 }
