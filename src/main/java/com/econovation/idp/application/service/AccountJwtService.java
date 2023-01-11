@@ -4,14 +4,18 @@ import com.econovation.idp.application.port.in.AccountJwtUseCase;
 import com.econovation.idp.application.port.in.JwtProviderUseCase;
 import com.econovation.idp.application.port.out.LoadAccountPort;
 import com.econovation.idp.domain.dto.LoginResponseDto;
+import com.econovation.idp.domain.dto.NonAccountResponseDto;
 import com.econovation.idp.domain.user.Account;
 import com.econovation.idp.domain.user.AccountRepository;
 import com.econovation.idp.global.common.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -25,11 +29,26 @@ public class AccountJwtService implements AccountJwtUseCase {
 
     @Override
     @Transactional
-    public LoginResponseDto reIssueAccessToken(String email, String refreshedToken) {
+    public LoginResponseDto reIssueAccessToken(HttpServletRequest request, String refreshedToken) {
+        String email = jwtProviderUseCase.getUserEmail(refreshedToken);
         Account account = loadAccountPort.loadByUserEmail(email).orElseThrow(() -> new IllegalArgumentException(NO_ACCOUNT_MESSAGE));
-        String refreshToken = jwtProviderUseCase.createRefreshToken(email,account.getRole());
-        String accessToken = jwtProviderUseCase.createAccessToken(account.getUserEmail(), account.getRole());
-        return new LoginResponseDto(accessToken, refreshToken);
+        // refreshToken 검증 절차
+        Authentication authentication = jwtProviderUseCase.validateToken(request, refreshedToken);
+        if (authentication.isAuthenticated()) {
+            String refreshToken = jwtProviderUseCase.createRefreshToken(email,account.getRole());
+            String accessToken = jwtProviderUseCase.createAccessToken(account.getUserEmail(), account.getRole());
+            return new LoginResponseDto(accessToken, refreshToken);
+        }
+        else {
+            throw new BadRequestException("유효하지 않은 토큰입니다");
+        }
+    }
+
+    @Override
+    public NonAccountResponseDto findByAccessToken(String accessToken) {
+        String email = jwtProviderUseCase.getUserEmail(accessToken);
+        Account account = loadAccountPort.loadByUserEmail(email).orElseThrow(() -> new IllegalArgumentException(NO_ACCOUNT_MESSAGE));
+        return new NonAccountResponseDto(account.getYear(),account.getUsername(),account.getUserEmail());
     }
 
     @Transactional
