@@ -3,11 +3,7 @@ package com.econovation.idp.adapter.in.controller;
 import com.econovation.idp.application.port.in.AccountJwtUseCase;
 import com.econovation.idp.application.port.in.AccountSignUpUseCase;
 import com.econovation.idp.application.port.in.JwtProviderUseCase;
-import com.econovation.idp.domain.dto.LoginRequestDto;
-import com.econovation.idp.domain.dto.LoginResponseDto;
-import com.econovation.idp.domain.dto.LoginResponseDtoWithExpiredTime;
-import com.econovation.idp.domain.dto.SignUpRequestDto;
-import com.econovation.idp.domain.user.Account;
+import com.econovation.idp.domain.dto.*;
 import com.econovation.idp.global.common.BasicResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -162,12 +158,12 @@ public class AccountController {
     @ApiResponses({
             @ApiResponse(description = "이름/기수/uid 반환")
     })
-    @GetMapping("/api/users/simple")
-    public ResponseEntity<Account> simpleRequest(HttpServletRequest request){
+    @GetMapping("/api/users/token")
+    public ResponseEntity<NonAccountResponseDto> simpleRequest(HttpServletRequest request){
         String accessToken = request.getHeader("Authorization").substring(7);
-        accountJwtUseCase.
+        NonAccountResponseDto byAccessToken = accountJwtUseCase.findByAccessToken(accessToken);
+        return new ResponseEntity<>(byAccessToken, HttpStatus.OK);
     }
-
 
     /**
      *  Token 이 유효하지 않을 때 재요청 하는 로직

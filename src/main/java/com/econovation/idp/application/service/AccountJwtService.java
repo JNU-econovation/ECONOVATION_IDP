@@ -4,6 +4,7 @@ import com.econovation.idp.application.port.in.AccountJwtUseCase;
 import com.econovation.idp.application.port.in.JwtProviderUseCase;
 import com.econovation.idp.application.port.out.LoadAccountPort;
 import com.econovation.idp.domain.dto.LoginResponseDto;
+import com.econovation.idp.domain.dto.NonAccountResponseDto;
 import com.econovation.idp.domain.user.Account;
 import com.econovation.idp.domain.user.AccountRepository;
 import com.econovation.idp.global.common.exception.BadRequestException;
@@ -41,6 +42,13 @@ public class AccountJwtService implements AccountJwtUseCase {
         else {
             throw new BadRequestException("유효하지 않은 토큰입니다");
         }
+    }
+
+    @Override
+    public NonAccountResponseDto findByAccessToken(String accessToken) {
+        String email = jwtProviderUseCase.getUserEmail(accessToken);
+        Account account = loadAccountPort.loadByUserEmail(email).orElseThrow(() -> new IllegalArgumentException(NO_ACCOUNT_MESSAGE));
+        return new NonAccountResponseDto(account.getYear(),account.getUsername(),account.getUserEmail());
     }
 
     @Transactional
