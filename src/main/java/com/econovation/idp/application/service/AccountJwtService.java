@@ -48,7 +48,7 @@ public class AccountJwtService implements AccountJwtUseCase {
     public NonAccountResponseDto findByAccessToken(String accessToken) {
         String email = jwtProviderUseCase.getUserEmail(accessToken);
         Account account = loadAccountPort.loadByUserEmail(email).orElseThrow(() -> new IllegalArgumentException(NO_ACCOUNT_MESSAGE));
-        return new NonAccountResponseDto(account.getYear(),account.getUsername(),account.getUserEmail());
+        return new NonAccountResponseDto(account.getYear(),account.getUsername(),account.getId());
     }
 
     @Transactional
