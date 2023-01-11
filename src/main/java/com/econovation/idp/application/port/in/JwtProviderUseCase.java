@@ -1,5 +1,6 @@
 package com.econovation.idp.application.port.in;
 
+import com.econovation.idp.domain.dto.LoginResponseDto;
 import org.springframework.security.core.Authentication;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,5 +12,6 @@ public interface JwtProviderUseCase {
     public String createRefreshToken(String userId, String role);
     public Date getExpiredTime(String token);
     public Authentication validateToken(HttpServletRequest request, String token);
-
+    public String getUserEmail(String token);
+    public LoginResponseDto reIssueAccessToken(HttpServletRequest request, String refreshedToken);
 }

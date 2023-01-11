@@ -7,11 +7,13 @@ import com.econovation.idp.domain.dto.LoginRequestDto;
 import com.econovation.idp.domain.dto.LoginResponseDto;
 import com.econovation.idp.domain.dto.LoginResponseDtoWithExpiredTime;
 import com.econovation.idp.domain.dto.SignUpRequestDto;
+import com.econovation.idp.domain.user.Account;
 import com.econovation.idp.global.common.BasicResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,11 +76,11 @@ public class AccountController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoginResponseDto.class)))
     })
     @GetMapping("/api/accounts/re-issue")
-    public ResponseEntity<LoginResponseDto> reIssue(@Email String userEmail, String refreshToken, HttpServletRequest request) {
+    public ResponseEntity<LoginResponseDto> reIssue(String refreshToken, HttpServletRequest request) {
         if(!jwtProviderUseCase.validateToken(request,refreshToken).isAuthenticated()){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        LoginResponseDto responseDto = accountJwtUseCase.reIssueAccessToken(userEmail, refreshToken);
+        LoginResponseDto responseDto = accountJwtUseCase.reIssueAccessToken(request, refreshToken);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
@@ -144,7 +146,7 @@ public class AccountController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoginResponseDtoWithExpiredTime.class))
                     )})
     @PostMapping("/api/accounts/login/process/expired")
-    public ResponseEntity<LoginResponseDtoWithExpiredTime> loginWithExpiredTime(@Valid LoginRequestDto loginDto) throws URISyntaxException {
+    public ResponseEntity<LoginResponseDtoWithExpiredTime> loginWithExpiredTime(LoginRequestDto loginDto) throws URISyntaxException {
         LoginResponseDto responseDto = accountJwtUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
         Date expiredTime = jwtProviderUseCase.getExpiredTime(responseDto.getRefreshToken());
         URI redirectUri = new URI(loginDto.getRedirectUrl());
@@ -154,6 +156,18 @@ public class AccountController {
         LoginResponseDtoWithExpiredTime loginResponseDtoWithExpiredTime = new LoginResponseDtoWithExpiredTime(expiredTime, responseDto);
         return new ResponseEntity<>(loginResponseDtoWithExpiredTime, httpHeaders, HttpStatus.OK);
     }
+
+
+    @Operation(summary = "토큰에 따른 유저 정보 조회", description = "accessToken에 일치하는 회원 조회")
+    @ApiResponses({
+            @ApiResponse(description = "이름/기수/uid 반환")
+    })
+    @GetMapping("/api/users/simple")
+    public ResponseEntity<Account> simpleRequest(HttpServletRequest request){
+        String accessToken = request.getHeader("Authorization").substring(7);
+        accountJwtUseCase.
+    }
+
 
     /**
      *  Token 이 유효하지 않을 때 재요청 하는 로직

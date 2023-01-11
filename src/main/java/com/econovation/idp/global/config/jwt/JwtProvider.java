@@ -75,7 +75,8 @@ public class JwtProvider implements JwtProviderUseCase {
         return refreshToken;
     }
 
-    private String getUserEmail(String token) {
+    @Override
+    public String getUserEmail(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
     }
 
