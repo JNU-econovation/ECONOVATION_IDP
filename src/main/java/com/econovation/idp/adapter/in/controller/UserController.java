@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 
 @Slf4j
@@ -32,16 +33,27 @@ public class UserController {
     private final UserUseCase userService;
     private final JwtProviderUseCase jwtProviderUseCase;
 
-    /**
-     * @deprecated (when, why, etc...)
-     */
-    @Deprecated
+
     @GetMapping("/api/users/page/{page}")
     public ResponseEntity<List<Account>> findUserAll(@PathVariable int page){
         List<Account> listAccount = userService.findAll(page);
         return new ResponseEntity<>(listAccount, HttpStatus.OK);
     }
 
+    @Operation(summary = "maxPage를 포함한 페이징 회원 조회", description = "isMaxpage = true : 전체 페이")
+    @ApiResponses({
+            @ApiResponse(description = "Role에 따른 회원 조횐 return")
+    })
+    @GetMapping("/api/users/page/{page}/{isMaxpage}")
+    public ResponseEntity<Map> findUserAll(@PathVariable int page,@PathVariable boolean isMaxpage){
+        if(page <= 0) throw new IllegalArgumentException("1 이상의 페이지를 입력해주세요");
+        if(isMaxpage){
+            Map listAccount = userService.findAllWithLastPageInPage(page-1);
+            return new ResponseEntity<>(listAccount, HttpStatus.OK);
+        }
+        findUserAll(page);
+        return null;
+    }
     @Operation(summary = "findUserById", description = "Id로 회원조회")
     @ApiResponses({
             @ApiResponse(responseCode = "Account Object", description = "검색 유저 return")
