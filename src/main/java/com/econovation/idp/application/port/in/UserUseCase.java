@@ -5,6 +5,7 @@ import com.econovation.idp.domain.dto.UserUpdateRequestDto;
 import com.econovation.idp.domain.user.Account;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserUseCase {
     List<Account> findAll(Integer page);
@@ -18,4 +19,5 @@ public interface UserUseCase {
     Account updateUser(UserUpdateRequestDto userUpdateRequestDto);
     void deleteUserById(Long userId);
     Account setPassword(UserPasswordUpdateDto userPasswordUpdateDto);
+    Map findAllWithLastPageInPage(Integer page);
 }

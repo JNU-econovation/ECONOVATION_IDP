@@ -71,7 +71,7 @@ public class Account extends BaseTimeEntity implements UserDetails {
 
 
     public NonAccountResponseDto toNonLoginUser(Account account) {
-        return new NonAccountResponseDto(account.getYear(), account.getUsername(), account.getUserEmail());
+        return new NonAccountResponseDto(account.getYear(), account.getUsername(), account.getId());
     }
     public static Account of(Long year, String userName, String password, String userEmail) {
         return new Account(year, userName, password, userEmail);
@@ -90,7 +90,6 @@ public class Account extends BaseTimeEntity implements UserDetails {
         }
         return authorities;
     }
-
 
     @Override
     public String getUsername() {

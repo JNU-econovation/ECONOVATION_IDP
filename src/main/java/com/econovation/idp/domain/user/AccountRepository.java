@@ -2,6 +2,7 @@ package com.econovation.idp.domain.user;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,12 +29,15 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     Page<Account> findAll(Pageable pageable);
 
+    Slice<Account> findSliceBy(Pageable pageable);
     Long countAllByRole(String role);
 
     @Query("SELECT u FROM Account u WHERE u.password = :password")
     Optional<Account> findByPassword(@Param("password") String password);
 
     Optional<Account> findUserByUserNameAndYear(String userName, Long Year);
+
+    Optional<Account> findById(Long idpId);
 
     /* 유효성 검사 - 중복 체크
      * 중복 : true

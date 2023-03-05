@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,8 +18,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -32,18 +34,39 @@ public class UserService implements UserDetailsService, UserUseCase {
     private final AccountRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    private final Integer PAGE_PER_REQUEST = 1;
+    private final Integer SIZE_BATCH_PAGE = 3;
+
     @Override
     @Transactional
     public List<Account> findAll(Integer page){
-        Pageable pageable = PageRequest.of(page, 20);
-        return userRepository.findAll(pageable).stream().collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, PAGE_PER_REQUEST);
+        return userRepository.findAll(pageable).stream().toList();
+    }
+
+    @Transactional
+    public Map<String, Object> findAllWithLastPageInPage(Integer page){
+        Pageable pageable = PageRequest.of(page, PAGE_PER_REQUEST);
+
+//        Page<Account> usersWithPagination = userRepository.findAll(pageable);
+        Slice<Account> usersWithPagination = userRepository.findSliceBy(pageable);
+        log.info(" number : "+ String.valueOf(usersWithPagination.getNumber()));
+        log.info(" size : "+ String.valueOf(usersWithPagination.getSize()));
+//        int totalPages = usersWithPagination.getTotalPages();
+        List<Account> users = usersWithPagination.stream().toList();
+        Map<String, Object> map = new HashMap();
+        map.put("users",users);
+//        map.put("maxPage",page + (users.size() / PAGE_PER_REQUEST));
+//        map.put("maxPage",totalPages);
+        if(map.isEmpty()) throw new IllegalArgumentException(NOT_FOUND_USER_MESSAGE);
+        return map;
     }
 
     @Transactional
     public Account setPassword(UserPasswordUpdateDto userPasswordUpdateDto){
         Account user = findUserByYearAndUserName(userPasswordUpdateDto.getUserName(), userPasswordUpdateDto.getYear());
         String encodedPassword = passwordEncoder.encode(userPasswordUpdateDto.getPassword());
-        if(user.getPassword() == encodedPassword){
+        if(user.getPassword().equals(encodedPassword)){
             throw new IllegalArgumentException(OVERLAP_PASSWORD_MESSAGE);
         }
         user.setPassword(encodedPassword);
@@ -58,7 +81,7 @@ public class UserService implements UserDetailsService, UserUseCase {
     @Transactional
     public List<Account> findUserByRole(int page, String role){
         Pageable pageable = PageRequest.of(page, 8);
-        return userRepository.findAll(pageable).stream().filter(u->u.getRole() == role).collect(Collectors.toList());
+        return userRepository.findAll(pageable).stream().filter(u->u.getRole().equals(role)).toList();
     }
 
 
@@ -103,13 +126,13 @@ public class UserService implements UserDetailsService, UserUseCase {
     @Override
     @Transactional
     public Account findUserByYearAndUserName(String userName, Long year){
-        List<Account> findUser = userRepository.findByUserName(userName).stream()
+        Account findUser = userRepository.findByUserName(userName).stream()
                 .filter(m -> m.getYear().equals(year))
-                .collect(Collectors.toList());
-        if(findUser.isEmpty()){
+                .toList().get(0);
+        if(findUser == null){
             throw new IllegalArgumentException(NOT_CORRECT_USER_MESSAGE);
         }
-        return findUser.stream().findFirst().get();
+        return findUser;
     }
     /**
      * Get Account By One userEmail
