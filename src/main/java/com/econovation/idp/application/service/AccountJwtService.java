@@ -30,13 +30,13 @@ public class AccountJwtService implements AccountJwtUseCase {
     @Override
     @Transactional
     public LoginResponseDto reIssueAccessToken(HttpServletRequest request, String refreshedToken) {
-        String email = jwtProviderUseCase.getUserEmail(refreshedToken);
-        Account account = loadAccountPort.loadByUserEmail(email).orElseThrow(() -> new IllegalArgumentException(NO_ACCOUNT_MESSAGE));
+        Long idpId = jwtProviderUseCase.getIdpId(refreshedToken);
+        Account account = accountRepository.findById(idpId).orElseThrow(() -> new IllegalArgumentException(NO_ACCOUNT_MESSAGE));
         // refreshToken 검증 절차
         Authentication authentication = jwtProviderUseCase.validateToken(request, refreshedToken);
         if (authentication.isAuthenticated()) {
-            String refreshToken = jwtProviderUseCase.createRefreshToken(email,account.getRole());
-            String accessToken = jwtProviderUseCase.createAccessToken(account.getUserEmail(), account.getRole());
+            String refreshToken = jwtProviderUseCase.createRefreshToken(idpId,account.getRole());
+            String accessToken = jwtProviderUseCase.createAccessToken(account.getId(), account.getRole());
             return new LoginResponseDto(accessToken, refreshToken);
         }
         else {
@@ -46,15 +46,15 @@ public class AccountJwtService implements AccountJwtUseCase {
 
     @Override
     public NonAccountResponseDto findByAccessToken(String accessToken) {
-        String email = jwtProviderUseCase.getUserEmail(accessToken);
-        Account account = loadAccountPort.loadByUserEmail(email).orElseThrow(() -> new IllegalArgumentException(NO_ACCOUNT_MESSAGE));
+        Long idpId = jwtProviderUseCase.getIdpId(accessToken);
+        Account account = accountRepository.findById(idpId).orElseThrow(() -> new IllegalArgumentException(NO_ACCOUNT_MESSAGE));
         return new NonAccountResponseDto(account.getYear(),account.getUsername(),account.getId());
     }
 
     @Transactional
     public LoginResponseDto createToken(Account account){
-        String accessToken = jwtProviderUseCase.createAccessToken(account.getUserEmail(), account.getRole());
-        String refreshToken = jwtProviderUseCase.createRefreshToken(account.getUserEmail(), account.getRole());
+        String accessToken = jwtProviderUseCase.createAccessToken(account.getId(), account.getRole());
+        String refreshToken = jwtProviderUseCase.createRefreshToken(account.getId(), account.getRole());
         return new LoginResponseDto(accessToken, refreshToken);
     }
 

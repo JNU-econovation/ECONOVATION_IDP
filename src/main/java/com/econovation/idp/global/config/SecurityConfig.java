@@ -72,7 +72,8 @@ package com.econovation.idp.global.config;//package com.econovation.idp.global.c
 
 import com.econovation.idp.global.config.jwt.JwtAuthenticationFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -86,10 +87,11 @@ import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
 
 @EnableWebSecurity
-@AllArgsConstructor
-//@RequiredArgsConstructor
+//@AllArgsConstructor
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
     private final ObjectMapper objectMapper;
 
     private final String UNAUTHORIZEd_CUSTOM_MESSAGE = "인증받지 못한 유저입니다. 로그인을 재시도해주세요.";

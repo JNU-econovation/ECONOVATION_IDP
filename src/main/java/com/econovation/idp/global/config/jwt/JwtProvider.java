@@ -42,15 +42,16 @@ public class JwtProvider implements JwtProviderUseCase {
         long expiredAccessTokenTime = getExpiredTime(refreshToken).getTime() - new Date().getTime();
 //        이메일 조회
 //        accessToken To userEmail
-        String userEmail = getUserEmail(refreshToken);
-        redisService.setValues(blackListATPrefix + refreshToken, userEmail, Duration.ofMillis(expiredAccessTokenTime));
-        redisService.deleteValues(userEmail); // Delete RefreshToken In Redis
+        Long idpId = getIdpId(refreshToken);
+        redisService.setValues(blackListATPrefix + refreshToken, String.valueOf(idpId), Duration.ofMillis(expiredAccessTokenTime));
+        redisService.deleteValues(String.valueOf(idpId)); // Delete RefreshToken In Redis
     }
 
-    private String createToken(String userEmail, String role, long tokenInvalidTime) {
-        Claims claims = Jwts.claims().setSubject(userEmail);
+    private String createToken(Integer idpId, String role, long tokenInvalidTime) {
+        Claims claims = Jwts.claims().setSubject(String.valueOf(idpId));
         claims.put("roles", role);
         Date date = new Date();
+        log.info(secretKey);
         return Jwts.builder()
                 .setClaims(claims) // 발행유저 정보 저장
                 .setIssuedAt(date) // 발행 시간 저장
@@ -61,23 +62,26 @@ public class JwtProvider implements JwtProviderUseCase {
 
 // accessToken 은 redis에 저장하지 않는다.
     @Override
-    public String createAccessToken(String userId, String role) {
-        long tokenInvalidTime = 1000L * 60 * 3;//3m
-        return this.createToken(userId, role, tokenInvalidTime);
+    public String createAccessToken(Long idpId, String role) {
+        long tokenInvalidTime = 1000L * 60 * 60; //1h
+        return this.createToken(Math.toIntExact(idpId), role, tokenInvalidTime);
     }
 
 // refreshToken 은 redis 에 저장해야한다.
     @Override
-    public String createRefreshToken(String userId, String role) {
+    public String createRefreshToken(Long idpId, String role) {
         Long tokenInvalidTime = 1000L * 60 * 60 * 24; // 1d
-        String refreshToken = this.createToken(userId, role, tokenInvalidTime);
-        redisService.setValues(userId, refreshToken, Duration.ofMillis(tokenInvalidTime));
+        String refreshToken = this.createToken(Math.toIntExact(idpId), role, tokenInvalidTime);
+        redisService.setValues(String.valueOf(idpId), refreshToken, Duration.ofMillis(tokenInvalidTime));
         return refreshToken;
     }
 
+
     @Override
-    public String getUserEmail(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+    public Long getIdpId(String token) {
+        Long aLong = Long.valueOf(Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject());
+        log.info("테스트중입니다 따란 : " + String.valueOf(aLong));
+        return aLong;
     }
 
     @Override
@@ -109,7 +113,7 @@ public class JwtProvider implements JwtProviderUseCase {
         return null;
     }
     private Authentication getAuthentication(String token) {
-        UserDetails userDetails = customAccountDetailsService.loadUserByUsername(getUserEmail(token));
+        UserDetails userDetails = customAccountDetailsService.loadUserByUsername(String.valueOf(getIdpId(token)));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 }

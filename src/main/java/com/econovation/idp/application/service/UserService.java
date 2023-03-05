@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -33,7 +34,8 @@ public class UserService implements UserDetailsService, UserUseCase {
     private final AccountRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    private final Integer PAGE_PER_REQUEST = 20;
+    private final Integer PAGE_PER_REQUEST = 1;
+    private final Integer SIZE_BATCH_PAGE = 3;
 
     @Override
     @Transactional
@@ -45,10 +47,17 @@ public class UserService implements UserDetailsService, UserUseCase {
     @Transactional
     public Map<String, Object> findAllWithLastPageInPage(Integer page){
         Pageable pageable = PageRequest.of(page, PAGE_PER_REQUEST);
-        List<Account> users = userRepository.findAll(pageable).stream().toList();
+
+//        Page<Account> usersWithPagination = userRepository.findAll(pageable);
+        Slice<Account> usersWithPagination = userRepository.findSliceBy(pageable);
+        log.info(" number : "+ String.valueOf(usersWithPagination.getNumber()));
+        log.info(" size : "+ String.valueOf(usersWithPagination.getSize()));
+//        int totalPages = usersWithPagination.getTotalPages();
+        List<Account> users = usersWithPagination.stream().toList();
         Map<String, Object> map = new HashMap();
         map.put("users",users);
-        map.put("maxPage",page + (users.size() / PAGE_PER_REQUEST));
+//        map.put("maxPage",page + (users.size() / PAGE_PER_REQUEST));
+//        map.put("maxPage",totalPages);
         if(map.isEmpty()) throw new IllegalArgumentException(NOT_FOUND_USER_MESSAGE);
         return map;
     }
