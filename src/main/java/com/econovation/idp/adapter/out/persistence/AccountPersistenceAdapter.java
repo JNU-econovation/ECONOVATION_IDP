@@ -17,6 +17,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 public class AccountPersistenceAdapter implements LoadAccountPort, RecordAccountPort {
+    private static final String NO_MATCH_ACCOUNT = "해당하는 ACCOUNT가 존재하지 않습니다";
     private final AccountRepository accountRepository;
 
 
@@ -43,6 +44,11 @@ public class AccountPersistenceAdapter implements LoadAccountPort, RecordAccount
     @Override
     public Long countAllByRole(String role) {
         return accountRepository.countAllByRole(role);
+    }
+
+    @Override
+    public Account loadById(Long id) {
+        return accountRepository.findById(id).orElseThrow(() -> new IllegalArgumentException(NO_MATCH_ACCOUNT));
     }
 
     @Override

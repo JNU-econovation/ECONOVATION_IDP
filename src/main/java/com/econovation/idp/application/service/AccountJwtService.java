@@ -35,8 +35,8 @@ public class AccountJwtService implements AccountJwtUseCase {
         // refreshToken 검증 절차
         Authentication authentication = jwtProviderUseCase.validateToken(request, refreshedToken);
         if (authentication.isAuthenticated()) {
-            String refreshToken = jwtProviderUseCase.createRefreshToken(idpId,account.getRole());
-            String accessToken = jwtProviderUseCase.createAccessToken(account.getId(), account.getRole());
+            String refreshToken = jwtProviderUseCase.createRefreshToken(idpId,account.getRole().name());
+            String accessToken = jwtProviderUseCase.createAccessToken(idpId, account.getRole().name());
             return new LoginResponseDto(accessToken, refreshToken);
         }
         else {
@@ -53,8 +53,8 @@ public class AccountJwtService implements AccountJwtUseCase {
 
     @Transactional
     public LoginResponseDto createToken(Account account){
-        String accessToken = jwtProviderUseCase.createAccessToken(account.getId(), account.getRole());
-        String refreshToken = jwtProviderUseCase.createRefreshToken(account.getId(), account.getRole());
+        String accessToken = jwtProviderUseCase.createAccessToken(account.getId(), account.getRole().name());
+        String refreshToken = jwtProviderUseCase.createRefreshToken(account.getId(), account.getRole().name());
         return new LoginResponseDto(accessToken, refreshToken);
     }
 
