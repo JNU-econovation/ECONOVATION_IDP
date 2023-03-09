@@ -4,7 +4,9 @@ package com.econovation.idp.adapter.in.controller;
 import com.econovation.idp.application.service.ImageService;
 import com.econovation.idp.domain.dto.ImageUploadDto;
 import com.econovation.idp.domain.image.Image;
+import com.econovation.idp.global.common.exception.ImageIOException;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -24,7 +27,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/")
+@RequestMapping("/api")
 public class ImageController {
     private final ImageService imageService;
 
@@ -39,13 +42,13 @@ public class ImageController {
     }
 
     @GetMapping("/image")
-    public ResponseEntity<?> story(Integer idpId) throws IOException {
+    public ResponseEntity<?> story(HttpServletResponse response,Integer idpId) throws IOException {
         List<Image> images = imageService.imageSearch(Long.valueOf(idpId));
 
         Map<String, Object> imageMap = imageService.downloadImage(images);
+
         Resource resource = (Resource) imageMap.get("resource");
         Image image = (Image) imageMap.get("image");
-        imageMap.get("image");
         String contentType = Files.probeContentType(Paths.get(image.getPost_image_url()));
 
         HttpHeaders headers = new HttpHeaders();
@@ -55,7 +58,60 @@ public class ImageController {
                         .build());
         headers.add(HttpHeaders.CONTENT_TYPE, contentType);
 
-        return new ResponseEntity<>("이미지 스토리 불러오기 성공", HttpStatus.OK);
+        outputImage(response, resource.getURL().getPath());
+        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+    }
+
+    private void outputImage(HttpServletResponse response, String imagePath) {
+        File file = new File(imagePath);
+        if (!file.isFile()) {
+            throw new ImageIOException("이미지를 불러오는 중에 문제가 생겼습니다.");
+        }
+
+        FileInputStream fis = null;
+        BufferedInputStream in = null;
+        ByteArrayOutputStream bStream = null;
+        try {
+            fis = new FileInputStream(file);
+            in = new BufferedInputStream(fis);
+            bStream = new ByteArrayOutputStream();
+            int imgByte;
+            while ((imgByte = in.read()) != -1) {
+                bStream.write(imgByte);
+            }
+
+            String type = "";
+            String ext = FileNameUtils.getExtension(file.getName());
+            if (!ext.isEmpty()) {
+                if (ext.equalsIgnoreCase("jpg")) {
+                    type = "image/jpeg";
+                } else {
+                    type = "image/" + ext.toLowerCase();
+                }
+            }
+
+            response.setHeader("Content-Type", type);
+            response.setContentLength(bStream.size());
+            bStream.writeTo(response.getOutputStream());
+            response.getOutputStream().flush();
+            response.getOutputStream().close();
+        } catch (Exception e) {
+            throw new ImageIOException(e.getMessage());
+        } finally {
+            try {
+                if (bStream != null) {
+                    bStream.close();
+                }
+                if (in != null) {
+                    in.close();
+                }
+                if (fis != null) {
+                    fis.close();
+                }
+            } catch (Exception e) {
+                throw new ImageIOException(e.getMessage());
+            }
+        }
     }
 }
 

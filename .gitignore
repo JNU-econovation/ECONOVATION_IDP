@@ -28,8 +28,8 @@ out/
 
 ### NetBeans ###
 /nbproject/private/
-/src/image
-/src/image/**
+/image
+/image/**
 /src/main/generated
 
 /nbbuild/

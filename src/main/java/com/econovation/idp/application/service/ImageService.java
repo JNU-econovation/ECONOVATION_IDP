@@ -13,6 +13,8 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -49,26 +51,26 @@ public class ImageService {
         Account account = loadAccountPort.loadById(idpId);
 
         try {
-            Files.write(imageFilePath, imageUploadDto.getFile().getBytes());
+            Path write = Files.write(imageFilePath, imageUploadDto.getFile().getBytes());
+            log.info(String.valueOf(write));
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         Image image = imageUploadDto.toEntity(account, imageFileName);
         imageRepository.save(image);
     }
 
-    public Map<String, Object> downloadImage(List<Image> images) {
+    public Map<String, Object> downloadImage(List<Image> images) throws IOException {
         Map<String, Object> map = new HashMap<>();
 
         Image image = images.stream()
                 .max(Comparator.comparing(Image::getModifiedDate))
                 .orElseThrow(NoSuchElementException::new);
         String postImageUrl = image.getPost_image_url();
-        Resource resource = resourceLoader.getResource(postImageUrl);
+        Path imageUrl = Paths.get(uploadFolder + postImageUrl);
+        Resource resource = resourceLoader.getResource(String.valueOf(imageUrl));
         map.put("image", image);
         map.put("resource", resource);
-//        FileSystemResource fileSystemResource = new FileSystemResource(postImageUrl);
         if(!resource.exists()){
             return map;
         }
