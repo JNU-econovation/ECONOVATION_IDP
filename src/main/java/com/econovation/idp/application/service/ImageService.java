@@ -13,7 +13,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -71,7 +70,7 @@ public class ImageService {
         Resource resource = resourceLoader.getResource(String.valueOf(imageUrl));
         map.put("image", image);
         map.put("resource", resource);
-        if(!resource.exists()){
+        if(resource.exists()){
             return map;
         }
         throw new NoSuchElementException();

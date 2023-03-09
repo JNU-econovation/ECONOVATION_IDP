@@ -1,6 +1,5 @@
 package com.econovation.idp.adapter.in.controller;
 
-
 import com.econovation.idp.application.service.ImageService;
 import com.econovation.idp.domain.dto.ImageUploadDto;
 import com.econovation.idp.domain.image.Image;
@@ -42,7 +41,7 @@ public class ImageController {
     }
 
     @GetMapping("/image")
-    public ResponseEntity<?> story(HttpServletResponse response,Integer idpId) throws IOException {
+    public ResponseEntity<?> downloadImage(HttpServletResponse response,Integer idpId) throws IOException {
         List<Image> images = imageService.imageSearch(Long.valueOf(idpId));
 
         Map<String, Object> imageMap = imageService.downloadImage(images);
@@ -59,7 +58,7 @@ public class ImageController {
         headers.add(HttpHeaders.CONTENT_TYPE, contentType);
 
         outputImage(response, resource.getURL().getPath());
-        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+        return new ResponseEntity<>(response, headers, HttpStatus.OK);
     }
 
     private void outputImage(HttpServletResponse response, String imagePath) {
@@ -81,7 +80,7 @@ public class ImageController {
             }
 
             String type = "";
-            String ext = FileNameUtils.getExtension(file.getName());
+            String ext = FilenameUtils.getExtension(file.getName());
             if (!ext.isEmpty()) {
                 if (ext.equalsIgnoreCase("jpg")) {
                     type = "image/jpeg";
