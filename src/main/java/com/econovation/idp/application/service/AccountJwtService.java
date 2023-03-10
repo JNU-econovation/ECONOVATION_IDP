@@ -4,9 +4,11 @@ import com.econovation.idp.application.port.in.AccountUseCase;
 import com.econovation.idp.application.port.in.JwtProviderUseCase;
 import com.econovation.idp.application.port.out.LoadAccountPort;
 import com.econovation.idp.domain.dto.LoginResponseDto;
+import com.econovation.idp.domain.dto.UserResponseMatchedTokenDto;
 import com.econovation.idp.domain.user.Account;
 import com.econovation.idp.domain.user.AccountRepository;
 import com.econovation.idp.global.common.exception.BadRequestException;
+import com.econovation.idp.global.utils.EntityMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -25,6 +27,7 @@ public class AccountJwtService implements AccountUseCase {
     private final LoadAccountPort loadAccountPort;
     private final AccountRepository accountRepository;
     private final JwtProviderUseCase jwtProviderUseCase;
+    private final EntityMapper entityMapper;
 
     @Override
     @Transactional
@@ -44,9 +47,10 @@ public class AccountJwtService implements AccountUseCase {
     }
 
     @Override
-    public Account findByAccessToken(String accessToken) {
+    public UserResponseMatchedTokenDto findByAccessToken(String accessToken) {
         Long idpId = jwtProviderUseCase.getIdpId(accessToken);
-        return accountRepository.findById(idpId).orElseThrow(() -> new IllegalArgumentException(NO_ACCOUNT_MESSAGE));
+        Account account = accountRepository.findById(idpId).orElseThrow(() -> new IllegalArgumentException(NO_ACCOUNT_MESSAGE));
+        return entityMapper.toUserResponseMatchedTokenDto(account);
     }
 
     @Transactional

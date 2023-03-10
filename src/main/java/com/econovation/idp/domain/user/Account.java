@@ -112,4 +112,5 @@ public class Account extends BaseTimeEntity implements UserDetails {
     public boolean isEnabled() {
         return false;
     }
+
 }
