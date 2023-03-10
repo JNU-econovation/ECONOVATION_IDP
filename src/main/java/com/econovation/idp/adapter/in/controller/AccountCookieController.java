@@ -46,7 +46,7 @@ public class AccountCookieController{
         URI redirectUri = new URI(loginDto.getRedirectUrl());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
-        // create a cookie
+        // create a refresh cookie
         Cookie cookie = new Cookie("refreshToken",responseDto.getRefreshToken());
         // 7 day
         cookie.setMaxAge((int) tokenInvalidTime);
@@ -54,8 +54,17 @@ public class AccountCookieController{
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);
+        // create a refresh cookie
+        cookie = new Cookie("accessToken",responseDto.getAccessToken());
+        // 7 day
+        cookie.setMaxAge((int) tokenInvalidTime);
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
 
-        return new ResponseEntity<>(responseDto.getAccessToken(), httpHeaders, HttpStatus.OK);
+        LoginResponseDto loginResponseDto = new LoginResponseDto(responseDto.getAccessToken(), responseDto.getRefreshToken());
+        return new ResponseEntity<>(loginResponseDto, httpHeaders, HttpStatus.OK);
     }
     @Operation(summary = "토큰 재발행", description = "Refresh, Access Token 재발행", responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoginResponseDto.class)))
@@ -75,7 +84,7 @@ public class AccountCookieController{
 
     private String getCookieValue(HttpServletRequest req, String cookieName) {
         return Arrays.stream(req.getCookies())
-                .filter(c -> c.getName().equals("refreshToken"))
+                .filter(c -> c.getName().equals(cookieName))
                 .findFirst()
                 .map(Cookie::getValue)
                 .orElse(null);
