@@ -1,9 +1,13 @@
 package com.econovation.idp.adapter.in.controller;
 
-import com.econovation.idp.application.port.in.AccountUseCase;
 import com.econovation.idp.application.port.in.AccountSignUpUseCase;
+import com.econovation.idp.application.port.in.AccountUseCase;
 import com.econovation.idp.application.port.in.JwtProviderUseCase;
-import com.econovation.idp.domain.dto.*;
+import com.econovation.idp.domain.dto.LoginRequestDto;
+import com.econovation.idp.domain.dto.LoginResponseDto;
+import com.econovation.idp.domain.dto.LoginResponseDtoWithExpiredTime;
+import com.econovation.idp.domain.dto.SignUpRequestDto;
+import com.econovation.idp.domain.user.Account;
 import com.econovation.idp.global.common.BasicResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,14 +22,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.Email;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
@@ -34,6 +34,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin(origins = "*")
+@RequestMapping("/api")
 @Tag(name = "Account 관련 서비스", description = "회원가입, 로그인 등등")
 public class AccountController {
     private final AccountUseCase accountUseCase;
@@ -45,7 +46,7 @@ public class AccountController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = BasicResponse.class))
     )})
     @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
-    @GetMapping("/api/accounts/logout")
+    @GetMapping("/accounts/logout")
     public ResponseEntity<BasicResponse> logout(String redirectUrl, HttpServletRequest request) throws URISyntaxException {
 //        7번부터 빼야 bearer(+스페이스바) 빼고 토큰만 추출 가능
         String refreshToken = request.getHeader("Authorization").substring(7);
@@ -62,8 +63,8 @@ public class AccountController {
     @Operation(summary = "이메일 중복 검증", description = "이메일 중복 확인하기", responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = BasicResponse.class)))
     })
-    @PostMapping("/api/accounts/duplicate")
-    public ResponseEntity<BasicResponse> reIssue(@Email String userEmail) {
+    @PostMapping("/accounts/duplicate")
+    public ResponseEntity<BasicResponse> duplicateCheck(@RequestParam(value = "userEmail") String userEmail) {
         BasicResponse duplicateEmail = accountSignUpUseCase.isDuplicateEmail(userEmail);
         return new ResponseEntity<>(duplicateEmail, HttpStatus.OK);
     }
@@ -71,7 +72,7 @@ public class AccountController {
     @Operation(summary = "토큰 재발행", description = "Refresh, Access Token 재발행", responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoginResponseDto.class)))
     })
-    @GetMapping("/api/accounts/re-issue")
+    @GetMapping("/accounts/re-issue")
     public ResponseEntity<LoginResponseDto> reIssue(String refreshToken, HttpServletRequest request) {
         if(!jwtProviderUseCase.validateToken(request,refreshToken).isAuthenticated()){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -86,7 +87,7 @@ public class AccountController {
     @Operation(summary = "로그인 Agent URL 이동", description = "로그인 페이지로 이동", responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = BasicResponse.class)))
     })
-    @PostMapping("/api/accounts/login")
+    @PostMapping("/accounts/login")
     public ResponseEntity<String> login(String requestUrl) throws URISyntaxException {
         HttpHeaders httpHeaders = new HttpHeaders();
 //        로그인 페이지로 이동 로직 추가 예정
@@ -98,7 +99,7 @@ public class AccountController {
     @Operation(summary = "회원가입", description = "회원 가입", responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = BasicResponse.class)))
     })
-    @PostMapping("/api/accounts/sign-up")
+    @PostMapping("/accounts/sign-up")
     public ResponseEntity<BasicResponse> signUp(@Valid SignUpRequestDto signUpUser) {
         accountSignUpUseCase.signUp(signUpUser.getUserName(), signUpUser.getYear(), signUpUser.getUserEmail(), signUpUser.getPassword());
         BasicResponse result = new BasicResponse("회원가입 성공", HttpStatus.OK);
@@ -107,7 +108,7 @@ public class AccountController {
     @Operation(summary = "로그인 페이지 처리", description = "로그인완료 후 원래 페이지로 이동",responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoginResponseDtoWithExpiredTime.class)))
     })
-    @PostMapping("/api/accounts/login/process")
+    @PostMapping("/accounts/login/process")
     public ResponseEntity<LoginResponseDtoWithExpiredTime> login(LoginRequestDto loginDto) throws URISyntaxException {
         LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
         URI redirectUri = new URI(loginDto.getRedirectUrl());
@@ -123,7 +124,7 @@ public class AccountController {
     @Operation(summary = "토큰 사용가능 여부 확인", description = "유효하지 않은 토큰입니다, 유효한 토큰입니다 메시지 + 상태코드 반환",responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = BasicResponse.class)))
     })
-    @GetMapping("/api/accounts/re-check")
+    @GetMapping("/accounts/re-check")
     public ResponseEntity<BasicResponse> checkValideToken(HttpServletRequest request, String refreshToken) {
         Authentication authentication = jwtProviderUseCase.validateToken(request, refreshToken);
         if (!authentication.isAuthenticated()) {
@@ -140,7 +141,7 @@ public class AccountController {
     @Operation(summary = "로그인 페이지 만료시간 포함 처리", description = "로그인완료 후 원래 페이지로 이동",responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoginResponseDtoWithExpiredTime.class))
                     )})
-    @PostMapping("/api/accounts/login/process/expired")
+    @PostMapping("/accounts/login/process/expired")
     public ResponseEntity<LoginResponseDtoWithExpiredTime> loginWithExpiredTime(LoginRequestDto loginDto) throws URISyntaxException {
         LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
         Date expiredTime = jwtProviderUseCase.getExpiredTime(responseDto.getRefreshToken());
@@ -157,10 +158,10 @@ public class AccountController {
     @ApiResponses({
             @ApiResponse(description = "이름/기수/uid 반환")
     })
-    @GetMapping("/api/users/token")
-    public ResponseEntity<NonAccountResponseDto> simpleRequest(HttpServletRequest request){
+    @GetMapping("/users/token")
+    public ResponseEntity<Account> simpleRequest(HttpServletRequest request){
         String accessToken = request.getHeader("Authorization").substring(7);
-        NonAccountResponseDto byAccessToken = accountUseCase.findByAccessToken(accessToken);
+        Account byAccessToken = accountUseCase.findByAccessToken(accessToken);
         return new ResponseEntity<>(byAccessToken, HttpStatus.OK);
     }
 

@@ -4,7 +4,6 @@ import com.econovation.idp.application.port.in.AccountUseCase;
 import com.econovation.idp.application.port.in.JwtProviderUseCase;
 import com.econovation.idp.application.port.out.LoadAccountPort;
 import com.econovation.idp.domain.dto.LoginResponseDto;
-import com.econovation.idp.domain.dto.NonAccountResponseDto;
 import com.econovation.idp.domain.user.Account;
 import com.econovation.idp.domain.user.AccountRepository;
 import com.econovation.idp.global.common.exception.BadRequestException;
@@ -45,10 +44,9 @@ public class AccountJwtService implements AccountUseCase {
     }
 
     @Override
-    public NonAccountResponseDto findByAccessToken(String accessToken) {
+    public Account findByAccessToken(String accessToken) {
         Long idpId = jwtProviderUseCase.getIdpId(accessToken);
-        Account account = accountRepository.findById(idpId).orElseThrow(() -> new IllegalArgumentException(NO_ACCOUNT_MESSAGE));
-        return new NonAccountResponseDto(account.getYear(),account.getUsername(),account.getId());
+        return accountRepository.findById(idpId).orElseThrow(() -> new IllegalArgumentException(NO_ACCOUNT_MESSAGE));
     }
 
     @Transactional

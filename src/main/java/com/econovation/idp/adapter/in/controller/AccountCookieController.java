@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
@@ -27,6 +28,7 @@ import java.util.Arrays;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@RequestMapping("/api")
 public class AccountCookieController{
     private final AccountUseCase accountUseCase;
     private Cookie[] cookies = null;
@@ -37,7 +39,7 @@ public class AccountCookieController{
     @Operation(summary = "로그인 페이지 처리 ( 쿠키 버전 )", description = "로그인완료 후 원래 페이지로 이동",responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = String.class)))
     })
-    @PostMapping("/api/accounts/cookie/login/process")
+    @PostMapping("/accounts/cookie/login/process")
     public ResponseEntity<?> login(HttpServletResponse response, LoginRequestDto loginDto) throws URISyntaxException {
         accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
         LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
@@ -58,7 +60,7 @@ public class AccountCookieController{
     @Operation(summary = "토큰 재발행", description = "Refresh, Access Token 재발행", responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoginResponseDto.class)))
     })
-    @GetMapping("/api/accounts/cookie/re-issue")
+    @GetMapping("/accounts/cookie/re-issue")
     public ResponseEntity<LoginResponseDto> reIssue(HttpServletRequest request) {
         cookies = request.getCookies();
         String refreshToken = getCookieValue(request, "refreshToken");
