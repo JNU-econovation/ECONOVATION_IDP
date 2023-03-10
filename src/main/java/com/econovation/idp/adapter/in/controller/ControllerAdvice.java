@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Date;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @RestControllerAdvice
@@ -49,7 +50,14 @@ public class ControllerAdvice {
     @ExceptionHandler(ImageIOException.class)
     public ResponseEntity<ErrorResult> ImageIOexHandle(Exception e){
         log.warn("IMAGE_IO_EXCEPTION : "+ e.getMessage());
-        ErrorResult errorResult = new ErrorResult("[IMAGE_IO_EXCEPTION", e.getMessage());
+        ErrorResult errorResult = new ErrorResult("[IMAGE_IO_EXCEPTION] : ", e.getMessage());
+        return new ResponseEntity<>(errorResult, HttpStatus.NO_CONTENT);
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<ErrorResult> NoSuchElementexHandle(Exception e){
+        log.warn("IMAGE_IO_EXCEPTION : "+ e.getMessage());
+        ErrorResult errorResult = new ErrorResult("[NoSuchElementException] : ", e.getMessage());
         return new ResponseEntity<>(errorResult, HttpStatus.NO_CONTENT);
     }
 

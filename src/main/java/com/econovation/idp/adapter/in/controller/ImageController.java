@@ -6,7 +6,6 @@ import com.econovation.idp.domain.image.Image;
 import com.econovation.idp.global.common.exception.ImageIOException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,7 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,24 +39,19 @@ public class ImageController {
     }
 
     @GetMapping("/image")
-    public ResponseEntity<?> downloadImage(HttpServletResponse response,Integer idpId) throws IOException {
+    public void downloadImage(HttpServletResponse response,Integer idpId) throws IOException {
         List<Image> images = imageService.imageSearch(Long.valueOf(idpId));
 
-        Map<String, Object> imageMap = imageService.downloadImage(images);
-
-        Resource resource = (Resource) imageMap.get("resource");
-        Image image = (Image) imageMap.get("image");
-        String contentType = Files.probeContentType(Paths.get(image.getPost_image_url()));
+        String url = imageService.downloadImage(images);
+        String contentType = Files.probeContentType(Paths.get(url));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentDisposition(
                 ContentDisposition.builder("attachment")
-                        .filename(image.getCaption(), StandardCharsets.UTF_8)
+                        .filename(idpId.toString(), StandardCharsets.UTF_8)
                         .build());
         headers.add(HttpHeaders.CONTENT_TYPE, contentType);
-
-        outputImage(response, resource.getURL().getPath());
-        return new ResponseEntity<>(response, headers, HttpStatus.OK);
+        outputImage(response, url);
     }
 
     private void outputImage(HttpServletResponse response, String imagePath) {

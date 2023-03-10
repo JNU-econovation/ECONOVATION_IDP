@@ -10,6 +10,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import javax.servlet.FilterChain;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -17,13 +18,17 @@ import java.io.IOException;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+public class JwtCookieAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private final String NO_AUTHENTICATION_MESSAGE = "인증받지 못한 유저입니다.";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = resolveToken(request.getHeader("Authorization"));
+        Cookie[] cookies = request.getCookies();
+
+        log.info(token);
         boolean isLogin = false;
         if (token != null ) {
             Authentication authentication = jwtProvider.validateToken(request, token);

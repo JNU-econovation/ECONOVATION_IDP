@@ -8,7 +8,6 @@ import com.econovation.idp.domain.user.Account;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,7 +58,7 @@ public class ImageService {
         imageRepository.save(image);
     }
 
-    public Map<String, Object> downloadImage(List<Image> images) throws IOException {
+    public String downloadImage(List<Image> images) throws IOException {
         Map<String, Object> map = new HashMap<>();
 
         Image image = images.stream()
@@ -67,12 +66,30 @@ public class ImageService {
                 .orElseThrow(NoSuchElementException::new);
         String postImageUrl = image.getPost_image_url();
         Path imageUrl = Paths.get(uploadFolder + postImageUrl);
-        Resource resource = resourceLoader.getResource(String.valueOf(imageUrl));
-        map.put("image", image);
-        map.put("resource", resource);
-        if(resource.exists()){
-            return map;
-        }
-        throw new NoSuchElementException();
+        return String.valueOf(imageUrl);
+//        Resource resource = resourceLoader.getResource(String.valueOf(imageUrl));
+//        map.put("image", image);
+//        map.put("resource", resource);
+//        if(resource.exists()){
+//            return map;
+//        }
+//        throw new NoSuchElementException();
     }
+
+    /*public Map<String, Object> downloadImage(List<Image> images) throws IOException {
+        Map<String, Object> map = new HashMap<>();
+
+        Image image = images.stream()
+                .max(Comparator.comparing(Image::getModifiedDate))
+                .orElseThrow(NoSuchElementException::new);
+//        String postImageUrl = image.getPost_image_url();
+//        Path imageUrl = Paths.get(uploadFolder + postImageUrl);
+//        Resource resource = resourceLoader.getResource(String.valueOf(imageUrl));
+        map.put("image", image);
+//        map.put("resource", resource);
+//        if(resource.exists()){
+//            return map;
+//        }
+        throw new NoSuchElementException();
+    }*/
 }

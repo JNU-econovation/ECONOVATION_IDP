@@ -1,6 +1,6 @@
 package com.econovation.idp.adapter.in.controller;
 
-import com.econovation.idp.application.port.in.AccountJwtUseCase;
+import com.econovation.idp.application.port.in.AccountUseCase;
 import com.econovation.idp.application.port.in.AccountSignUpUseCase;
 import com.econovation.idp.application.port.in.JwtProviderUseCase;
 import com.econovation.idp.domain.dto.*;
@@ -36,7 +36,7 @@ import java.util.Date;
 @CrossOrigin(origins = "*")
 @Tag(name = "Account 관련 서비스", description = "회원가입, 로그인 등등")
 public class AccountController {
-    private final AccountJwtUseCase accountJwtUseCase;
+    private final AccountUseCase accountUseCase;
     private final AccountSignUpUseCase accountSignUpUseCase;
     private final JwtProviderUseCase jwtProviderUseCase;
 
@@ -50,7 +50,7 @@ public class AccountController {
 //        7번부터 빼야 bearer(+스페이스바) 빼고 토큰만 추출 가능
         String refreshToken = request.getHeader("Authorization").substring(7);
 
-        accountJwtUseCase.logout(refreshToken);
+        accountUseCase.logout(refreshToken);
         URI redirectUri = new URI(redirectUrl);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri );
@@ -76,7 +76,7 @@ public class AccountController {
         if(!jwtProviderUseCase.validateToken(request,refreshToken).isAuthenticated()){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        LoginResponseDto responseDto = accountJwtUseCase.reIssueAccessToken(request, refreshToken);
+        LoginResponseDto responseDto = accountUseCase.reIssueAccessToken(request, refreshToken);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
@@ -89,7 +89,6 @@ public class AccountController {
     @PostMapping("/api/accounts/login")
     public ResponseEntity<String> login(String requestUrl) throws URISyntaxException {
         HttpHeaders httpHeaders = new HttpHeaders();
-        log.info("requestUrl" + requestUrl);
 //        로그인 페이지로 이동 로직 추가 예정
         httpHeaders.setLocation(URI.create(requestUrl));
         return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
@@ -110,7 +109,7 @@ public class AccountController {
     })
     @PostMapping("/api/accounts/login/process")
     public ResponseEntity<LoginResponseDtoWithExpiredTime> login(LoginRequestDto loginDto) throws URISyntaxException {
-        LoginResponseDto responseDto = accountJwtUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
+        LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
         URI redirectUri = new URI(loginDto.getRedirectUrl());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
@@ -143,7 +142,7 @@ public class AccountController {
                     )})
     @PostMapping("/api/accounts/login/process/expired")
     public ResponseEntity<LoginResponseDtoWithExpiredTime> loginWithExpiredTime(LoginRequestDto loginDto) throws URISyntaxException {
-        LoginResponseDto responseDto = accountJwtUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
+        LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
         Date expiredTime = jwtProviderUseCase.getExpiredTime(responseDto.getRefreshToken());
         URI redirectUri = new URI(loginDto.getRedirectUrl());
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -161,7 +160,7 @@ public class AccountController {
     @GetMapping("/api/users/token")
     public ResponseEntity<NonAccountResponseDto> simpleRequest(HttpServletRequest request){
         String accessToken = request.getHeader("Authorization").substring(7);
-        NonAccountResponseDto byAccessToken = accountJwtUseCase.findByAccessToken(accessToken);
+        NonAccountResponseDto byAccessToken = accountUseCase.findByAccessToken(accessToken);
         return new ResponseEntity<>(byAccessToken, HttpStatus.OK);
     }
 
