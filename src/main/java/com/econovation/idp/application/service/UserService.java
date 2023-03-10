@@ -61,7 +61,6 @@ public class UserService implements UserDetailsService, UserUseCase {
         if(map.isEmpty()) throw new IllegalArgumentException(NOT_FOUND_USER_MESSAGE);
         return map;
     }
-
     @Transactional
     public Account setPassword(UserPasswordUpdateDto userPasswordUpdateDto){
         Account user = findUserByYearAndUserName(userPasswordUpdateDto.getUserName(), userPasswordUpdateDto.getYear());
@@ -140,8 +139,8 @@ public class UserService implements UserDetailsService, UserUseCase {
      * @return Account
      */
     @Transactional
-    public Account findUserByUserEmail(String userEmail) {
-        return userRepository.findByUserEmail(userEmail).orElseThrow(() -> new BadRequestException("없는 이메일입니다."));
+    public Account findUserByUserEmail(String idpId) {
+        return userRepository.findById(Long.valueOf(idpId)).orElseThrow(() -> new BadRequestException("없는 이메일입니다."));
     }
 
 //    ----Account Authentication------------------------------------------------------------------
@@ -196,19 +195,17 @@ public class UserService implements UserDetailsService, UserUseCase {
         return user;
     }
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String idpId) throws UsernameNotFoundException {
 
-        Account user = findUserByUserEmail(username);
+        Account user = findUserById(Long.valueOf(idpId));
 
         if (user == null) {
-            throw new UsernameNotFoundException(username + "is not found.");
+            throw new UsernameNotFoundException("user not found.");
         }
         return user;
     }
 
-    private List<Object> getUserRolesList(String username) {
-        return null;
-    }
+
     /**
      * update Account's Role (ex. ADMIN -> USER,  GUEST -> USER)
      * @Param userId : Int!, role : Role!

@@ -3,6 +3,8 @@ package com.econovation.idp.application.port.in;
 import com.econovation.idp.domain.dto.UserPasswordUpdateDto;
 import com.econovation.idp.domain.dto.UserUpdateRequestDto;
 import com.econovation.idp.domain.user.Account;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.List;
 import java.util.Map;

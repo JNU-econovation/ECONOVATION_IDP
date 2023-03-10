@@ -27,8 +27,8 @@ public class Account extends BaseTimeEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="account_id")
     private Long id;
-
 
     @Column(nullable = false)
     @Range(min =0, max = 50)
@@ -47,7 +47,8 @@ public class Account extends BaseTimeEntity implements UserDetails {
     @NotNull
     private String userEmail;
     @Column(nullable = false)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     private boolean isEnabled;
     public void setPassword(String password){
@@ -59,7 +60,7 @@ public class Account extends BaseTimeEntity implements UserDetails {
         this.userName = userName;
         this.password = password;
         this.userEmail = userEmail;
-        this.role = "USER";
+        this.role = Role.GUEST;
         this.isEnabled = true;
     }
 
@@ -73,9 +74,6 @@ public class Account extends BaseTimeEntity implements UserDetails {
     public NonAccountResponseDto toNonLoginUser(Account account) {
         return new NonAccountResponseDto(account.getYear(), account.getUsername(), account.getId());
     }
-    public static Account of(Long year, String userName, String password, String userEmail) {
-        return new Account(year, userName, password, userEmail);
-    }
 
     public void notEnabled(Account account){
         this.isEnabled = false;
@@ -84,10 +82,9 @@ public class Account extends BaseTimeEntity implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-
-        for(String role : role.split(",")){
-            authorities.add(new SimpleGrantedAuthority(role));
-        }
+//        for(String role : role.split(",")){
+        authorities.add(new SimpleGrantedAuthority(role.name()));
+//        }
         return authorities;
     }
 

@@ -1,6 +1,6 @@
 package com.econovation.idp.application.service;
 
-import com.econovation.idp.application.port.in.AccountJwtUseCase;
+import com.econovation.idp.application.port.in.AccountUseCase;
 import com.econovation.idp.application.port.in.JwtProviderUseCase;
 import com.econovation.idp.application.port.out.LoadAccountPort;
 import com.econovation.idp.domain.dto.LoginResponseDto;
@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 @RequiredArgsConstructor
 @Slf4j
 @Service
-public class AccountJwtService implements AccountJwtUseCase {
+public class AccountJwtService implements AccountUseCase {
     private static final String NO_ACCOUNT_MESSAGE = "존재하지 않는 유저입니다.";
     private final PasswordEncoder passwordEncoder;
     private final LoadAccountPort loadAccountPort;
@@ -35,8 +35,8 @@ public class AccountJwtService implements AccountJwtUseCase {
         // refreshToken 검증 절차
         Authentication authentication = jwtProviderUseCase.validateToken(request, refreshedToken);
         if (authentication.isAuthenticated()) {
-            String refreshToken = jwtProviderUseCase.createRefreshToken(idpId,account.getRole());
-            String accessToken = jwtProviderUseCase.createAccessToken(account.getId(), account.getRole());
+            String refreshToken = jwtProviderUseCase.createRefreshToken(idpId,account.getRole().name());
+            String accessToken = jwtProviderUseCase.createAccessToken(idpId, account.getRole().name());
             return new LoginResponseDto(accessToken, refreshToken);
         }
         else {
@@ -53,8 +53,8 @@ public class AccountJwtService implements AccountJwtUseCase {
 
     @Transactional
     public LoginResponseDto createToken(Account account){
-        String accessToken = jwtProviderUseCase.createAccessToken(account.getId(), account.getRole());
-        String refreshToken = jwtProviderUseCase.createRefreshToken(account.getId(), account.getRole());
+        String accessToken = jwtProviderUseCase.createAccessToken(account.getId(), account.getRole().name());
+        String refreshToken = jwtProviderUseCase.createRefreshToken(account.getId(), account.getRole().name());
         return new LoginResponseDto(accessToken, refreshToken);
     }
 
@@ -62,7 +62,7 @@ public class AccountJwtService implements AccountJwtUseCase {
     @Transactional
     public LoginResponseDto login(String email, String password) {
         Account account = loadAccountPort
-                .loadByUserEmail(email).orElseThrow(() -> new BadRequestException("아이디 혹은 비밀번호를 확인하세요"));
+                .loadByUserEmail(email).orElseThrow(() -> new BadRequestException("해당하는 이메일이 존재하지 않습니다"));
         checkPassword(password, account.getPassword());
         return createToken(account);
     }
@@ -71,13 +71,10 @@ public class AccountJwtService implements AccountJwtUseCase {
         jwtProviderUseCase.logout(refreshToken);
     }
 
-
     private void checkPassword(String password, String encodePassword) {
         boolean isMatch = passwordEncoder.matches(password, encodePassword);
-        log.info("맞았는데, password : " + password + "  /  encodePassword" + encodePassword);
         if(!isMatch){
-            log.info("password : " + password + "  /  encodePassword" + encodePassword);
-            throw new BadRequestException("아이디 혹은 비밀번호를 확인하세요");
+            throw new BadRequestException("비밀번호를 확인하세요");
         }
     }
 }

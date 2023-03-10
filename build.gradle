@@ -19,9 +19,10 @@ repositories {
 	mavenCentral()
 }
 dependencies {
-	//	jwt
+//	jwt
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
-
+// apache commons io
+	implementation group: 'commons-io', name: 'commons-io', version: '2.6'
 //	Redis Dependencies - Login, Logout 기능구현
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 

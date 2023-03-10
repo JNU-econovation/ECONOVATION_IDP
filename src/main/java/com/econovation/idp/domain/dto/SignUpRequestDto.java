@@ -11,11 +11,9 @@ import javax.validation.constraints.Email;
 public class SignUpRequestDto {
     @Email
     private String userEmail;
-
     private Long year;
 
     private String userName;
-
     @Password
     private String password;
 }
