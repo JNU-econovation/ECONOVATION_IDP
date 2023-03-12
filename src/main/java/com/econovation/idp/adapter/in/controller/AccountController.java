@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,9 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -36,6 +39,8 @@ public class AccountController {
     private final AccountUseCase accountUseCase;
     private final AccountSignUpUseCase accountSignUpUseCase;
     private final JwtProviderUseCase jwtProviderUseCase;
+    @Value("${login.page.url}")
+    private String loginPageUrl;
 
     //    로그아웃 기능 구현
     @Operation(summary = "logout", description = "로그아웃_에이전트, 로그아웃시 redirect 페이지로 이동",responses = {
@@ -50,7 +55,7 @@ public class AccountController {
         accountUseCase.logout(refreshToken);
         URI redirectUri = new URI(redirectUrl);
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setLocation(redirectUri );
+        httpHeaders.setLocation(redirectUri);
         log.info(redirectUrl + "으로 이동");
         BasicResponse result = new BasicResponse("로그아웃 성공", HttpStatus.OK);
         return new ResponseEntity<>(result, httpHeaders, HttpStatus.OK);
@@ -80,16 +85,6 @@ public class AccountController {
     //  회원가입 기능 구현
     // 로그인 기능 구현
 
-    @Operation(summary = "로그인 Agent URL 이동", description = "로그인 페이지로 이동", responses = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = BasicResponse.class)))
-    })
-    @PostMapping("/accounts/login")
-    public ResponseEntity<String> login(String requestUrl) throws URISyntaxException {
-        HttpHeaders httpHeaders = new HttpHeaders();
-//        로그인 페이지로 이동 로직 추가 예정
-        httpHeaders.setLocation(URI.create(requestUrl));
-        return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
-    }
     // 로그인 인증
 
     @Operation(summary = "회원가입", description = "회원 가입", responses = {
@@ -101,16 +96,31 @@ public class AccountController {
         BasicResponse result = new BasicResponse("회원가입 성공", HttpStatus.OK);
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
+    @Operation(summary = "로그인 Agent URL 이동", description = "로그인 페이지로 이동", responses = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = BasicResponse.class)))
+    })
+    @GetMapping("/accounts/login")
+    public ResponseEntity<String> login(String requestUrl, HttpServletResponse response){
+        // 기존 url을 쿠키로 설정한다.
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(URI.create(loginPageUrl));
+        Cookie cookie = new Cookie("REQUEST_URL", requestUrl);
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+        return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
+    }
+
     @Operation(summary = "로그인 페이지 처리", description = "로그인완료 후 원래 페이지로 이동",responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoginResponseDtoWithExpiredTime.class)))
     })
     @PostMapping("/accounts/login/process")
-    public ResponseEntity<LoginResponseDtoWithExpiredTime> login(LoginRequestDto loginDto) throws URISyntaxException {
+    public ResponseEntity<LoginResponseDtoWithExpiredTime> login(@CookieValue String REQUEST_URL, LoginRequestDto loginDto) throws URISyntaxException {
+        log.info("request_url : " + REQUEST_URL);
         LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
-        URI redirectUri = new URI(loginDto.getRedirectUrl());
+        URI redirectUri = new URI(REQUEST_URL);
         HttpHeaders httpHeaders = new HttpHeaders();
+        log.info(REQUEST_URL + ": redirect Success");
         httpHeaders.setLocation(redirectUri);
-        log.info("redirectUrl" + redirectUri);
         Date expiredTime = jwtProviderUseCase.getExpiredTime(responseDto.getRefreshToken());
         LoginResponseDtoWithExpiredTime loginResponseDtoWithExpiredTime = new LoginResponseDtoWithExpiredTime(expiredTime, responseDto);
         return new ResponseEntity<>(loginResponseDtoWithExpiredTime, httpHeaders, HttpStatus.OK);
@@ -138,13 +148,12 @@ public class AccountController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoginResponseDtoWithExpiredTime.class))
                     )})
     @PostMapping("/accounts/login/process/expired")
-    public ResponseEntity<LoginResponseDtoWithExpiredTime> loginWithExpiredTime(LoginRequestDto loginDto) throws URISyntaxException {
+    public ResponseEntity<LoginResponseDtoWithExpiredTime> loginWithExpiredTime(@CookieValue String redirectUrl,LoginRequestDto loginDto) throws URISyntaxException {
         LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
         Date expiredTime = jwtProviderUseCase.getExpiredTime(responseDto.getRefreshToken());
-        URI redirectUri = new URI(loginDto.getRedirectUrl());
+        URI redirectUri = new URI(redirectUrl);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
-        log.info("redirectUrl" + redirectUri);
         LoginResponseDtoWithExpiredTime loginResponseDtoWithExpiredTime = new LoginResponseDtoWithExpiredTime(expiredTime, responseDto);
         return new ResponseEntity<>(loginResponseDtoWithExpiredTime, httpHeaders, HttpStatus.OK);
     }
