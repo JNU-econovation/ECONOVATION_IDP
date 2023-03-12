@@ -13,10 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -40,10 +37,10 @@ public class AccountCookieController{
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = String.class)))
     })
     @PostMapping("/accounts/cookie/login/process")
-    public ResponseEntity<?> login(HttpServletResponse response, LoginRequestDto loginDto) throws URISyntaxException {
-        accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
+    public ResponseEntity<?> login(@CookieValue String redirectUrl, HttpServletResponse response, LoginRequestDto loginDto) throws URISyntaxException {
         LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
-        URI redirectUri = new URI(loginDto.getRedirectUrl());
+
+        URI redirectUri = new URI(redirectUrl);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
         // create a refresh cookie
