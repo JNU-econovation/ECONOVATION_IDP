@@ -25,6 +25,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
@@ -45,7 +46,7 @@ public class AccountController {
     //    로그아웃 기능 구현
     @Operation(summary = "logout", description = "로그아웃_에이전트, 로그아웃시 redirect 페이지로 이동",responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = BasicResponse.class))
-    )})
+            )})
     @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
     @GetMapping("/accounts/logout")
     public ResponseEntity<BasicResponse> logout(String redirectUrl, HttpServletRequest request) throws URISyntaxException {
@@ -82,11 +83,6 @@ public class AccountController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    //  회원가입 기능 구현
-    // 로그인 기능 구현
-
-    // 로그인 인증
-
     @Operation(summary = "회원가입", description = "회원 가입", responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = BasicResponse.class)))
     })
@@ -100,13 +96,14 @@ public class AccountController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = BasicResponse.class)))
     })
     @GetMapping("/accounts/login")
-    public ResponseEntity<String> login(String requestUrl, HttpServletResponse response){
+    public ResponseEntity<String> login(String requestUrl, HttpServletResponse response) throws IOException {
         // 기존 url을 쿠키로 설정한다.
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(URI.create(loginPageUrl));
         Cookie cookie = new Cookie("REQUEST_URL", requestUrl);
         cookie.setHttpOnly(true);
         response.addCookie(cookie);
+        response.sendRedirect(loginPageUrl);
         return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
     }
 
@@ -114,7 +111,7 @@ public class AccountController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoginResponseDtoWithExpiredTime.class)))
     })
     @PostMapping("/accounts/login/process")
-    public ResponseEntity<LoginResponseDtoWithExpiredTime> login(@CookieValue String REQUEST_URL, LoginRequestDto loginDto) throws URISyntaxException {
+    public ResponseEntity<LoginResponseDtoWithExpiredTime> login(HttpServletResponse response, @CookieValue String REQUEST_URL, LoginRequestDto loginDto) throws URISyntaxException, IOException {
         log.info("request_url : " + REQUEST_URL);
         LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
         URI redirectUri = new URI(REQUEST_URL);
@@ -122,6 +119,7 @@ public class AccountController {
         log.info(REQUEST_URL + ": redirect Success");
         httpHeaders.setLocation(redirectUri);
         Date expiredTime = jwtProviderUseCase.getExpiredTime(responseDto.getRefreshToken());
+        response.sendRedirect(loginPageUrl);
         LoginResponseDtoWithExpiredTime loginResponseDtoWithExpiredTime = new LoginResponseDtoWithExpiredTime(expiredTime, responseDto);
         return new ResponseEntity<>(loginResponseDtoWithExpiredTime, httpHeaders, HttpStatus.OK);
     }
@@ -146,7 +144,7 @@ public class AccountController {
     // 로그인 인증
     @Operation(summary = "로그인 페이지 만료시간 포함 처리", description = "로그인완료 후 원래 페이지로 이동",responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoginResponseDtoWithExpiredTime.class))
-                    )})
+            )})
     @PostMapping("/accounts/login/process/expired")
     public ResponseEntity<LoginResponseDtoWithExpiredTime> loginWithExpiredTime(@CookieValue String redirectUrl,LoginRequestDto loginDto) throws URISyntaxException {
         LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
@@ -172,7 +170,7 @@ public class AccountController {
 
     /**
      *  Token 이 유효하지 않을 때 재요청 하는 로직
-    * */
+     * */
 
     /**
      *  Token 이 없을때 simple Request하는 로직
@@ -180,17 +178,18 @@ public class AccountController {
 
     /**
      * Token 요청에 따른 개인정보 요청
-    * */
+     * */
 
     /**
      * 토큰을 주면 uid 하나만 반환하는 simple 요청
-    * */
+     * */
 
     /**
      * 토큰 반환이 유효하지 않은 토큰을 줄때, 토큰재발행 -> 재요청 실시 요청
-    * */
+     * */
 
     /**
      * 토큰이 없어도 조회가 가능한 서비스 ( private 서비스 )
      * */
 }
+
