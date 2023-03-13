@@ -8,6 +8,7 @@ import com.econovation.idp.domain.dto.UserResponseMatchedTokenDto;
 import com.econovation.idp.domain.user.Account;
 import com.econovation.idp.domain.user.AccountRepository;
 import com.econovation.idp.global.common.exception.BadRequestException;
+import com.econovation.idp.global.common.exception.GetExpiredTimeException;
 import com.econovation.idp.global.utils.EntityMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,13 +64,14 @@ public class AccountJwtService implements AccountUseCase {
     @Override
     @Transactional
     public LoginResponseDto login(String email, String password) {
+        log.info("email : " + email + " / password : " + password);
         Account account = loadAccountPort
                 .loadByUserEmail(email).orElseThrow(() -> new BadRequestException("해당하는 이메일이 존재하지 않습니다"));
         checkPassword(password, account.getPassword());
         return createToken(account);
     }
     @Override
-    public void logout(String refreshToken) {
+    public void logout(String refreshToken) throws GetExpiredTimeException {
         jwtProviderUseCase.logout(refreshToken);
     }
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,10 +17,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import java.time.Duration;
 import java.util.Arrays;
 
+@Configuration
 @EnableWebSecurity
 //@AllArgsConstructor
 @RequiredArgsConstructor
@@ -92,13 +95,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //        configuration.setAllowedOrigins(Arrays.asList("http://auth.econovation.kr"));
         configuration.setAllowedOriginPatterns(Arrays.asList("http://auth.econovation.kr"));
         configuration.setAllowedMethods(Arrays.asList("HEAD","POST","GET","DELETE","PUT"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type","REQUEST_URL"));
+        configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "access-control-allow-credentials", "access-control-allow-origin", "REQUEST_URL"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(Duration.ofDays(30));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean
+    public CorsFilter corsFilter() {
+        CorsFilter filter = new CorsFilter(corsConfigurationSource());
+        return filter;
     }
 
 }
