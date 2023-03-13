@@ -16,24 +16,25 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.Date;
 
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "http://auth.econovation.kr",maxAge = 3600)
 @RequestMapping("/api")
 @Tag(name = "Account 관련 서비스", description = "회원가입, 로그인 등등")
 public class AccountController {
@@ -100,9 +101,12 @@ public class AccountController {
         // 기존 url을 쿠키로 설정한다.
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(URI.create(loginPageUrl));
-        Cookie cookie = new Cookie("REQUEST_URL", requestUrl);
+/*        Cookie cookie = new Cookie("REQUEST_URL", requestUrl);
         cookie.setHttpOnly(true);
-        response.addCookie(cookie);
+        cookie.setPath("/");
+        cookie.setSecure(true);
+        response.addCookie(cookie);*/
+        addCookie(response,"REQUEST_URL",requestUrl,3600);
         response.sendRedirect(loginPageUrl);
         return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
     }
@@ -110,8 +114,9 @@ public class AccountController {
     @Operation(summary = "로그인 페이지 처리", description = "로그인완료 후 원래 페이지로 이동",responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoginResponseDtoWithExpiredTime.class)))
     })
-    @PostMapping("/accounts/login/process")
-    public ResponseEntity<LoginResponseDtoWithExpiredTime> login(HttpServletResponse response, @CookieValue String REQUEST_URL, LoginRequestDto loginDto) throws URISyntaxException, IOException {
+    @CrossOrigin(origins = {"http://auth.econovation.com","http://localhost"},allowCredentials = "true")
+    @RequestMapping(value = "/accounts/login/process", method = {RequestMethod.GET,RequestMethod.OPTIONS})
+    public ResponseEntity<LoginResponseDtoWithExpiredTime> login(HttpServletResponse response, @CookieValue(value = "REQUEST_URL",required = false) String REQUEST_URL, LoginRequestDto loginDto) throws URISyntaxException, IOException {
         log.info("request_url : " + REQUEST_URL);
         LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
         URI redirectUri = new URI(REQUEST_URL);
@@ -166,6 +171,33 @@ public class AccountController {
         String accessToken = request.getHeader("Authorization").substring(7);
         UserResponseMatchedTokenDto byAccessToken = accountUseCase.findByAccessToken(accessToken);
         return new ResponseEntity<>(byAccessToken, HttpStatus.OK);
+    }
+
+    public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
+        ResponseCookie cookie = ResponseCookie.from(name, value)
+                .path("/")
+                .sameSite("None")
+                .httpOnly(false)
+                .secure(false)
+                .maxAge(maxAge)
+                .build();
+        addSameSiteCookieAttribute(response);
+        response.addHeader("Set-Cookie", cookie.toString());
+    }
+    private static void addSameSiteCookieAttribute(HttpServletResponse response) {
+        Collection<String> headers = response.getHeaders(HttpHeaders.SET_COOKIE);
+        boolean firstHeader = true;
+        // there can be multiple Set-Cookie attributes
+        for (String header : headers) {
+            if (firstHeader) {
+                response.setHeader(HttpHeaders.SET_COOKIE,
+                        String.format("%s; %s", header, "SameSite=None"));
+                firstHeader = false;
+                continue;
+            }
+            response.addHeader(HttpHeaders.SET_COOKIE,
+                    String.format("%s; %s", header, "SameSite=None"));
+        }
     }
 
     /**
