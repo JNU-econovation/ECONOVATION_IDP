@@ -5,6 +5,7 @@ import com.econovation.idp.application.port.in.AccountUseCase;
 import com.econovation.idp.application.port.in.JwtProviderUseCase;
 import com.econovation.idp.domain.dto.*;
 import com.econovation.idp.global.common.BasicResponse;
+import com.econovation.idp.global.common.exception.GetExpiredTimeException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -50,7 +51,7 @@ public class AccountController {
             )})
     @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
     @GetMapping("/accounts/logout")
-    public ResponseEntity<BasicResponse> logout(String redirectUrl, HttpServletRequest request) throws URISyntaxException {
+    public ResponseEntity<BasicResponse> logout(String redirectUrl, HttpServletRequest request) throws URISyntaxException, GetExpiredTimeException {
 //        7번부터 빼야 bearer(+스페이스바) 빼고 토큰만 추출 가능
         String refreshToken = request.getHeader("Authorization").substring(7);
 
@@ -114,9 +115,10 @@ public class AccountController {
     @Operation(summary = "로그인 페이지 처리", description = "로그인완료 후 원래 페이지로 이동",responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoginResponseDtoWithExpiredTime.class)))
     })
-    @CrossOrigin(origins = {"http://auth.econovation.com","http://localhost"},allowCredentials = "true")
+    @CrossOrigin(origins = {"http://auth.econovation.com:8080","http://localhost:8080"},allowCredentials = "true")
     @RequestMapping(value = "/accounts/login/process", method = {RequestMethod.GET,RequestMethod.OPTIONS})
-    public ResponseEntity<LoginResponseDtoWithExpiredTime> login(HttpServletResponse response, @CookieValue(value = "REQUEST_URL",required = false) String REQUEST_URL, LoginRequestDto loginDto) throws URISyntaxException, IOException {
+    public ResponseEntity<LoginResponseDtoWithExpiredTime> login(HttpServletResponse response, @CookieValue(value = "REQUEST_URL",required = false) String REQUEST_URL, LoginRequestDto loginDto)
+            throws URISyntaxException, IOException, GetExpiredTimeException {
         log.info("request_url : " + REQUEST_URL);
         LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
         URI redirectUri = new URI(REQUEST_URL);
@@ -151,7 +153,7 @@ public class AccountController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoginResponseDtoWithExpiredTime.class))
             )})
     @PostMapping("/accounts/login/process/expired")
-    public ResponseEntity<LoginResponseDtoWithExpiredTime> loginWithExpiredTime(@CookieValue String redirectUrl,LoginRequestDto loginDto) throws URISyntaxException {
+    public ResponseEntity<LoginResponseDtoWithExpiredTime> loginWithExpiredTime(@CookieValue String redirectUrl,LoginRequestDto loginDto) throws URISyntaxException, GetExpiredTimeException {
         LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
         Date expiredTime = jwtProviderUseCase.getExpiredTime(responseDto.getRefreshToken());
         URI redirectUri = new URI(redirectUrl);

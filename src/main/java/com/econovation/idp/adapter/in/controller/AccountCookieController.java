@@ -37,10 +37,11 @@ public class AccountCookieController{
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = String.class)))
     })
     @PostMapping("/accounts/cookie/login/process")
-    public ResponseEntity<?> login(@CookieValue String redirectUrl, HttpServletResponse response, LoginRequestDto loginDto) throws URISyntaxException {
+    public ResponseEntity<?> login(HttpServletResponse response, @CookieValue(value = "REQUEST_URL",required = false) String REQUEST_URL, LoginRequestDto loginDto) throws URISyntaxException {
+        accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
         LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
 
-        URI redirectUri = new URI(redirectUrl);
+        URI redirectUri = new URI(REQUEST_URL);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
         // create a refresh cookie

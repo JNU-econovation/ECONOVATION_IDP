@@ -1,6 +1,7 @@
 package com.econovation.idp.global.config.jwt;
 
 import com.econovation.idp.application.port.in.JwtProviderUseCase;
+import com.econovation.idp.global.common.exception.GetExpiredTimeException;
 import com.econovation.idp.global.common.redis.RedisService;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ public class JwtProvider implements JwtProviderUseCase {
     }
 
     @Override
-    public void logout(String refreshToken) {
+    public void logout(String refreshToken) throws GetExpiredTimeException {
         long expiredAccessTokenTime = getExpiredTime(refreshToken).getTime() - new Date().getTime();
 //        이메일 조회
 //        accessToken To userEmail
@@ -85,11 +86,12 @@ public class JwtProvider implements JwtProviderUseCase {
     }
 
     @Override
-    public Date getExpiredTime(String token) {
+    public Date getExpiredTime(String token) throws GetExpiredTimeException {
         try {
             return (Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody()).getExpiration();
         }catch (Exception e) {
-            return null;
+            log.warn(e.getMessage());
+            throw new GetExpiredTimeException("토큰의 만료시간을 조회할 수 없습니다.");
         }
     }
 
