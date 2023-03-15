@@ -3,9 +3,10 @@ package com.econovation.idp.domain.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@Getter
 @AllArgsConstructor
-public class LoginResponseDto {
+@Getter
+public class LoginResponseDtoWithRedirectUrl {
     private String accessToken;
     private String refreshToken;
+    private String redirectUrl;
 }
