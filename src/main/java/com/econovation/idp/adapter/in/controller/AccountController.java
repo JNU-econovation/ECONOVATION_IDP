@@ -126,7 +126,7 @@ public class AccountController {
         log.info(REQUEST_URL + ": redirect Success");
         httpHeaders.setLocation(redirectUri);
         Date expiredTime = jwtProviderUseCase.getExpiredTime(responseDto.getRefreshToken());
-        response.sendRedirect(loginPageUrl);
+        response.sendRedirect(REQUEST_URL);
         LoginResponseDtoWithExpiredTime loginResponseDtoWithExpiredTime = new LoginResponseDtoWithExpiredTime(expiredTime, responseDto);
         return new ResponseEntity<>(loginResponseDtoWithExpiredTime, httpHeaders, HttpStatus.OK);
     }
