@@ -112,12 +112,12 @@ public class AccountController {
         return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
     }
 
-    @Operation(summary = "로그인 페이지 처리", description = "로그인완료 후 원래 페이지로 이동",responses = {
+    @Operation(summary = "로그인 페이지 처리", description = "로그인완료 후 access,refresh,redirectUrl 전송",responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoginResponseDtoWithExpiredTime.class)))
     })
     @CrossOrigin(origins = {"http://auth.econovation.com:8080","http://localhost:8080"},allowCredentials = "true")
     @RequestMapping(value = "/accounts/login/process", method = {RequestMethod.GET,RequestMethod.OPTIONS})
-    public ResponseEntity<LoginResponseDtoWithExpiredTime> login(HttpServletResponse response, @CookieValue(value = "REQUEST_URL",required = false) String REQUEST_URL, LoginRequestDto loginDto)
+    public ResponseEntity<?> login(HttpServletResponse response, @CookieValue(value = "REQUEST_URL",required = false) String REQUEST_URL, LoginRequestDto loginDto)
             throws URISyntaxException, IOException, GetExpiredTimeException {
         log.info("request_url : " + REQUEST_URL);
         LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
@@ -125,10 +125,8 @@ public class AccountController {
         HttpHeaders httpHeaders = new HttpHeaders();
         log.info(REQUEST_URL + ": redirect Success");
         httpHeaders.setLocation(redirectUri);
-        Date expiredTime = jwtProviderUseCase.getExpiredTime(responseDto.getRefreshToken());
-        response.sendRedirect(REQUEST_URL);
-        LoginResponseDtoWithExpiredTime loginResponseDtoWithExpiredTime = new LoginResponseDtoWithExpiredTime(expiredTime, responseDto);
-        return new ResponseEntity<>(loginResponseDtoWithExpiredTime, httpHeaders, HttpStatus.OK);
+        LoginResponseDtoWithRedirectUrl loginResponseDtoWithRedirectUrl = new LoginResponseDtoWithRedirectUrl(responseDto.getAccessToken(), responseDto.getRefreshToken(), REQUEST_URL);
+        return new ResponseEntity<>(loginResponseDtoWithRedirectUrl, httpHeaders, HttpStatus.OK);
     }
 
     @PostAuthorize("hasRole('ROLE_USER')")
