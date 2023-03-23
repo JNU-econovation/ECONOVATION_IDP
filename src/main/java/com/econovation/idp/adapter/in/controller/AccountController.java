@@ -23,14 +23,16 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -89,27 +91,35 @@ public class AccountController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = BasicResponse.class)))
     })
     @PostMapping("/accounts/sign-up")
-    public ResponseEntity<BasicResponse> signUp(@Valid SignUpRequestDto signUpUser) {
+    public ResponseEntity<BasicResponse> signUp(SignUpRequestDto signUpUser) {
         accountSignUpUseCase.signUp(signUpUser.getUserName(), signUpUser.getYear(), signUpUser.getUserEmail(), signUpUser.getPassword());
         BasicResponse result = new BasicResponse("회원가입 성공", HttpStatus.OK);
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
     @Operation(summary = "로그인 Agent URL 이동", description = "로그인 페이지로 이동", responses = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = BasicResponse.class)))
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = void.class)))
     })
     @GetMapping("/accounts/login")
-    public ResponseEntity<String> login(String requestUrl, HttpServletResponse response) throws IOException {
-        // 기존 url을 쿠키로 설정한다.
+    public ResponseEntity<?> login(@CookieValue(value = "REFRESH_TOKEN",required = false) String refreshToken , String requestUrl, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // 기존 requestUrl을 쿠키로 설정한다.
         HttpHeaders httpHeaders = new HttpHeaders();
+        // token이 있으면 검증 후 요청 url 으로 바로 redirect
+        if (refreshToken != null) {
+            // 검증되지 않으면
+            Authentication authentication = jwtProviderUseCase.validateToken(request, refreshToken);
+            if (!authentication.isAuthenticated()) {
+                BasicResponse result = new BasicResponse("유효하지 않은 토큰입니다.", HttpStatus.OK);
+                return new ResponseEntity<>(result,HttpStatus.UNAUTHORIZED);
+            }
+            // 검증 성공시 바로 redirect
+            httpHeaders.setLocation(URI.create(requestUrl));
+            response.sendRedirect(requestUrl);
+            return new ResponseEntity<>(httpHeaders, HttpStatus.PERMANENT_REDIRECT);
+        }
+//        token이 null이면 loginPage로 redirect
         httpHeaders.setLocation(URI.create(loginPageUrl));
-/*        Cookie cookie = new Cookie("REQUEST_URL", requestUrl);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setSecure(true);
-        response.addCookie(cookie);*/
-        addCookie(response,"REQUEST_URL",requestUrl,3600);
         response.sendRedirect(loginPageUrl);
-        return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(httpHeaders, HttpStatus.PERMANENT_REDIRECT);
     }
 
     @Operation(summary = "로그인 페이지 처리", description = "로그인완료 후 access,refresh,redirectUrl 전송",responses = {
@@ -117,16 +127,29 @@ public class AccountController {
     })
     @CrossOrigin(origins = {"http://auth.econovation.com:8080","http://localhost:8080"},allowCredentials = "true")
     @RequestMapping(value = "/accounts/login/process", method = {RequestMethod.GET,RequestMethod.OPTIONS})
-    public ResponseEntity<?> login(HttpServletResponse response, @CookieValue(value = "REQUEST_URL",required = false) String REQUEST_URL, LoginRequestDto loginDto)
-            throws URISyntaxException, IOException, GetExpiredTimeException {
-        log.info("request_url : " + REQUEST_URL);
+    public ResponseEntity<?> login(HttpServletResponse response,LoginRequestDto loginDto)
+            throws URISyntaxException, IOException {
         LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
-        URI redirectUri = new URI(REQUEST_URL);
+        String redirectUrl = loginDto.getRedirectUrl();
+
+        URI redirectUri = new URI(redirectUrl);
         HttpHeaders httpHeaders = new HttpHeaders();
-        log.info(REQUEST_URL + ": redirect Success");
         httpHeaders.setLocation(redirectUri);
-        LoginResponseDtoWithRedirectUrl loginResponseDtoWithRedirectUrl = new LoginResponseDtoWithRedirectUrl(responseDto.getAccessToken(), responseDto.getRefreshToken(), REQUEST_URL);
-        return new ResponseEntity<>(loginResponseDtoWithRedirectUrl, httpHeaders, HttpStatus.OK);
+
+        log.info(redirectUrl + ": redirect Success");
+        // Cookie 삽입 ( refreshToken )
+        LoginResponseDtoWithRedirectUrl loginResponseDtoWithRedirectUrl = new LoginResponseDtoWithRedirectUrl(responseDto.getAccessToken(), responseDto.getRefreshToken(), redirectUrl);
+        Cookie cookie = new Cookie("refresh_token", responseDto.getRefreshToken());
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setSecure(true);
+        response.addCookie(cookie);
+
+
+        Map<String, String> accessToken = new HashMap<>();
+        accessToken.put("accessToken",loginResponseDtoWithRedirectUrl.getAccessToken());
+        response.sendRedirect(loginResponseDtoWithRedirectUrl.getRedirectUrl());
+        return new ResponseEntity<>(accessToken, httpHeaders, HttpStatus.PERMANENT_REDIRECT);
     }
 
     @PostAuthorize("hasRole('ROLE_USER')")
