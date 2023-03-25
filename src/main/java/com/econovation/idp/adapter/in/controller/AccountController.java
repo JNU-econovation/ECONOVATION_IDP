@@ -6,6 +6,7 @@ import com.econovation.idp.application.port.in.JwtProviderUseCase;
 import com.econovation.idp.domain.dto.*;
 import com.econovation.idp.global.common.BasicResponse;
 import com.econovation.idp.global.common.exception.GetExpiredTimeException;
+import io.micrometer.core.lang.Nullable;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -100,7 +102,7 @@ public class AccountController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = void.class)))
     })
     @GetMapping("/accounts/login")
-    public ResponseEntity<?> login(@CookieValue(value = "REFRESH_TOKEN",required = false) String refreshToken , String requestUrl, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> login(@CookieValue(value = "REFRESH_TOKEN",required = false) String refreshToken , @Valid @Nullable String requestUrl, HttpServletRequest request, HttpServletResponse response) throws IOException {
         // 기존 requestUrl을 쿠키로 설정한다.
         HttpHeaders httpHeaders = new HttpHeaders();
         // token이 있으면 검증 후 요청 url 으로 바로 redirect
@@ -109,16 +111,20 @@ public class AccountController {
             Authentication authentication = jwtProviderUseCase.validateToken(request, refreshToken);
             if (!authentication.isAuthenticated()) {
                 BasicResponse result = new BasicResponse("유효하지 않은 토큰입니다.", HttpStatus.OK);
+                response.sendRedirect(loginPageUrl +
+                        (requestUrl == null
+                        ? ""
+                        : "?requestUrl=" + requestUrl));
                 return new ResponseEntity<>(result,HttpStatus.UNAUTHORIZED);
             }
             // 검증 성공시 바로 redirect
-            httpHeaders.setLocation(URI.create(requestUrl));
             response.sendRedirect(requestUrl);
             return new ResponseEntity<>(httpHeaders, HttpStatus.PERMANENT_REDIRECT);
         }
 //        token이 null이면 loginPage로 redirect
-        httpHeaders.setLocation(URI.create(loginPageUrl));
-        response.sendRedirect(loginPageUrl);
+        response.sendRedirect(loginPageUrl + (requestUrl == null
+                ? ""
+                : "?requestUrl=" + requestUrl));
         return new ResponseEntity<>(httpHeaders, HttpStatus.PERMANENT_REDIRECT);
     }
 
@@ -132,11 +138,6 @@ public class AccountController {
         LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
         String redirectUrl = loginDto.getRedirectUrl();
 
-        URI redirectUri = new URI(redirectUrl);
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setLocation(redirectUri);
-
-        log.info(redirectUrl + ": redirect Success");
         // Cookie 삽입 ( refreshToken )
         LoginResponseDtoWithRedirectUrl loginResponseDtoWithRedirectUrl = new LoginResponseDtoWithRedirectUrl(responseDto.getAccessToken(), responseDto.getRefreshToken(), redirectUrl);
         Cookie cookie = new Cookie("refresh_token", responseDto.getRefreshToken());
@@ -145,11 +146,9 @@ public class AccountController {
         cookie.setSecure(true);
         response.addCookie(cookie);
 
-
         Map<String, String> accessToken = new HashMap<>();
         accessToken.put("accessToken",loginResponseDtoWithRedirectUrl.getAccessToken());
-        response.sendRedirect(loginResponseDtoWithRedirectUrl.getRedirectUrl());
-        return new ResponseEntity<>(accessToken, httpHeaders, HttpStatus.PERMANENT_REDIRECT);
+        return new ResponseEntity<>(accessToken, HttpStatus.PERMANENT_REDIRECT);
     }
 
     @PostAuthorize("hasRole('ROLE_USER')")
