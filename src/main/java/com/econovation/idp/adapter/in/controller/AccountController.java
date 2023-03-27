@@ -39,7 +39,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-//@CrossOrigin(origins = "http://auth.econovation.kr",maxAge = 3600)
+@CrossOrigin(origins = "http://auth.econovation.kr, http://127.0.0.1:3000",maxAge = 3600)
 @RequestMapping("/api")
 @Tag(name = "Account 관련 서비스", description = "회원가입, 로그인 등등")
 public class AccountController {

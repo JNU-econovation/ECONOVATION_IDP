@@ -17,7 +17,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -30,43 +29,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     private final ObjectMapper objectMapper;
-
     private final String UNAUTHORIZEd_CUSTOM_MESSAGE = "인증받지 못한 유저입니다. 로그인을 재시도해주세요.";
-    private int allowedOrigins;
-
-/*
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.httpFirewall(defaultHttpFirewall());
-    }
-
-    @Bean
-    public HttpFirewall defaultHttpFirewall() {
-        return new DefaultHttpFirewall();
-    }
-*/
-
-
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.antMatcher("/**")
                 .authorizeRequests()
 //                .antMatchers("/api/v1/**").hasAuthority(USER.name())
                 .and()
-                .cors().disable()
-                .csrf().disable()
-                .httpBasic().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .cors()
+                .and()
+                    .csrf().disable()
+                    .httpBasic().disable()
+                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 //                특정 URL 차단 및 접근권한 설정
                 .and()
                 .authorizeRequests()// 시큐리티 처리에 HttpServeltRequest를 사용합니다.
-                .antMatchers("/**").permitAll()
-                .antMatchers("/non/**").permitAll()
-                .antMatchers("/api/users/**").hasAuthority("USER")
-                .antMatchers("/api/accounts/**").permitAll()
-                .antMatchers(HttpMethod.OPTIONS,"/api/accounts/**").permitAll()
-                .antMatchers(HttpMethod.GET,"/api/accounts/**").permitAll()
-                .antMatchers(HttpMethod.POST,"/api/accounts/**").permitAll()
+                    .antMatchers("/**").permitAll()
+                    .antMatchers("/non/**").permitAll()
+                    .antMatchers("/api/users/**").hasAuthority("USER")
+                    .antMatchers("/api/accounts/**").permitAll()
+                    .antMatchers(HttpMethod.OPTIONS,"/api/accounts/**").permitAll()
+                    .antMatchers(HttpMethod.GET,"/api/accounts/**").permitAll()
+                    .antMatchers(HttpMethod.POST,"/api/accounts/**").permitAll()
 //                ErrorHandling 처리
                 .and()
 //                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)  //JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 전에 넣는다
@@ -77,15 +61,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(((request, response, authException) -> {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-//                    PrintWriter writer = response.getWriter();
-//                    String json = objectMapper.writeValueAsString(UNAUTHORIZEd_CUSTOM_MESSAGE);
-//                    writer.write(json);
-//                    writer.flush();
-//
-//                    objectMapper.writeValue(
-//                            response.getOutputStream(),
-//                            new BasicResponse("exception event",HttpStatus.FORBIDDEN)
-//                    );
                 }));
     }
     @Bean
@@ -93,21 +68,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         CorsConfiguration configuration = new CorsConfiguration();
 
 //        configuration.setAllowedOrigins(Arrays.asList("http://auth.econovation.kr"));
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://auth.econovation.kr"));
-        configuration.setAllowedMethods(Arrays.asList("HEAD","POST","GET","DELETE","PUT"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://auth.econovation.kr","http://localhost:3000"));
+        configuration.setAllowedMethods(Arrays.asList("HEAD","POST","GET","DELETE","PUT","OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "access-control-allow-credentials", "access-control-allow-origin", "REQUEST_URL"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(Duration.ofDays(30));
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
-    @Bean
-    public CorsFilter corsFilter() {
-        CorsFilter filter = new CorsFilter(corsConfigurationSource());
-        return filter;
-    }
-
 }
