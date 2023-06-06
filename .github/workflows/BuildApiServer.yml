@@ -55,7 +55,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: ./ECONOVATION_IDP
+          context: .
           # image push 최적화
           push: true
           tags: ${{secrets.NCP_CONTAINER_REGISTRY}}/econovation-idp:${{ steps.get_version.outputs.VERSION }}
