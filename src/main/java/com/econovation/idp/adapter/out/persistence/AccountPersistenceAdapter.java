@@ -20,7 +20,6 @@ public class AccountPersistenceAdapter implements LoadAccountPort, RecordAccount
     private static final String NO_MATCH_ACCOUNT = "해당하는 ACCOUNT가 존재하지 않습니다";
     private final AccountRepository accountRepository;
 
-
     @Override
     public boolean existsAccountByUserEmail(String email) {
         return accountRepository.existsAccountByUserEmail(email);

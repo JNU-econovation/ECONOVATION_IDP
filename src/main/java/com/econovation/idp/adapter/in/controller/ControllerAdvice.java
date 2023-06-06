@@ -18,7 +18,6 @@ import java.util.NoSuchElementException;
 @Slf4j
 @RestControllerAdvice
 public class ControllerAdvice {
-
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalArgumentException.class)
     public ErrorResult illegalExHandle(IllegalArgumentException e) {

@@ -48,11 +48,9 @@ public class UserService implements UserDetailsService, UserUseCase {
     public Map<String, Object> findAllWithLastPageInPage(Integer page){
         Pageable pageable = PageRequest.of(page, PAGE_PER_REQUEST);
 
-//        Page<Account> usersWithPagination = userRepository.findAll(pageable);
         Slice<Account> usersWithPagination = userRepository.findSliceBy(pageable);
         log.info(" number : "+ String.valueOf(usersWithPagination.getNumber()));
         log.info(" size : "+ String.valueOf(usersWithPagination.getSize()));
-//        int totalPages = usersWithPagination.getTotalPages();
         List<Account> users = usersWithPagination.stream().toList();
         Map<String, Object> map = new HashMap();
         map.put("users",users);

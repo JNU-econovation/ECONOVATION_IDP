@@ -68,7 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         CorsConfiguration configuration = new CorsConfiguration();
 
 //        configuration.setAllowedOrigins(Arrays.asList("http://auth.econovation.kr"));
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://auth.econovation.kr","http://localhost:3000"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("https://auth.econovation.kr","https://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("HEAD","POST","GET","DELETE","PUT","OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "access-control-allow-credentials", "access-control-allow-origin", "REQUEST_URL"));
         configuration.setAllowCredentials(true);

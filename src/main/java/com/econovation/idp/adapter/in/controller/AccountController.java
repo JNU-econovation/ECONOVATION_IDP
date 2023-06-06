@@ -131,13 +131,10 @@ public class AccountController {
     @Operation(summary = "로그인 페이지 처리", description = "로그인완료 후 access,refresh,redirectUrl 전송",responses = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = LoginResponseDtoWithExpiredTime.class)))
     })
-    @CrossOrigin(origins = {"http://auth.econovation.com:8080","http://localhost:8080"},allowCredentials = "true")
     @RequestMapping(value = "/accounts/login/process", method = {RequestMethod.GET,RequestMethod.OPTIONS})
-    public ResponseEntity<?> login(HttpServletResponse response,LoginRequestDto loginDto)
-            throws URISyntaxException, IOException {
+    public ResponseEntity<?> login(HttpServletResponse response,LoginRequestDto loginDto) {
         LoginResponseDto responseDto = accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
         String redirectUrl = loginDto.getRedirectUrl();
-
         // Cookie 삽입 ( refreshToken )
         LoginResponseDtoWithRedirectUrl loginResponseDtoWithRedirectUrl = new LoginResponseDtoWithRedirectUrl(responseDto.getAccessToken(), responseDto.getRefreshToken(), redirectUrl);
         Cookie cookie = new Cookie("refresh_token", responseDto.getRefreshToken());
@@ -148,7 +145,7 @@ public class AccountController {
 
         Map<String, String> accessToken = new HashMap<>();
         accessToken.put("accessToken",loginResponseDtoWithRedirectUrl.getAccessToken());
-        return new ResponseEntity<>(accessToken, HttpStatus.PERMANENT_REDIRECT);
+        return new ResponseEntity<>(accessToken, HttpStatus.OK);
     }
 
     @PostAuthorize("hasRole('ROLE_USER')")
@@ -221,29 +218,5 @@ public class AccountController {
                     String.format("%s; %s", header, "SameSite=None"));
         }
     }
-
-    /**
-     *  Token 이 유효하지 않을 때 재요청 하는 로직
-     * */
-
-    /**
-     *  Token 이 없을때 simple Request하는 로직
-     * */
-
-    /**
-     * Token 요청에 따른 개인정보 요청
-     * */
-
-    /**
-     * 토큰을 주면 uid 하나만 반환하는 simple 요청
-     * */
-
-    /**
-     * 토큰 반환이 유효하지 않은 토큰을 줄때, 토큰재발행 -> 재요청 실시 요청
-     * */
-
-    /**
-     * 토큰이 없어도 조회가 가능한 서비스 ( private 서비스 )
-     * */
 }
 

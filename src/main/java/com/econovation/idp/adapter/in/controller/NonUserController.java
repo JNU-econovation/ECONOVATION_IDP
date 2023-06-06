@@ -27,8 +27,8 @@ public class NonUserController {
     @ApiResponses({
             @ApiResponse(responseCode = "Account Object", description = "검색 유저 return")
     })
-    @GetMapping("/non/api/users/{userId}")
-    public ResponseEntity<NonAccountResponseDto> findUserById(@PathVariable Long userId) {
+    @GetMapping("/non/api/users/{user-id}")
+    public ResponseEntity<NonAccountResponseDto> findUserById(@PathVariable(value="user-id") Long userId) {
         HttpHeaders headers= new HttpHeaders();
         Account account = userService.findUserById(userId);
         log.info(account.getUserEmail() + account.getUsername());

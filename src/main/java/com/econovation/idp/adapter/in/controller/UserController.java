@@ -58,8 +58,8 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(responseCode = "Account Object", description = "검색 유저 return")
     })
-    @GetMapping("/api/users/{userId}")
-    public ResponseEntity<Account> findUserById(@PathVariable Long userId) {
+    @GetMapping("/api/users/{user-id}")
+    public ResponseEntity<Account> findUserById(@PathVariable(value = "user-id") Long userId) {
         HttpHeaders headers= new HttpHeaders();
         Account account = userService.findUserById(userId);
         return new ResponseEntity<>(account, headers, HttpStatus.OK);

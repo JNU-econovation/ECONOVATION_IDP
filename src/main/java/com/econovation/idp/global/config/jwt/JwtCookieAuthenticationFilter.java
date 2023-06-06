@@ -27,9 +27,8 @@ public class JwtCookieAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = resolveToken(request.getHeader("Authorization"));
         Cookie[] cookies = request.getCookies();
-
-        log.info(token);
         boolean isLogin = false;
+
         if (token != null ) {
             Authentication authentication = jwtProvider.validateToken(request, token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -41,13 +40,13 @@ public class JwtCookieAuthenticationFilter extends OncePerRequestFilter {
 //        로그인 하지 않은 사람의 처치
         else{
 //            일반 요청이라면
-            if(request.getRequestURI().startsWith("/api/accounts") || request.getRequestURI().startsWith("non/api/") ||
+            if(request.getRequestURI().startsWith("/api/accounts") || request.getRequestURI().startsWith("/non/api/") ||
                     request.getRequestURI().startsWith("/swagger") || request.getRequestURI().startsWith("/api-docs")){
                 filterChain.doFilter(request,response);
                 return;
             }
 //            유저 조회 요청이면
-            log.info("유저 조회 요청입니다.");
+            log.info("비로그인된 유저 조회 요청입니다.");
             RequestDispatcher rd = request.getRequestDispatcher("/non" + request.getRequestURI());
             rd.forward(request, response);
         }
