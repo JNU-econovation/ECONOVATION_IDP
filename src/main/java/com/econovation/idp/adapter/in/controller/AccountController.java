@@ -39,7 +39,6 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "http://auth.econovation.kr, http://127.0.0.1:3000",maxAge = 3600)
 @RequestMapping("/api")
 @Tag(name = "Account 관련 서비스", description = "회원가입, 로그인 등등")
 public class AccountController {
@@ -50,11 +49,8 @@ public class AccountController {
     private String loginPageUrl;
 
     //    로그아웃 기능 구현
-    @Operation(summary = "logout", description = "로그아웃_에이전트, 로그아웃시 redirect 페이지로 이동",responses = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = BasicResponse.class))
-            )})
-    @ApiResponse(responseCode = "HttpStatus.OK", description = "OK")
-    @GetMapping("/accounts/logout")
+    @Operation(summary = "logout", description = "로그아웃_에이전트, 로그아웃시 redirect 페이지로 이동")
+    @GetMapping("/logout")
     public ResponseEntity<BasicResponse> logout(String redirectUrl, HttpServletRequest request) throws URISyntaxException, GetExpiredTimeException {
 //        7번부터 빼야 bearer(+스페이스바) 빼고 토큰만 추출 가능
         String refreshToken = request.getHeader("Authorization").substring(7);
