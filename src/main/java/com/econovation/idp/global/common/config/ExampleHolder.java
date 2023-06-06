@@ -1,4 +1,4 @@
-package com.econovation.idp.global.config;
+package com.econovation.idp.global.common.config;
 
 
 import io.swagger.v3.oas.models.examples.Example;

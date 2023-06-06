@@ -1,9 +1,9 @@
 package com.econovation.idp.domain.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
 import java.util.Date;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @AllArgsConstructor
 @Data

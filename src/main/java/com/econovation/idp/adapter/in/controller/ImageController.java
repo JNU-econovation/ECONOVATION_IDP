@@ -1,9 +1,16 @@
 package com.econovation.idp.adapter.in.controller;
 
+
 import com.econovation.idp.application.service.ImageService;
 import com.econovation.idp.domain.dto.ImageUploadDto;
 import com.econovation.idp.domain.image.Image;
 import com.econovation.idp.global.common.exception.ImageIOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.ContentDisposition;
@@ -14,13 +21,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 public class ImageController {
@@ -29,7 +29,7 @@ public class ImageController {
     /* 이미지 업로드 */
     @PostMapping("/upload")
     public ResponseEntity<?> imageUpload(ImageUploadDto imageUploadDto) {
-        if(imageUploadDto.getFile().isEmpty()) {
+        if (imageUploadDto.getFile().isEmpty()) {
             throw new IllegalArgumentException("이미지가 첨부되지 않았습니다.");
         }
         imageService.upload(imageUploadDto);
@@ -37,7 +37,7 @@ public class ImageController {
     }
 
     @GetMapping("/image")
-    public void downloadImage(HttpServletResponse response,Integer idpId) throws IOException {
+    public void downloadImage(HttpServletResponse response, Integer idpId) throws IOException {
         List<Image> images = imageService.imageSearch(Long.valueOf(idpId));
 
         String url = imageService.downloadImage(images);
@@ -104,6 +104,3 @@ public class ImageController {
         }
     }
 }
-
-
-

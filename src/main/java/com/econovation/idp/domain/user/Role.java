@@ -1,4 +1,6 @@
 package com.econovation.idp.domain.user;
+
+
 import lombok.Getter;
 
 @Getter

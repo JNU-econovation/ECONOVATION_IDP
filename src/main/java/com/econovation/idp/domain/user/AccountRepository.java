@@ -1,5 +1,8 @@
 package com.econovation.idp.domain.user;
 
+
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -8,28 +11,27 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
     List<Account> findAll();
+
     boolean existsAccountByUserEmail(String userEmail);
 
-//    Optional<Account> findByUserEmail(String userEmail);
+    //    Optional<Account> findByUserEmail(String userEmail);
 
     @Query("SELECT u FROM Account u WHERE u.userName = :userName")
     List<Account> findByUserName(@Param("userName") String userName);
 
-//    @Query("SELECT u FROM Account u WHERE u.userEmail = :userEmail")
-//    Optional<Account> findByUserEmail(@Param("userEmail") String userEmail);
+    //    @Query("SELECT u FROM Account u WHERE u.userEmail = :userEmail")
+    //    Optional<Account> findByUserEmail(@Param("userEmail") String userEmail);
 
     Optional<Account> findByUserEmail(String userEmail);
 
     Page<Account> findAll(Pageable pageable);
 
     Slice<Account> findSliceBy(Pageable pageable);
+
     Long countAllByRole(String role);
 
     @Query("SELECT u FROM Account u WHERE u.password = :password")

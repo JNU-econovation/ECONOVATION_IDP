@@ -2,7 +2,6 @@ package com.econovation.idp.global.common.validator;
 
 
 import com.econovation.idp.global.annotation.Phone;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 

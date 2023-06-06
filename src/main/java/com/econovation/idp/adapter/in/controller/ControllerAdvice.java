@@ -1,9 +1,12 @@
 package com.econovation.idp.adapter.in.controller;
 
+
 import com.econovation.idp.application.port.out.ErrorResult;
 import com.econovation.idp.global.common.exception.BadRequestException;
 import com.econovation.idp.global.common.exception.GetExpiredTimeException;
 import com.econovation.idp.global.common.exception.ImageIOException;
+import java.util.Date;
+import java.util.NoSuchElementException;
 import jdk.jshell.spi.ExecutionControl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -11,9 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.util.Date;
-import java.util.NoSuchElementException;
 
 @Slf4j
 @RestControllerAdvice
@@ -48,25 +48,23 @@ public class ControllerAdvice {
     }
 
     @ExceptionHandler(ImageIOException.class)
-    public ResponseEntity<ErrorResult> ImageIOexHandle(Exception e){
-        log.warn("IMAGE_IO_EXCEPTION : "+ e.getMessage());
+    public ResponseEntity<ErrorResult> ImageIOexHandle(Exception e) {
+        log.warn("IMAGE_IO_EXCEPTION : " + e.getMessage());
         ErrorResult errorResult = new ErrorResult("[IMAGE_IO_EXCEPTION] : ", e.getMessage());
         return new ResponseEntity<>(errorResult, HttpStatus.NO_CONTENT);
     }
 
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<ErrorResult> NoSuchElementexHandle(Exception e){
-        log.warn("IMAGE_IO_EXCEPTION : "+ e.getMessage());
+    public ResponseEntity<ErrorResult> NoSuchElementexHandle(Exception e) {
+        log.warn("IMAGE_IO_EXCEPTION : " + e.getMessage());
         ErrorResult errorResult = new ErrorResult("[NoSuchElementException] : ", e.getMessage());
         return new ResponseEntity<>(errorResult, HttpStatus.NO_CONTENT);
     }
 
     @ExceptionHandler(GetExpiredTimeException.class)
-    public ResponseEntity<ErrorResult> GetExpiredTimeexHandle(Exception e){
-        log.warn("IMAGE_IO_EXCEPTION : "+ e.getMessage());
+    public ResponseEntity<ErrorResult> GetExpiredTimeexHandle(Exception e) {
+        log.warn("IMAGE_IO_EXCEPTION : " + e.getMessage());
         ErrorResult errorResult = new ErrorResult("[GetExpiredTimeException] : ", e.getMessage());
         return new ResponseEntity<>(errorResult, HttpStatus.NO_CONTENT);
     }
-
-
 }

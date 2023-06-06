@@ -1,5 +1,6 @@
 package com.econovation.idp.application.service;
 
+
 import com.econovation.idp.application.port.in.AccountUseCase;
 import com.econovation.idp.application.port.in.JwtProviderUseCase;
 import com.econovation.idp.application.port.out.LoadAccountPort;
@@ -10,14 +11,13 @@ import com.econovation.idp.domain.user.AccountRepository;
 import com.econovation.idp.global.common.exception.BadRequestException;
 import com.econovation.idp.global.common.exception.GetExpiredTimeException;
 import com.econovation.idp.global.utils.EntityMapper;
+import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.servlet.http.HttpServletRequest;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -34,15 +34,19 @@ public class AccountJwtService implements AccountUseCase {
     @Transactional
     public LoginResponseDto reIssueAccessToken(HttpServletRequest request, String refreshedToken) {
         Long idpId = jwtProviderUseCase.getIdpId(refreshedToken);
-        Account account = accountRepository.findById(idpId).orElseThrow(() -> new IllegalArgumentException(NO_ACCOUNT_MESSAGE));
+        Account account =
+                accountRepository
+                        .findById(idpId)
+                        .orElseThrow(() -> new IllegalArgumentException(NO_ACCOUNT_MESSAGE));
         // refreshToken 검증 절차
         Authentication authentication = jwtProviderUseCase.validateToken(request, refreshedToken);
         if (authentication.isAuthenticated()) {
-            String refreshToken = jwtProviderUseCase.createRefreshToken(idpId,account.getRole().name());
-            String accessToken = jwtProviderUseCase.createAccessToken(idpId, account.getRole().name());
+            String refreshToken =
+                    jwtProviderUseCase.createRefreshToken(idpId, account.getRole().name());
+            String accessToken =
+                    jwtProviderUseCase.createAccessToken(idpId, account.getRole().name());
             return new LoginResponseDto(accessToken, refreshToken);
-        }
-        else {
+        } else {
             throw new BadRequestException("유효하지 않은 토큰입니다");
         }
     }
@@ -50,14 +54,19 @@ public class AccountJwtService implements AccountUseCase {
     @Override
     public UserResponseMatchedTokenDto findByAccessToken(String accessToken) {
         Long idpId = jwtProviderUseCase.getIdpId(accessToken);
-        Account account = accountRepository.findById(idpId).orElseThrow(() -> new IllegalArgumentException(NO_ACCOUNT_MESSAGE));
+        Account account =
+                accountRepository
+                        .findById(idpId)
+                        .orElseThrow(() -> new IllegalArgumentException(NO_ACCOUNT_MESSAGE));
         return entityMapper.toUserResponseMatchedTokenDto(account);
     }
 
     @Transactional
-    public LoginResponseDto createToken(Account account){
-        String accessToken = jwtProviderUseCase.createAccessToken(account.getId(), account.getRole().name());
-        String refreshToken = jwtProviderUseCase.createRefreshToken(account.getId(), account.getRole().name());
+    public LoginResponseDto createToken(Account account) {
+        String accessToken =
+                jwtProviderUseCase.createAccessToken(account.getId(), account.getRole().name());
+        String refreshToken =
+                jwtProviderUseCase.createRefreshToken(account.getId(), account.getRole().name());
         return new LoginResponseDto(accessToken, refreshToken);
     }
 
@@ -65,11 +74,14 @@ public class AccountJwtService implements AccountUseCase {
     @Transactional
     public LoginResponseDto login(String email, String password) {
         log.info("email : " + email + " / password : " + password);
-        Account account = loadAccountPort
-                .loadByUserEmail(email).orElseThrow(() -> new BadRequestException("해당하는 이메일이 존재하지 않습니다"));
+        Account account =
+                loadAccountPort
+                        .loadByUserEmail(email)
+                        .orElseThrow(() -> new BadRequestException("해당하는 이메일이 존재하지 않습니다"));
         checkPassword(password, account.getPassword());
         return createToken(account);
     }
+
     @Override
     public void logout(String refreshToken) throws GetExpiredTimeException {
         jwtProviderUseCase.logout(refreshToken);
@@ -77,7 +89,7 @@ public class AccountJwtService implements AccountUseCase {
 
     private void checkPassword(String password, String encodePassword) {
         boolean isMatch = passwordEncoder.matches(password, encodePassword);
-        if(!isMatch){
+        if (!isMatch) {
             throw new BadRequestException("비밀번호를 확인하세요");
         }
     }

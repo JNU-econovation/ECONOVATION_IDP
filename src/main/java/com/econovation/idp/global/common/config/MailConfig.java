@@ -1,4 +1,5 @@
-package com.econovation.idp.global.config;
+package com.econovation.idp.global.common.config;
+
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

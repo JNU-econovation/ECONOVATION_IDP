@@ -1,9 +1,8 @@
 package com.econovation.idp.global.common.dto;
 
 
-import lombok.Getter;
-
 import java.time.LocalDateTime;
+import lombok.Getter;
 
 @Getter
 public class ErrorResponse {

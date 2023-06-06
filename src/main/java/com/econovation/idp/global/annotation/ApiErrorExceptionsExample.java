@@ -2,7 +2,6 @@ package com.econovation.idp.global.annotation;
 
 
 import com.econovation.idp.global.common.interfaces.SwaggerExampleExceptions;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

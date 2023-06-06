@@ -1,4 +1,6 @@
-package com.econovation.idp.global.config;
+package com.econovation.idp.global.common.config;
+
+import static java.util.stream.Collectors.groupingBy;
 
 import com.econovation.idp.global.annotation.ApiErrorCodeExample;
 import com.econovation.idp.global.annotation.ApiErrorExceptionsExample;
@@ -21,6 +23,9 @@ import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.GroupedOpenApi;
 import org.springdoc.core.customizers.OperationCustomizer;
@@ -29,15 +34,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.HandlerMethod;
 
-import java.lang.reflect.Field;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
-
 @Configuration
 @RequiredArgsConstructor
-public class SwaggerConfig{
+public class SwaggerConfig {
     private final ApplicationContext applicationContext;
 
     @Bean
@@ -59,14 +58,17 @@ public class SwaggerConfig{
                 .pathsToMatch("/api/users/**")
                 .build();
     }
+
     @Bean
     public OpenAPI customOpenAPI() {
         License license = new License().name("Copyright(C) CWY Corporation All rights reserved.");
         return new OpenAPI()
                 .components(new Components())
-                .info(new Info().title("Spring Boot API Example")
-                        .description("Econovation 통합 유저 서버")
-                        .version("v1.0.0"));
+                .info(
+                        new Info()
+                                .title("Spring Boot API Example")
+                                .description("Econovation 통합 유저 서버")
+                                .version("v1.0.0"));
     }
 
     @Bean

@@ -1,5 +1,6 @@
 package com.econovation.idp.domain.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

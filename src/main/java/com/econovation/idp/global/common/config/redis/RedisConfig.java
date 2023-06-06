@@ -1,4 +1,5 @@
-package com.econovation.idp.global.config.redis;
+package com.econovation.idp.global.common.config.redis;
+
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

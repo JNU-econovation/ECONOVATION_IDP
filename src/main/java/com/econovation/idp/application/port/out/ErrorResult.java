@@ -1,5 +1,6 @@
 package com.econovation.idp.application.port.out;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

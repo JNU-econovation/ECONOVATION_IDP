@@ -7,6 +7,7 @@ plugins {
 	id 'java'
 	id 'jacoco'
 }
+
 apply plugin: 'org.sonarqube'
 
 
@@ -36,20 +37,11 @@ configurations {
 	}
 }
 
-//root project docs
-//allprojects {
-//	apply plugin: 'java'
-//	apply plugin: 'jacoco'
-//	apply plugin: 'org.springframework.boot'
-//	apply plugin: 'io.spring.dependency-management'
-//	apply plugin: 'org.springdoc.openapi-gradle-plugin'
-
-//	group = 'com.econovation.idp'
-//	version = '0.0.1-SNAPSHOT'
 jacoco {
 	toolVersion = "0.8.7"
 	reportsDir = file("$buildDir/customJacocoReportDir")
 }
+
 repositories {
 	mavenCentral()
 }
@@ -82,7 +74,6 @@ dependencies {
 	runtimeOnly 'mysql:mysql-connector-java'
 
 	compileOnly 'org.projectlombok:lombok'
-//	implementation 'mysql-connector-java:8.0.22'
 	//	runtimeOnly 'com.h2database:h2:2.1.214'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -99,5 +90,13 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-
-
+spotless {
+	java {
+		target("**/*.java")
+		googleJavaFormat().aosp()
+		importOrder()
+		removeUnusedImports()
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
+}

@@ -1,9 +1,8 @@
 package com.econovation.idp.global.annotation;
 
 
-import org.springframework.stereotype.Component;
-
 import java.lang.annotation.*;
+import org.springframework.stereotype.Component;
 
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)

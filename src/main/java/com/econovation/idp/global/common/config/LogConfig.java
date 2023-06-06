@@ -1,4 +1,5 @@
-package com.econovation.idp.global.config;
+package com.econovation.idp.global.common.config;
+
 
 import com.econovation.idp.global.common.auth.AuthComponent;
 import com.econovation.idp.global.common.auth.LogInterceptor;
@@ -11,9 +12,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class LogConfig implements WebMvcConfigurer {
     private final AuthComponent authComponent;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LogInterceptor(authComponent));
     }
 }
- 

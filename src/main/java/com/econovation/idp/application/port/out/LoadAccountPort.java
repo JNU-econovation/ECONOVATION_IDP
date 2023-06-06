@@ -1,11 +1,11 @@
 package com.econovation.idp.application.port.out;
 
-import com.econovation.idp.domain.user.Account;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
+import com.econovation.idp.domain.user.Account;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface LoadAccountPort {
     boolean existsAccountByUserEmail(String email);
@@ -21,5 +21,4 @@ public interface LoadAccountPort {
     Account loadById(Long id);
 
     Optional<Account> loadUserByUserNameAndYear(String userName, Long Year);
-
 }

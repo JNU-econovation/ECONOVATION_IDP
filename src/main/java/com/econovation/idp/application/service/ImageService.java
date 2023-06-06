@@ -1,22 +1,22 @@
 package com.econovation.idp.application.service;
 
+
 import com.econovation.idp.application.port.out.LoadAccountPort;
 import com.econovation.idp.domain.dto.ImageUploadDto;
 import com.econovation.idp.domain.image.Image;
 import com.econovation.idp.domain.image.ImageRepository;
 import com.econovation.idp.domain.user.Account;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -61,35 +61,36 @@ public class ImageService {
     public String downloadImage(List<Image> images) throws IOException {
         Map<String, Object> map = new HashMap<>();
 
-        Image image = images.stream()
-                .max(Comparator.comparing(Image::getModifiedDate))
-                .orElseThrow(NoSuchElementException::new);
+        Image image =
+                images.stream()
+                        .max(Comparator.comparing(Image::getModifiedDate))
+                        .orElseThrow(NoSuchElementException::new);
         String postImageUrl = image.getPost_image_url();
         Path imageUrl = Paths.get(uploadFolder + postImageUrl);
         return String.valueOf(imageUrl);
-//        Resource resource = resourceLoader.getResource(String.valueOf(imageUrl));
-//        map.put("image", image);
-//        map.put("resource", resource);
-//        if(resource.exists()){
-//            return map;
-//        }
-//        throw new NoSuchElementException();
+        //        Resource resource = resourceLoader.getResource(String.valueOf(imageUrl));
+        //        map.put("image", image);
+        //        map.put("resource", resource);
+        //        if(resource.exists()){
+        //            return map;
+        //        }
+        //        throw new NoSuchElementException();
     }
 
     /*public Map<String, Object> downloadImage(List<Image> images) throws IOException {
-        Map<String, Object> map = new HashMap<>();
+            Map<String, Object> map = new HashMap<>();
 
-        Image image = images.stream()
-                .max(Comparator.comparing(Image::getModifiedDate))
-                .orElseThrow(NoSuchElementException::new);
-//        String postImageUrl = image.getPost_image_url();
-//        Path imageUrl = Paths.get(uploadFolder + postImageUrl);
-//        Resource resource = resourceLoader.getResource(String.valueOf(imageUrl));
-        map.put("image", image);
-//        map.put("resource", resource);
-//        if(resource.exists()){
-//            return map;
-//        }
-        throw new NoSuchElementException();
-    }*/
+            Image image = images.stream()
+                    .max(Comparator.comparing(Image::getModifiedDate))
+                    .orElseThrow(NoSuchElementException::new);
+    //        String postImageUrl = image.getPost_image_url();
+    //        Path imageUrl = Paths.get(uploadFolder + postImageUrl);
+    //        Resource resource = resourceLoader.getResource(String.valueOf(imageUrl));
+            map.put("image", image);
+    //        map.put("resource", resource);
+    //        if(resource.exists()){
+    //            return map;
+    //        }
+            throw new NoSuchElementException();
+        }*/
 }
