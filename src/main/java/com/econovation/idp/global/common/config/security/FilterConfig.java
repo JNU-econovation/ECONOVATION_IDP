@@ -22,9 +22,9 @@ public class FilterConfig
 
     @Override
     public void configure(HttpSecurity builder) {
-        builder.addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class);
         //        builder.addFilterBefore(jwtTokenFilter, BasicAuthenticationFilter.class);
         //        builder.addFilterBefore(jwtExceptionFilter, JwtTokenFilter.class);
+        builder.addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class);
         builder.addFilterBefore(accessDeniedFilter, FilterSecurityInterceptor.class);
     }
 }

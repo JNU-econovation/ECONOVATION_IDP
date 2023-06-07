@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class JwtProvider implements JwtProviderUseCase {
     private final UserDetailsService customAccountDetailsService;
     private final RedisService redisService;
@@ -56,7 +55,6 @@ public class JwtProvider implements JwtProviderUseCase {
         Claims claims = Jwts.claims().setSubject(String.valueOf(idpId));
         claims.put("roles", role);
         Date date = new Date();
-        log.info(secretKey);
         return Jwts.builder()
                 .setClaims(claims) // 발행유저 정보 저장
                 .setIssuedAt(date) // 발행 시간 저장
@@ -91,7 +89,6 @@ public class JwtProvider implements JwtProviderUseCase {
                                 .parseClaimsJws(token)
                                 .getBody()
                                 .getSubject());
-        log.info("테스트중입니다 따란 : " + String.valueOf(aLong));
         return aLong;
     }
 
@@ -101,7 +98,6 @@ public class JwtProvider implements JwtProviderUseCase {
             return (Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody())
                     .getExpiration();
         } catch (Exception e) {
-            log.warn(e.getMessage());
             throw new GetExpiredTimeException("토큰의 만료시간을 조회할 수 없습니다.");
         }
     }

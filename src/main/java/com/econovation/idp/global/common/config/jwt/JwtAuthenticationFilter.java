@@ -2,6 +2,8 @@ package com.econovation.idp.global.common.config.jwt;
 
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import javax.servlet.FilterChain;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -46,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
             //            유저 조회 요청이면
-            log.info("유저 조회 요청입니다.");
+            log.info(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "User Reqeust");
             RequestDispatcher rd = request.getRequestDispatcher("/non" + request.getRequestURI());
             rd.forward(request, response);
         }

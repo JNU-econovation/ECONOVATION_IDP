@@ -10,6 +10,7 @@ import com.econovation.idp.global.common.exception.BadRequestException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -26,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class UserService implements UserDetailsService, UserUseCase {
+public class UserService implements UserUseCase {
     private static final String NOT_FOUND_USER_MESSAGE = "해당 회원을 찾을 수 없습니다";
     private static final String NOT_CORRECT_USER_MESSAGE = "비밀번호나 이메일이 일치하지 않습니다.";
     private static final String OVERLAP_PASSWORD_MESSAGE = "기존의 비밀번호를 입력했습니다.";
@@ -41,7 +42,7 @@ public class UserService implements UserDetailsService, UserUseCase {
     @Transactional
     public List<Account> findAll(Integer page) {
         Pageable pageable = PageRequest.of(page, PAGE_PER_REQUEST);
-        return userRepository.findAll(pageable).stream().toList();
+        return userRepository.findAll(pageable).stream().collect(Collectors.toList());
     }
 
     @Transactional
@@ -51,7 +52,7 @@ public class UserService implements UserDetailsService, UserUseCase {
         Slice<Account> usersWithPagination = userRepository.findSliceBy(pageable);
         log.info(" number : " + String.valueOf(usersWithPagination.getNumber()));
         log.info(" size : " + String.valueOf(usersWithPagination.getSize()));
-        List<Account> users = usersWithPagination.stream().toList();
+        List<Account> users = usersWithPagination.stream().collect(Collectors.toList());
         Map<String, Object> map = new HashMap();
         map.put("users", users);
         //        map.put("maxPage",page + (users.size() / PAGE_PER_REQUEST));
@@ -84,7 +85,7 @@ public class UserService implements UserDetailsService, UserUseCase {
         Pageable pageable = PageRequest.of(page, 8);
         return userRepository.findAll(pageable).stream()
                 .filter(u -> u.getRole().equals(role))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -132,7 +133,7 @@ public class UserService implements UserDetailsService, UserUseCase {
         Account findUser =
                 userRepository.findByUserName(userName).stream()
                         .filter(m -> m.getYear().equals(year))
-                        .toList()
+                        .collect(Collectors.toList())
                         .get(0);
         if (findUser == null) {
             throw new IllegalArgumentException(NOT_CORRECT_USER_MESSAGE);
@@ -203,17 +204,6 @@ public class UserService implements UserDetailsService, UserUseCase {
                         .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_USER_MESSAGE));
 
         user.update(userUpdateRequestDto);
-        return user;
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String idpId) throws UsernameNotFoundException {
-
-        Account user = findUserById(Long.valueOf(idpId));
-
-        if (user == null) {
-            throw new UsernameNotFoundException("user not found.");
-        }
         return user;
     }
 

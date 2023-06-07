@@ -13,18 +13,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 
-@Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
     private final FilterConfig filterConfig;
 
@@ -37,15 +33,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final SpringEnvironmentHelper springEnvironmentHelper;
 
     /** 스웨거용 인메모리 유저 설정 */
-    @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails user =
-                User.withUsername(swaggerUser)
-                        .password(passwordEncoder().encode(swaggerPassword))
-                        .roles("SWAGGER")
-                        .build();
-        return new InMemoryUserDetailsManager(user);
-    }
+    //    @Bean
+    //    public InMemoryUserDetailsManager userDetailsService() {
+    //        UserDetails user =
+    //                User.withUsername(swaggerUser)
+    //                        .password(passwordEncoder().encode(swaggerPassword))
+    //                        .roles("SWAGGER")
+    //                        .build();
+    //        return new InMemoryUserDetailsManager(user);
+    //    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
