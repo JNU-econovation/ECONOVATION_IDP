@@ -48,7 +48,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
             //            유저 조회 요청이면
-            log.info(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "User Reqeust");
+            log.info(
+                    LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                            + "User Reqeust");
             RequestDispatcher rd = request.getRequestDispatcher("/non" + request.getRequestURI());
             rd.forward(request, response);
         }

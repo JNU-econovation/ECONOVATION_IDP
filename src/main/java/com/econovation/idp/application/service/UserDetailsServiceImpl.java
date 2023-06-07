@@ -1,8 +1,8 @@
 package com.econovation.idp.application.service;
 
+
 import com.econovation.idp.domain.user.Account;
 import com.econovation.idp.domain.user.AccountRepository;
-import com.econovation.idp.global.common.exception.BaseErrorCode;
 import com.econovation.idp.global.common.exception.GlobalErrorCode;
 import com.econovation.idp.global.common.exception.IdpCodeException;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +19,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = Exception.class)
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final AccountRepository accountRepository;
+
     @Override
     public UserDetails loadUserByUsername(String idpId) throws UsernameNotFoundException {
 
-        Account user = accountRepository.findById(Long.valueOf(idpId)).orElseThrow(() -> new IdpCodeException(GlobalErrorCode.INTERNAL_SERVER_ERROR));
+        Account user =
+                accountRepository
+                        .findById(Long.valueOf(idpId))
+                        .orElseThrow(
+                                () -> new IdpCodeException(GlobalErrorCode.INTERNAL_SERVER_ERROR));
 
         if (user == null) {
             throw new UsernameNotFoundException("user not found.");
