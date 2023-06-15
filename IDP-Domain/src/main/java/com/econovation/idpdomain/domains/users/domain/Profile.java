@@ -14,6 +14,7 @@ public class Profile {
     private String name;
     private String email;
     private Integer year;
+
     public void withdraw() {
         this.name = "탈퇴한 유저";
         this.email = null;

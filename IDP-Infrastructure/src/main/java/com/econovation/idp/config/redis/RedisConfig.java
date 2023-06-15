@@ -1,4 +1,4 @@
-package com.econovation.idpapi.config.redis;
+package com.econovation.idp.config.redis;
 
 
 import org.springframework.beans.factory.annotation.Value;

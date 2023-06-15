@@ -6,5 +6,4 @@ public class SecurityContextNotFoundException extends IdpCodeException {
     private SecurityContextNotFoundException() {
         super(GlobalErrorCode.SECURITY_CONTEXT_NOT_FOUND);
     }
-
 }

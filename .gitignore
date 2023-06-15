@@ -18,6 +18,7 @@ bin/
 !**/src/test/**/bin/
 image
 image/**
+.env
 
 ### IntelliJ IDEA ###
 .idea

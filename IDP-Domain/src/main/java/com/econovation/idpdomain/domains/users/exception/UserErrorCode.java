@@ -1,5 +1,7 @@
 package com.econovation.idpdomain.domains.users.exception;
 
+import static com.econovation.idpcommon.consts.IdpStatic.*;
+
 import com.econovation.idpcommon.annotation.ExplainError;
 import com.econovation.idpcommon.dto.ErrorReason;
 import com.econovation.idpcommon.exception.BaseErrorCode;
@@ -7,8 +9,6 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import static com.econovation.idpcommon.consts.IdpStatic.*;
 
 @Getter
 @AllArgsConstructor

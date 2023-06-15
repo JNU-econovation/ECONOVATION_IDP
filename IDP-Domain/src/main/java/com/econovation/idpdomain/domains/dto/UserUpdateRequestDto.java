@@ -1,7 +1,6 @@
 package com.econovation.idpdomain.domains.dto;
 
 
-import com.econovation.idpdomain.domains.users.domain.Account;
 import com.econovation.idpdomain.domains.users.domain.Profile;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
@@ -24,9 +23,6 @@ public class UserUpdateRequestDto {
     }
 
     public Profile toProfile(UserUpdateRequestDto userUpdateRequestDto) {
-        return Profile.builder()
-                .email(userName)
-
-                .build();
+        return Profile.builder().email(userName).build();
     }
 }

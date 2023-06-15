@@ -1,16 +1,23 @@
 package com.econovation.idpapi.config.jwt;
 
+import static com.econovation.idpcommon.exception.GlobalErrorCode.TOKEN_EXPIRED;
 
-import com.econovation.idp.application.port.in.JwtProviderUseCase;
-import com.econovation.idp.global.common.exception.GetExpiredTimeException;
-import com.econovation.idp.global.common.redis.RedisService;
-import java.security.SignatureException;
+import com.econovation.idpapi.application.port.in.JwtProviderUseCase;
+import com.econovation.idpapi.common.redis.RedisService;
+import com.econovation.idpcommon.exception.GetExpiredTimeException;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,6 +27,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtProvider implements JwtProviderUseCase {
     private final UserDetailsService customAccountDetailsService;
     private final RedisService redisService;
@@ -107,11 +115,12 @@ public class JwtProvider implements JwtProviderUseCase {
         try {
             String expiredAT = redisService.getValues(blackListATPrefix + token);
             if (expiredAT != null) {
+                log.info(TOKEN_EXPIRED.getReason());
                 throw new ExpiredJwtException(null, null, null);
             }
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return getAuthentication(token);
-        } catch (MalformedJwtException | SignatureException | UnsupportedJwtException e) {
+        } catch (MalformedJwtException | UnsupportedJwtException e) {
             request.setAttribute(exception, "토큰의 형식을 확인하세요");
         } catch (ExpiredJwtException e) {
             request.setAttribute(exception, "토큰이 만료되었습니다.");
