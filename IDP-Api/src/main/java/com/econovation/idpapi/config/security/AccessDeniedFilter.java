@@ -1,5 +1,7 @@
 package com.econovation.idpapi.config.security;
 
+import static com.econovation.idpcommon.consts.IdpStatic.SwaggerPatterns;
+
 import com.econovation.idpcommon.dto.ErrorReason;
 import com.econovation.idpcommon.dto.ErrorResponse;
 import com.econovation.idpcommon.exception.BaseErrorCode;
@@ -19,7 +21,6 @@ import org.springframework.security.authentication.AuthenticationTrustResolverIm
 import org.springframework.stereotype.Component;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import static com.econovation.idpcommon.consts.IdpStatic.SwaggerPatterns;
 
 @RequiredArgsConstructor
 @Component

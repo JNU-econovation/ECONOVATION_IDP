@@ -4,9 +4,9 @@ package com.econovation.idpapi.application.service;
 import com.econovation.idpapi.application.port.in.AccountUseCase;
 import com.econovation.idpapi.application.port.in.JwtProviderUseCase;
 import com.econovation.idpapi.application.port.out.LoadAccountPort;
+import com.econovation.idpapi.utils.EntityMapper;
 import com.econovation.idpcommon.exception.BadRequestException;
 import com.econovation.idpcommon.exception.GetExpiredTimeException;
-import com.econovation.idpapi.utils.EntityMapper;
 import com.econovation.idpdomain.domains.dto.LoginResponseDto;
 import com.econovation.idpdomain.domains.dto.UserResponseMatchedTokenDto;
 import com.econovation.idpdomain.domains.users.domain.Account;
@@ -64,9 +64,11 @@ public class AccountJwtService implements AccountUseCase {
     @Transactional
     public LoginResponseDto createToken(Account account) {
         String accessToken =
-                jwtProviderUseCase.createAccessToken(account.getId(), account.getAccountRole().name());
+                jwtProviderUseCase.createAccessToken(
+                        account.getId(), account.getAccountRole().name());
         String refreshToken =
-                jwtProviderUseCase.createRefreshToken(account.getId(), account.getAccountRole().name());
+                jwtProviderUseCase.createRefreshToken(
+                        account.getId(), account.getAccountRole().name());
         return new LoginResponseDto(accessToken, refreshToken);
     }
 

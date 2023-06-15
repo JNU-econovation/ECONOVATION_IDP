@@ -1,5 +1,7 @@
 package com.econovation.idpapi.config;
 
+import static java.util.stream.Collectors.groupingBy;
+
 import com.econovation.idpcommon.annotation.ApiErrorCodeExample;
 import com.econovation.idpcommon.annotation.ApiErrorExceptionsExample;
 import com.econovation.idpcommon.annotation.DisableSwaggerSecurity;
@@ -35,8 +37,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.HandlerMethod;
-
-import static java.util.stream.Collectors.groupingBy;
 
 @Configuration
 @RequiredArgsConstructor
@@ -145,8 +145,7 @@ public class SwaggerConfig {
 
     /**
      * SwaggerExampleExceptions 타입의 클래스를 문서화 시킵니다. SwaggerExampleExceptions 타입의 클래스는 필드로
-     * IdpCodeException 타입을 가지며, IdpCodeException 의 errorReason 와,ExplainError 의 설명을
-     * 문서화시킵니다.
+     * IdpCodeException 타입을 가지며, IdpCodeException 의 errorReason 와,ExplainError 의 설명을 문서화시킵니다.
      */
     private void generateExceptionResponseExample(Operation operation, Class<?> type) {
         ApiResponses responses = operation.getResponses();

@@ -1,9 +1,7 @@
 package com.econovation.idpcommon.auth;
 
 
-import com.econovation.idp.global.common.config.jwt.JwtProvider;
 import java.time.LocalDateTime;
-import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
