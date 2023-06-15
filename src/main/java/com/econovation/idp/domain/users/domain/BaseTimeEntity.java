@@ -2,6 +2,7 @@ package com.econovation.idp.domain.user;
 
 
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import lombok.Getter;
@@ -14,7 +15,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 public class BaseTimeEntity {
 
-    @CreatedDate private LocalDateTime createdDateTime;
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime createdDateTime;
 
-    @LastModifiedDate private LocalDateTime lastModifiedDateTime;
+    @Column
+    @LastModifiedDate
+    private LocalDateTime lastModifiedDateTime;
 }
