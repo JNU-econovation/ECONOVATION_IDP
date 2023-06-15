@@ -1,0 +1,19 @@
+bootJar { enabled = false }
+jar { enabled = true }
+
+dependencies {
+    api("com.slack.api:slack-api-client:1.27.2")
+
+    api 'org.springframework.boot:spring-boot-starter-data-redis'
+    api 'org.redisson:redisson:3.19.0'
+    api('com.fasterxml.jackson.datatype:jackson-datatype-jdk8')
+    api('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
+    api 'com.sun.mail:javax.mail:1.6.2'
+
+    testImplementation "org.springframework.cloud:spring-cloud-starter-contract-stub-runner:3.1.5"
+    testImplementation "org.springframework.cloud:spring-cloud-contract-wiremock:3.1.5"
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

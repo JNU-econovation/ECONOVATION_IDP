@@ -1,11 +1,14 @@
 plugins {
-	id 'org.springframework.boot' version '2.7.6'
-//	id 'org.springdoc.openapi-gradle-plugin' version "1.4.0"
+	id 'java'
+	id 'org.springframework.boot' version '2.7.7'
 	id 'com.diffplug.spotless' version '6.11.0'
 	id "org.sonarqube" version "3.5.0.2730"
-	id 'io.spring.dependency-management' version '1.1.0'
-	id 'jacoco'
-	id 'java'
+}
+
+bootJar.enabled = false
+
+repositories {
+	mavenCentral()
 }
 
 apply plugin: 'org.sonarqube'
@@ -26,68 +29,85 @@ sonarqube {
 	}
 }
 
+subprojects {
+	group = 'com.econovation'
+	version = '0.0.1-SNAPSHOT'
+	sourceCompatibility = '11'
 
-group = 'com.econovation.idp'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+	apply plugin: 'java'
+	// build.gradle에서 api() 를 사용하려면 java-library 사용
+	apply plugin: 'java-library'
+	apply plugin: 'org.springframework.boot'
+	// spring boot dependency를 사용하여 사용중인 부트 버전에서 자동으로 의존성을 가져온다.
+	apply plugin: 'io.spring.dependency-management'
 
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
+	apply plugin: 'jacoco'
+	configurations {
+		compileOnly {
+			extendsFrom annotationProcessor
+		}
 	}
-}
 
-jacoco {
-	toolVersion = "0.8.7"
-	reportsDir = file("$buildDir/customJacocoReportDir")
-}
+	jacoco {
+		toolVersion = '0.8.8'
+		// reportsDir = ${project.reporting.baseDir}/jacoco
+	}
 
-repositories {
-	mavenCentral()
-}
-dependencies {
-//	jwt
-	implementation 'io.jsonwebtoken:jjwt:0.9.1'
-// apache commons io
-	implementation group: 'commons-io', name: 'commons-io', version: '2.6'
-//	Redis Dependencies - Login, Logout 기능구현
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	jacocoTestReport {
+		dependsOn test
+		reports {
+			html.enabled true // html 설정
+			csv.enabled true // csv 설정
+			xml.enabled true
+			xml.destination file("${buildDir}/reports/jacoco.xml")
+		}
+//		def Qdomains = []
+//
+//		for (qPattern in '**/QA'..'**/QZ') { // qPattern = '**/QA', '**/QB', ... '*.QZ'
+//			Qdomains.add(qPattern + '*')
+//		}
 
-//	Swagger
-//	implementation 'org.springdoc:springdoc-openapi-security:1.6.11'
-//	implementation 'org.springdoc:springdoc-openapi-common:1.6.9'
-//	implementation 'org.springdoc:springdoc-openapi-webmvc-core:1.6.9'
-	implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.14'
+//		afterEvaluate {
+//			classDirectories.setFrom(
+//					files(classDirectories.files.collect {
+//						fileTree(dir: it, excludes: [
+//								"**/*Application*",
+//								"**/*Config*",
+//								"**/*Dto*",
+//								"**/*Request*",
+//								"**/*Response*",
+//								"**/*Interceptor*",
+//								"**/*Exception*"
+//						] + Qdomains)
+//					})
+//			)
+//		}
+	}
+	apply plugin: 'org.sonarqube'
 
-//	Spring Security
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+	sonarqube {
+		properties {
+			property 'sonar.java.binaries', "${buildDir}/classes"
+			property 'sonar.coverage.jacoco.xmlReportPaths', "${buildDir}/reports/jacoco.xml"
+		}
+	}
 
-//	Mail Service
-	implementation 'org.springframework.boot:spring-boot-starter-mail'
-//  spring data jpa
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	// Spring actuator
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
-	runtimeOnly 'mysql:mysql-connector-java'
-
-	compileOnly 'org.projectlombok:lombok'
-	//	runtimeOnly 'com.h2database:h2:2.1.214'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
-	implementation 'org.mapstruct:mapstruct:1.5.3.Final'
-	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
-	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
-
-	jar { enabled = false }
-
-}
-
-tasks.named('test') {
-	useJUnitPlatform()
+	repositories {
+		mavenCentral()
+	}
+	// 관리하는 모듈에 공통 dependencies
+	dependencies {
+		compileOnly 'org.projectlombok:lombok'
+		annotationProcessor 'org.projectlombok:lombok'
+		annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+		testImplementation 'org.springframework.boot:spring-boot-starter-test'
+		testCompileOnly 'org.projectlombok:lombok'
+		testAnnotationProcessor 'org.projectlombok:lombok'
+	}
+	test {
+		useJUnitPlatform()
+		finalizedBy jacocoTestReport
+	}
 }
 
 spotless {

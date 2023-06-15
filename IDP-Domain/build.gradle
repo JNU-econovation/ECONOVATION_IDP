@@ -1,0 +1,30 @@
+bootJar { enabled = false }
+jar { enabled = true }
+
+dependencies {
+//    multipart
+    api 'org.springframework.boot:spring-boot-starter-web'
+    api 'org.springframework.boot:spring-boot-starter-data-jpa'
+    api 'mysql:mysql-connector-java'
+
+    implementation project(':IDP-Common')
+    implementation project(':IDP-Infrastructure')
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+    annotationProcessor("jakarta.annotation:jakarta.annotation-api")
+}
+
+//https://jojoldu.tistory.com/372
+def generated='src/main/generated'
+sourceSets {
+    main.java.srcDirs += [ generated ]
+}
+
+tasks.withType(JavaCompile) {
+    options.annotationProcessorGeneratedSourcesDirectory = file(generated)
+}
+
+clean.doLast {
+    file(generated).deleteDir()
+}

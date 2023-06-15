@@ -4,7 +4,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-IDP-Api/src/main/resources/application.properties
+
 ### STS ###
 .apt_generated
 .classpath
@@ -16,8 +16,6 @@ IDP-Api/src/main/resources/application.properties
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-image
-image/**
 
 ### IntelliJ IDEA ###
 .idea
@@ -30,10 +28,6 @@ out/
 
 ### NetBeans ###
 /nbproject/private/
-/image
-/image/**
-/IDP-Api/src/main/generated
-
 /nbbuild/
 /dist/
 /nbdist/

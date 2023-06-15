@@ -1,1 +1,5 @@
-rootProject.name = 'ECONOVATION_IDP'
+rootProject.name = 'IDP'
+include 'IDP-Infrastructure'
+include 'IDP-Api'
+include 'IDP-Common'
+include 'IDP-Domain'
