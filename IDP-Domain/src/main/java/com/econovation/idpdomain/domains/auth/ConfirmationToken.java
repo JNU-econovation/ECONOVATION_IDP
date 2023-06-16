@@ -1,7 +1,7 @@
 package com.econovation.idpdomain.domains.auth;
 
 
-import com.econovation.idp.domain.BaseTimeEntity;
+import com.econovation.idpdomain.domains.users.domain.BaseTimeEntity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import javax.persistence.Column;

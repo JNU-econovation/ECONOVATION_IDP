@@ -2,6 +2,7 @@ package com.econovation.idpapi.application.port.out;
 
 
 import com.econovation.idpdomain.domains.users.domain.Account;
+import com.econovation.idpdomain.domains.users.domain.AccountRole;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -16,7 +17,7 @@ public interface LoadAccountPort {
 
     Page<Account> loadAllByPage(Pageable pageable);
 
-    Long countAllByRole(String role);
+    Long countAllByRole(AccountRole role);
 
     Account loadById(Long id);
 

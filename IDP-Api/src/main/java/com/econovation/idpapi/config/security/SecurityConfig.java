@@ -1,6 +1,6 @@
 package com.econovation.idpapi.config.security;
 
-import com.econovation.idp.global.common.helper.SpringEnvironmentHelper;
+import com.econovation.idpcommon.helper.SpringEnvironmentHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 
-import static com.econovation.idp.global.common.consts.IdpStatic.SwaggerPatterns;
+import static com.econovation.idpcommon.consts.IdpStatic.SwaggerPatterns;
+
 
 @EnableWebSecurity
 @RequiredArgsConstructor

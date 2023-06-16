@@ -1,6 +1,7 @@
 package com.econovation.idpapi.config.jwt;
 
 
+import com.econovation.idpcommon.properties.JwtProperties;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -22,6 +23,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private final JwtProperties jwtProperties;
 
     @Override
     protected void doFilterInternal(

@@ -1,4 +1,4 @@
-package com.econovation.idpcommon.auth;
+package com.econovation.idpapi.config.auth;
 
 
 import javax.servlet.http.HttpServletRequest;

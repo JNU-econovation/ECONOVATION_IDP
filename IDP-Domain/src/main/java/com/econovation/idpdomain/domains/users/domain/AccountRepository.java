@@ -16,28 +16,32 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     List<Account> findAll();
 
-    boolean existsAccountByUserEmail(String userEmail);
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Account a WHERE a.profile.email = :email")
+    boolean existsAccountByUserEmail(@Param("email") String email);
 
     //    Optional<Account> findByUserEmail(String userEmail);
 
-    @Query("SELECT u FROM Account u WHERE u.userName = :userName")
-    List<Account> findByUserName(@Param("userName") String userName);
+    @Query("SELECT u FROM Account u WHERE u.profile.name = :name")
+    List<Account> findByUserName(@Param("name") String name);
 
     //    @Query("SELECT u FROM Account u WHERE u.userEmail = :userEmail")
     //    Optional<Account> findByUserEmail(@Param("userEmail") String userEmail);
 
-    Optional<Account> findByUserEmail(String userEmail);
+    @Query("SELECT u FROM Account u WHERE u.profile.email = :email")
+    Optional<Account> findByUserEmail(@Param("email") String email);
 
     Page<Account> findAll(Pageable pageable);
 
     Slice<Account> findSliceBy(Pageable pageable);
 
-    Long countAllByRole(String role);
+    @Query("SELECT COUNT(a) FROM Account a WHERE a.accountRole = :role")
+    Long countAllByRole(@Param("role") AccountRole role);
 
     @Query("SELECT u FROM Account u WHERE u.password = :password")
     Optional<Account> findByPassword(@Param("password") String password);
 
-    Optional<Account> findUserByUserNameAndYear(String userName, Integer year);
+    @Query("SELECT u FROM Account u WHERE u.profile.name = :name AND u.profile.year = :year")
+    Optional<Account> findUserByUserNameAndYear(@Param("name") String name, @Param("year") Integer year);
 
     Optional<Account> findById(Long idpId);
 

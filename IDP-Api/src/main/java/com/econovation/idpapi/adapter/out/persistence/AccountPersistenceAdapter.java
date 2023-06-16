@@ -5,6 +5,7 @@ import com.econovation.idpapi.application.port.out.LoadAccountPort;
 import com.econovation.idpapi.application.port.out.RecordAccountPort;
 import com.econovation.idpdomain.domains.users.domain.Account;
 import com.econovation.idpdomain.domains.users.domain.AccountRepository;
+import com.econovation.idpdomain.domains.users.domain.AccountRole;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,7 @@ public class AccountPersistenceAdapter implements LoadAccountPort, RecordAccount
     }
 
     @Override
-    public Long countAllByRole(String role) {
+    public Long countAllByRole(AccountRole role) {
         return accountRepository.countAllByRole(role);
     }
 

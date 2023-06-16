@@ -1,7 +1,7 @@
-package com.econovation.idpcommon.auth;
+package com.econovation.idpapi.config.auth;
 
 
-import com.econovation.idp.global.common.config.jwt.JwtProvider;
+import com.econovation.idpapi.config.jwt.JwtProvider;
 import java.time.LocalDateTime;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

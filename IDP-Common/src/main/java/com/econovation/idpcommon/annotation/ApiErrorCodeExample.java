@@ -1,7 +1,7 @@
 package com.econovation.idpcommon.annotation;
 
 
-import com.econovation.idp.common.exception.BaseErrorCode;
+import com.econovation.idpcommon.exception.BaseErrorCode;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

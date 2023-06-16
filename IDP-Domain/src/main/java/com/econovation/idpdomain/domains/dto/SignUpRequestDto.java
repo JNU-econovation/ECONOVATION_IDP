@@ -1,7 +1,7 @@
 package com.econovation.idpdomain.domains.dto;
 
 
-import com.econovation.idp.domain.auth.Password;
+import com.econovation.idpdomain.domains.auth.Password;
 import javax.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,5 +13,6 @@ public class SignUpRequestDto {
     private Integer year;
 
     private String userName;
-    @Password private String password;
+    @Password
+    private String password;
 }

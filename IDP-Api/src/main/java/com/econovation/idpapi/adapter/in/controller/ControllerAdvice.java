@@ -1,10 +1,10 @@
 package com.econovation.idpapi.adapter.in.controller;
 
 
-import com.econovation.idp.application.port.out.ErrorResult;
-import com.econovation.idp.global.common.exception.BadRequestException;
-import com.econovation.idp.global.common.exception.GetExpiredTimeException;
-import com.econovation.idp.global.common.exception.ImageIOException;
+import com.econovation.idpapi.application.port.out.ErrorResult;
+import com.econovation.idpcommon.exception.BadRequestException;
+import com.econovation.idpcommon.exception.GetExpiredTimeException;
+import com.econovation.idpcommon.exception.ImageIOException;
 import java.util.Date;
 import java.util.NoSuchElementException;
 import jdk.jshell.spi.ExecutionControl;

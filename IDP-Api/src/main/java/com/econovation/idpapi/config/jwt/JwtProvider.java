@@ -1,40 +1,59 @@
 package com.econovation.idpapi.config.jwt;
 
-
-import com.econovation.idp.application.port.in.JwtProviderUseCase;
-import com.econovation.idp.global.common.exception.GetExpiredTimeException;
-import com.econovation.idp.global.common.redis.RedisService;
-import java.security.SignatureException;
+import com.econovation.idpapi.application.port.in.JwtProviderUseCase;
+import com.econovation.idpapi.common.redis.RedisService;
+import com.econovation.idpapi.config.security.AuthDetails;
+import com.econovation.idpcommon.dto.AccessTokenInfo;
+import com.econovation.idpcommon.exception.ExpiredTokenException;
+import com.econovation.idpcommon.exception.GetExpiredTimeException;
+import com.econovation.idpcommon.exception.InvalidTokenException;
+import com.econovation.idpcommon.properties.JwtProperties;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.Keys;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.time.Duration;
-import java.util.Base64;
 import java.util.Date;
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+
+import static com.econovation.idpcommon.consts.IdpStatic.*;
 
 @Component
 @RequiredArgsConstructor
 public class JwtProvider implements JwtProviderUseCase {
-    private final UserDetailsService customAccountDetailsService;
     private final RedisService redisService;
 
-    @Value("${spring.jwt.secret-key}")
-    private String secretKey;
+    private final JwtProperties jwtProperties;
+
 
     @Value("${spring.jwt.blacklist.access-token}")
     private String blackListATPrefix;
 
-    // 의존성 주입 후, 초기화를 수행
-    // 객체 초기화, secretKey Base64로 인코딩한다.
-    @PostConstruct
-    protected void init() {
-        secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
+
+    private Jws<Claims> getJws(String token) {
+        try {
+            return Jwts.parserBuilder().setSigningKey(getSecretKey()).build().parseClaimsJws(token);
+        } catch (ExpiredJwtException e) {
+            throw ExpiredTokenException.EXCEPTION;
+        } catch (Exception e) {
+            throw InvalidTokenException.EXCEPTION;
+        }
+    }
+
+    private Key getSecretKey() {
+        return Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
@@ -54,6 +73,7 @@ public class JwtProvider implements JwtProviderUseCase {
         Claims claims = Jwts.claims().setSubject(String.valueOf(idpId));
         claims.put("roles", role);
         Date date = new Date();
+        final Key secretKey = getSecretKey();
         return Jwts.builder()
                 .setClaims(claims) // 발행유저 정보 저장
                 .setIssuedAt(date) // 발행 시간 저장
@@ -81,6 +101,7 @@ public class JwtProvider implements JwtProviderUseCase {
 
     @Override
     public Long getIdpId(String token) {
+        final Key secretKey = getSecretKey();
         Long aLong =
                 Long.valueOf(
                         Jwts.parser()
@@ -93,6 +114,7 @@ public class JwtProvider implements JwtProviderUseCase {
 
     @Override
     public Date getExpiredTime(String token) throws GetExpiredTimeException {
+        final Key secretKey = getSecretKey();
         try {
             return (Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody())
                     .getExpiration();
@@ -104,6 +126,7 @@ public class JwtProvider implements JwtProviderUseCase {
     @Override
     public Authentication validateToken(HttpServletRequest request, String token) {
         String exception = "exception";
+        final Key secretKey = getSecretKey();
         try {
             String expiredAT = redisService.getValues(blackListATPrefix + token);
             if (expiredAT != null) {
@@ -111,7 +134,7 @@ public class JwtProvider implements JwtProviderUseCase {
             }
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return getAuthentication(token);
-        } catch (MalformedJwtException | SignatureException | UnsupportedJwtException e) {
+        } catch (MalformedJwtException | UnsupportedJwtException e) {
             request.setAttribute(exception, "토큰의 형식을 확인하세요");
         } catch (ExpiredJwtException e) {
             request.setAttribute(exception, "토큰이 만료되었습니다.");
@@ -120,11 +143,30 @@ public class JwtProvider implements JwtProviderUseCase {
         }
         return null;
     }
+    public boolean isAccessToken(String token) {
+        return getJws(token).getBody().get(TOKEN_TYPE).equals(ACCESS_TOKEN);
+    }
 
-    private Authentication getAuthentication(String token) {
+    public boolean isRefreshToken(String token) {
+        return getJws(token).getBody().get(TOKEN_TYPE).equals(REFRESH_TOKEN);
+    }
+
+    public AccessTokenInfo parseAccessToken(String token) {
+        if (isAccessToken(token)) {
+            Claims claims = getJws(token).getBody();
+            return AccessTokenInfo.builder()
+                    .userId(Long.parseLong(claims.getSubject()))
+                    .role((String) claims.get(TOKEN_ROLE))
+                    .build();
+        }
+        throw InvalidTokenException.EXCEPTION;
+    }
+    public Authentication getAuthentication(String token) {
+        AccessTokenInfo accessTokenInfo = parseAccessToken(token);
+
         UserDetails userDetails =
-                customAccountDetailsService.loadUserByUsername(String.valueOf(getIdpId(token)));
+                new AuthDetails(accessTokenInfo.getUserId().toString(), accessTokenInfo.getRole());
         return new UsernamePasswordAuthenticationToken(
-                userDetails, "", userDetails.getAuthorities());
+                userDetails, "user", userDetails.getAuthorities());
     }
 }

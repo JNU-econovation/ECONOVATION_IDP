@@ -1,7 +1,7 @@
 package com.econovation.idpapi.config.security;
 
 
-import com.econovation.idp.global.common.config.jwt.JwtAuthenticationFilter;
+import com.econovation.idpapi.config.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

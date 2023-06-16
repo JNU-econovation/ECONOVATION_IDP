@@ -1,7 +1,7 @@
 package com.econovation.idpapi.application.port.in;
 
 
-import com.econovation.idp.global.common.exception.GetExpiredTimeException;
+import com.econovation.idpcommon.exception.GetExpiredTimeException;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;

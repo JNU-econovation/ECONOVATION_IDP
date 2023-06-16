@@ -1,8 +1,8 @@
 package com.econovation.idpapi.config;
 
 
-import com.econovation.idp.global.common.auth.AuthComponent;
-import com.econovation.idp.global.common.auth.LogInterceptor;
+import com.econovation.idpapi.config.auth.AuthComponent;
+import com.econovation.idpapi.config.auth.LogInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

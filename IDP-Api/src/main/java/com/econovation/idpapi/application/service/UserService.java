@@ -7,6 +7,7 @@ import com.econovation.idpdomain.domains.dto.UserPasswordUpdateDto;
 import com.econovation.idpdomain.domains.dto.UserUpdateRequestDto;
 import com.econovation.idpdomain.domains.users.domain.Account;
 import com.econovation.idpdomain.domains.users.domain.AccountRepository;
+import com.econovation.idpdomain.domains.users.domain.AccountRole;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +92,9 @@ public class UserService implements UserUseCase {
     @Override
     @Transactional
     public Long countUserByRole(String role) {
-        return userRepository.countAllByRole(role);
+        // role to AccountRole
+        AccountRole enumRole = AccountRole.valueOf(role);
+        return userRepository.countAllByRole(enumRole);
     }
 
     /**

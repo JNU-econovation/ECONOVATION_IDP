@@ -1,7 +1,7 @@
 package com.econovation.idpcommon.annotation;
 
 
-import com.econovation.idp.common.validator.EnumValidator;
+import com.econovation.idpcommon.validator.EnumValidator;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
