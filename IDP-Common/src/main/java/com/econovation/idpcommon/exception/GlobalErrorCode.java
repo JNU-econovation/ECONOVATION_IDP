@@ -1,13 +1,13 @@
 package com.econovation.idpcommon.exception;
 
+import static com.econovation.idpcommon.consts.IdpStatic.*;
+
 import com.econovation.idpcommon.annotation.ExplainError;
 import com.econovation.idpcommon.dto.ErrorReason;
 import java.lang.reflect.Field;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import static com.econovation.idpcommon.consts.IdpStatic.*;
 
 /**
  * 글로벌 관련 예외 코드들이 나온 곳입니다. 인증 , global, aop 종류등 도메인 제외한 exception 코드들이 모이는 곳입니다. 도메인 관련 Exception

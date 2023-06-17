@@ -15,6 +15,5 @@ public class UserPasswordUpdateDto {
     private Integer year;
 
     @NotNull private String userName;
-    @Password
-    private String password;
+    @Password private String password;
 }

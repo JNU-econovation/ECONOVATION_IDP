@@ -20,8 +20,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -107,12 +105,14 @@ public class AccountController {
     @Operation(summary = "로그인 Agent URL 이동", description = "로그인 페이지로 이동")
     @GetMapping("/accounts/login")
     public ResponseEntity<?> login(
-            @CookieValue(value = "REFRESH_TOKEN", required = false) String refreshToken,
-            @Valid @Nullable String requestUrl,
+            @CookieValue(value = "refresh_token", required = false) String refreshToken,
+            @RequestParam(value = "request-url") @Nullable String requestUrl,
             HttpServletRequest request,
             HttpServletResponse response)
             throws IOException {
         // 기존 requestUrl을 쿠키로 설정한다.
+        log.info("requestUrl : " + requestUrl);
+        log.info("refreshToken : " + refreshToken);
         HttpHeaders httpHeaders = new HttpHeaders();
         // token이 있으면 검증 후 요청 url 으로 바로 redirect
         if (refreshToken != null) {
@@ -152,9 +152,10 @@ public class AccountController {
         cookie.setSecure(true);
         response.addCookie(cookie);
 
-        Map<String, String> accessToken = new HashMap<>();
-        accessToken.put("accessToken", loginResponseDtoWithRedirectUrl.getAccessToken());
-        return new ResponseEntity<>(accessToken, HttpStatus.OK);
+//        Map<String, String> accessToken = new HashMap<>();
+//        accessToken.put("accessToken", loginResponseDtoWithRedirectUrl.getAccessToken());
+
+        return new ResponseEntity<>(loginResponseDtoWithRedirectUrl, HttpStatus.OK);
     }
 
     @PostAuthorize("hasRole('ROLE_USER')")

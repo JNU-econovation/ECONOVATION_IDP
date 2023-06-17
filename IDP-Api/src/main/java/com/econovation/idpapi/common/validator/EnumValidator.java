@@ -1,11 +1,10 @@
 package com.econovation.idpapi.common.validator;
 
 
+import com.econovation.idpcommon.annotation.Enum;
 import java.util.Arrays;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import com.econovation.idpcommon.annotation.Enum;
-
 
 public class EnumValidator implements ConstraintValidator<Enum, java.lang.Enum> {
     @Override

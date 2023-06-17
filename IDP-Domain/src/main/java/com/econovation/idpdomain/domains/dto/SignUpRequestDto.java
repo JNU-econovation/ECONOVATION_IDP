@@ -13,6 +13,5 @@ public class SignUpRequestDto {
     private Integer year;
 
     private String userName;
-    @Password
-    private String password;
+    @Password private String password;
 }

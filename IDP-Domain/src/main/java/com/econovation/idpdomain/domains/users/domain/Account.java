@@ -28,16 +28,16 @@ import org.hibernate.annotations.DynamicInsert;
 @NoArgsConstructor
 @DynamicInsert
 @Builder
-public class Account extends BaseTimeEntity{
+public class Account extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "account_id")
     private Long id;
+
     private String password;
 
-    @Embedded
-    private Profile profile;
+    @Embedded private Profile profile;
 
     @Enumerated(EnumType.STRING)
     private AccountState accountState = AccountState.NORMAL;
@@ -50,7 +50,6 @@ public class Account extends BaseTimeEntity{
     private Boolean receiveMail = Boolean.TRUE;
 
     private LocalDateTime lastLoginAt = LocalDateTime.now();
-
 
     @PostPersist
     public void registerEvent() {
@@ -79,18 +78,17 @@ public class Account extends BaseTimeEntity{
     }
 
     public NonAccountResponseDto toNonLoginUser(Account account) {
-        return new NonAccountResponseDto(account.profile.getYear(), account.profile.getName(), account.getId());
+        return new NonAccountResponseDto(
+                account.profile.getYear(), account.profile.getName(), account.getId());
     }
 
     public Boolean isReceiveEmail() {
         return receiveMail;
     }
 
-
     public void toggleReceiveEmail() {
         receiveMail = !receiveMail;
     }
-
 
     public Boolean isDeletedUser() {
         return accountState == AccountState.DELETED;

@@ -16,7 +16,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     List<Account> findAll();
 
-    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Account a WHERE a.profile.email = :email")
+    @Query(
+            "SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Account a WHERE a.profile.email = :email")
     boolean existsAccountByUserEmail(@Param("email") String email);
 
     //    Optional<Account> findByUserEmail(String userEmail);
@@ -41,7 +42,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     Optional<Account> findByPassword(@Param("password") String password);
 
     @Query("SELECT u FROM Account u WHERE u.profile.name = :name AND u.profile.year = :year")
-    Optional<Account> findUserByUserNameAndYear(@Param("name") String name, @Param("year") Integer year);
+    Optional<Account> findUserByUserNameAndYear(
+            @Param("name") String name, @Param("year") Integer year);
 
     Optional<Account> findById(Long idpId);
 

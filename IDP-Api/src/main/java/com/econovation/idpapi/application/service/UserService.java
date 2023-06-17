@@ -74,6 +74,7 @@ public class UserService implements UserUseCase {
 
     /**
      * Get All Account
+     *
      * @return Account
      */
     @Transactional
@@ -99,6 +100,7 @@ public class UserService implements UserUseCase {
 
     /**
      * Get Account By One userId
+     *
      * @return Account
      */
     @Transactional
@@ -110,6 +112,7 @@ public class UserService implements UserUseCase {
 
     /**
      * Get Account By One userName
+     *
      * @return List<UserResponseDto> 동명이인이 있을 수 있어서 List를 받는다.
      */
     @Transactional
@@ -136,6 +139,7 @@ public class UserService implements UserUseCase {
     }
     /**
      * Get Account By One userEmail
+     *
      * @return Account
      */
     @Transactional

@@ -35,8 +35,7 @@ public class AccountSignUpService implements AccountSignUpUseCase {
             throw new BadRequestException("중복된 이메일입니다");
         }
         String encodePassword = passwordEncoder.encode(password);
-        Account newAccount = new Account(new Profile(userName, userEmail, year),
-                encodePassword);
+        Account newAccount = new Account(new Profile(userName, userEmail, year), encodePassword);
         accountRepository.save(newAccount);
     }
 

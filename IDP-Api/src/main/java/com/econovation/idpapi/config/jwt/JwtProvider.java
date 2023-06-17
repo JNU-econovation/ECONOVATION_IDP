@@ -1,5 +1,7 @@
 package com.econovation.idpapi.config.jwt;
 
+import static com.econovation.idpcommon.consts.IdpStatic.*;
+
 import com.econovation.idpapi.application.port.in.JwtProviderUseCase;
 import com.econovation.idpapi.common.redis.RedisService;
 import com.econovation.idpapi.config.security.AuthDetails;
@@ -22,25 +24,23 @@ import java.time.Duration;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import static com.econovation.idpcommon.consts.IdpStatic.*;
-
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtProvider implements JwtProviderUseCase {
     private final RedisService redisService;
 
     private final JwtProperties jwtProperties;
 
-
     @Value("${spring.jwt.blacklist.access-token}")
     private String blackListATPrefix;
-
 
     private Jws<Claims> getJws(String token) {
         try {
@@ -75,8 +75,9 @@ public class JwtProvider implements JwtProviderUseCase {
         Date date = new Date();
         final Key secretKey = getSecretKey();
         return Jwts.builder()
-                .setClaims(claims) // 발행유저 정보 저장
-                .setIssuedAt(date) // 발행 시간 저장
+                .setIssuer(TOKEN_ISSUER)
+                .setIssuedAt(date)
+                .claim(TOKEN_TYPE,REFRESH_TOKEN) // 발행유저 정보 저장
                 .setExpiration(new Date(date.getTime() + tokenInvalidTime)) // 토큰 유효 시간 저장
                 .signWith(SignatureAlgorithm.HS256, secretKey) // 해싱 알고리즘 및 키 설정
                 .compact();
@@ -92,11 +93,56 @@ public class JwtProvider implements JwtProviderUseCase {
     // refreshToken 은 redis 에 저장해야한다.
     @Override
     public String createRefreshToken(Long idpId, String role) {
-        Long tokenInvalidTime = 1000L * 60 * 60 * 24; // 1d
-        String refreshToken = this.createToken(Math.toIntExact(idpId), role, tokenInvalidTime);
+//        String refreshToken = this.createToken(Math.toIntExact(idpId), role, tokenInvalidTime);
+
+        final Date issuedAt = new Date();
+//        integer MILLT_TOSECOND to Long
+        final Date refreshTokenExpiresIn =
+                new Date(issuedAt.getTime() + jwtProperties.getRefreshExp() * MILLI_TO_SECOND);
+        String refreshToken = buildRefreshToken(idpId, issuedAt, refreshTokenExpiresIn);
+
         redisService.setValues(
-                String.valueOf(idpId), refreshToken, Duration.ofMillis(tokenInvalidTime));
+                String.valueOf(idpId), refreshToken, Duration.ofMillis(jwtProperties.getRefreshExp() * MILLI_TO_SECOND));
         return refreshToken;
+    }
+    public String generateAccessToken(Long id, String role) {
+        final Date issuedAt = new Date();
+        final Date accessTokenExpiresIn =
+                new Date(issuedAt.getTime() + jwtProperties.getAccessExp() * MILLI_TO_SECOND);
+
+        return buildAccessToken(id, issuedAt, accessTokenExpiresIn, role);
+    }
+    public String generateRefreshToken(Long id) {
+        final Date issuedAt = new Date();
+        final Date refreshTokenExpiresIn =
+                new Date(issuedAt.getTime() + jwtProperties.getRefreshExp() * MILLI_TO_SECOND);
+        return buildRefreshToken(id, issuedAt, refreshTokenExpiresIn);
+    }
+    private String buildAccessToken(
+            Long id, Date issuedAt, Date accessTokenExpiresIn, String role) {
+        final Key encodedKey = getSecretKey();
+        return Jwts.builder()
+                .setIssuer(TOKEN_ISSUER)
+                .setIssuedAt(issuedAt)
+                .setSubject(id.toString())
+                .claim(TOKEN_TYPE, ACCESS_TOKEN)
+                .claim(TOKEN_ROLE, role)
+                .setExpiration(accessTokenExpiresIn)
+                .signWith(encodedKey)
+                .compact();
+    }
+
+
+    private String buildRefreshToken(Long id, Date issuedAt, Date accessTokenExpiresIn) {
+        final Key encodedKey = getSecretKey();
+        return Jwts.builder()
+                .setIssuer(TOKEN_ISSUER)
+                .setIssuedAt(issuedAt)
+                .setSubject(id.toString())
+                .claim(TOKEN_TYPE, REFRESH_TOKEN)
+                .setExpiration(accessTokenExpiresIn)
+                .signWith(encodedKey)
+                .compact();
     }
 
     @Override
@@ -132,7 +178,8 @@ public class JwtProvider implements JwtProviderUseCase {
             if (expiredAT != null) {
                 throw new ExpiredJwtException(null, null, null);
             }
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+//            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            log.info("validateToken : {}", token);
             return getAuthentication(token);
         } catch (MalformedJwtException | UnsupportedJwtException e) {
             request.setAttribute(exception, "토큰의 형식을 확인하세요");
@@ -143,7 +190,10 @@ public class JwtProvider implements JwtProviderUseCase {
         }
         return null;
     }
+
     public boolean isAccessToken(String token) {
+        //npe
+        log.info(getJws(token).getBody().get(TOKEN_TYPE).toString());
         return getJws(token).getBody().get(TOKEN_TYPE).equals(ACCESS_TOKEN);
     }
 
@@ -161,6 +211,7 @@ public class JwtProvider implements JwtProviderUseCase {
         }
         throw InvalidTokenException.EXCEPTION;
     }
+
     public Authentication getAuthentication(String token) {
         AccessTokenInfo accessTokenInfo = parseAccessToken(token);
 
