@@ -1,38 +1,48 @@
-version: "3"
+version: "3.7"
 services:
-  db:
-    restart: always
-    image: mysql:8.0
-    ports:
-      - 3308:3306
-    environment:
-      - ./db/conf.d:/etc/mysql/conf.d
-      - ./db/data/:/var/lib/mysql/
-      - MYSQL_ROOT_PASSWORD=dltjgus119
-      - TZ=Asia/Seoul
-      - MYSQL_DATABASE=econovation
   redis:
-    container_name: redis
-    image: redis
+    image: "redis:alpine"
     ports:
-      - 6379:6379
-    command: ["redis-server", "--protected-mode", "no"]
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-  app:
-    build: .
+      - "6379:6379"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/econovation?allowPublicKeyRetrieval=true&useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: dltjgus119
-    container_name: spring-app
-    image: blackbean99/econovation_idp:latest
-    links:
-      - redis
-    ports:
-      - 8080:8080
-    depends_on:
-      - db
-      - redis
-    restart: always
-    tty: true
+      - TZ=Asia/Seoul
+
+# ---------------------------------------------------------
+#version: "3"
+#services:
+#  db:
+#    restart: always
+#    image: mysql:8.0
+#    ports:
+#      - 3308:3306
+#    environment:
+#      - ./db/conf.d:/etc/mysql/conf.d
+#      - ./db/data/:/var/lib/mysql/
+#      - MYSQL_ROOT_PASSWORD=dltjgus119
+#      - TZ=Asia/Seoul
+#      - MYSQL_DATABASE=econovation
+#  redis:
+#    container_name: redis
+#    image: redis
+#    ports:
+#      - 6379:6379
+#    command: ["redis-server", "--protected-mode", "no"]
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
+#  app:
+#    build: .
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/econovation?allowPublicKeyRetrieval=true&useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
+#      SPRING_DATASOURCE_USERNAME: root
+#      SPRING_DATASOURCE_PASSWORD: dltjgus119
+#    container_name: spring-app
+#    image: blackbean99/econovation_idp:latest
+#    links:
+#      - redis
+#    ports:
+#      - 8080:8080
+#    depends_on:
+#      - db
+#      - redis
+#    restart: always
+#    tty: true
