@@ -5,7 +5,7 @@ import com.econovation.idpapi.application.service.ImageService;
 import com.econovation.idpapi.config.security.SecurityUtils;
 import com.econovation.idpcommon.exception.ImageIOException;
 import com.econovation.idpdomain.domains.dto.ImageUploadDto;
-import com.econovation.idpdomain.domains.image.Image;
+import com.econovation.idpdomain.domains.images.Image;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;

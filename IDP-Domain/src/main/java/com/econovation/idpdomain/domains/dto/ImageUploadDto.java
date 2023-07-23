@@ -1,7 +1,7 @@
 package com.econovation.idpdomain.domains.dto;
 
 
-import com.econovation.idpdomain.domains.image.Image;
+import com.econovation.idpdomain.domains.images.Image;
 import com.econovation.idpdomain.domains.users.domain.Account;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
