@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +22,7 @@ public class ConfirmationTokenService {
     private final ConfirmationTokenRepository confirmationTokenRepository;
     private final EmailSenderService emailSenderService;
     //    @Value("${sending.email}")
-    @Value("localhost:8080")
+    @Value("${mail.destination.url}")
     private String destinationEmail;
 
     //    public ConfirmationTokenService(ConfirmationTokenRepository confirmationTokenRepository,
@@ -34,33 +35,40 @@ public class ConfirmationTokenService {
     //    ValidationConstant.TOKEN_NOT_FOUND
 
     /** 이메일 인증 랜덤 토큰 생성 토큰 생성 != 인증 이후 인증을 해야 토큰에 인증 expired 를 true로 바꿔준다. */
+    @Transactional
     public UUID createEmailConfirmationToken(Long userId, String receiverEmail) {
-        ConfirmationToken emailConfirmationToken =
-                ConfirmationToken.createEmailConfirmationToken(userId);
-        confirmationTokenRepository.save(emailConfirmationToken);
+        ConfirmationToken emailConfirmationToken = new ConfirmationToken(userId);
+        //        ConfirmationToken emailConfirmationToken =
+        //                ConfirmationToken.createEmailConfirmationToken(userId);
+        log.info("emailConfirmationToken : {}", emailConfirmationToken.toString());
+
+        confirmationTokenRepository.saveAndFlush(emailConfirmationToken);
 
         SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setFrom("ymecca730135@gmail.com");
         mailMessage.setTo(receiverEmail);
         mailMessage.setSubject("회원가입 이메일 인증");
         mailMessage.setText("Econovation TechBlog 회원가입 인증 URL");
         mailMessage.setText(
                 "http://"
                         + destinationEmail
-                        + "/api/confirm-email/"
+                        + "/api/confirm-email"
                         + emailConfirmationToken.getId());
         emailSenderService.sendEmail(mailMessage);
 
         return emailConfirmationToken.getId();
     }
     /** 이메일 인증 번호(6자리) 생성 토큰 생성 != 인증 이후 인증을 해야 토큰에 인증 expired 를 true로 바꿔준다. */
+    @Transactional
     public String createEmailConfirmationToken(String receiverEmail) {
         String code = makeRandomCode();
         SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setFrom("Econovation Idp server");
         mailMessage.setTo(receiverEmail);
         mailMessage.setSubject("비밀번호 검색 인증");
         mailMessage.setText("Econovation TechBlog 회원가입 인증 URL");
-
         mailMessage.setText(code);
+        log.info("이메일 발송 : email: {}", receiverEmail);
         emailSenderService.sendEmail(mailMessage);
         return code;
     }

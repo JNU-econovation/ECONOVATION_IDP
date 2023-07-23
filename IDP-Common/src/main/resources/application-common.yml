@@ -1,0 +1,10 @@
+auth:
+  jwt:
+    secret: ${JWT_SECRET_KEY:testkeytestkeytestkeytestkeytestkeytestkeytestkeytestkeytestkey}
+    access: ${JWT_ACCESS_EXP:3600}
+    refresh: ${JWT_REFRESH_EXP:86400}
+
+    # Redis Dependencies - Login, Logout ????
+#spring.jwt.secret-key =SECRET_KEY
+#spring.jwt.blacklist.access-token =BlackList_AccessToken_
+#spring.main.allow-bean-definition-overriding=true

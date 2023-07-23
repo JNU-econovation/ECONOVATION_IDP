@@ -7,6 +7,9 @@ dependencies {
     api 'org.springframework.boot:spring-boot-starter-data-jpa'
     api 'mysql:mysql-connector-java'
 
+    // h2 driver
+    runtimeOnly 'com.h2database:h2'
+
     implementation project(':IDP-Common')
     implementation project(':IDP-Infrastructure')
     implementation 'org.springframework.boot:spring-boot-starter-validation'

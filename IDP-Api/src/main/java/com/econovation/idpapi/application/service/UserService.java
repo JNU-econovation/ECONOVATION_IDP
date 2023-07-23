@@ -48,13 +48,9 @@ public class UserService implements UserUseCase {
         Pageable pageable = PageRequest.of(page, PAGE_PER_REQUEST);
 
         Slice<Account> usersWithPagination = userRepository.findSliceBy(pageable);
-        log.info(" number : " + String.valueOf(usersWithPagination.getNumber()));
-        log.info(" size : " + String.valueOf(usersWithPagination.getSize()));
         List<Account> users = usersWithPagination.stream().collect(Collectors.toList());
         Map<String, Object> map = new HashMap();
         map.put("users", users);
-        //        map.put("maxPage",page + (users.size() / PAGE_PER_REQUEST));
-        //        map.put("maxPage",totalPages);
         if (map.isEmpty()) throw new IllegalArgumentException(NOT_FOUND_USER_MESSAGE);
         return map;
     }

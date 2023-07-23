@@ -10,9 +10,16 @@ import lombok.ToString;
 @ToString
 public class AccountRegisterEvent extends DomainEvent {
     private final Long userId;
+    private final Integer year;
 
     @Builder
-    public AccountRegisterEvent(Long userId) {
+    public AccountRegisterEvent(Long userId, Integer year) {
         this.userId = userId;
+        this.year = year;
+    }
+    // toString
+    @Override
+    public String toString() {
+        return "AccountRegisterEvent{" + "userId=" + userId + ", year=" + year + '}';
     }
 }

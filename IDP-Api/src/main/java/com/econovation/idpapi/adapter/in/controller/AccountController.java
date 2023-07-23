@@ -12,24 +12,22 @@ import com.econovation.idpdomain.domains.dto.LoginResponseDtoWithExpiredTime;
 import com.econovation.idpdomain.domains.dto.LoginResponseDtoWithRedirectUrl;
 import com.econovation.idpdomain.domains.dto.SignUpRequestDto;
 import com.econovation.idpdomain.domains.dto.UserResponseMatchedTokenDto;
+import com.econovation.idpdomain.domains.users.domain.Account;
 import io.reactivex.rxjava3.annotations.Nullable;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collection;
 import java.util.Date;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.Authentication;
@@ -45,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api")
-@Tag(name = "Account 관련 서비스", description = "회원가입, 로그인 등등")
+@Tag(name = "1. Account 관련 서비스", description = "회원가입, 로그인 등등")
 public class AccountController {
     private final AccountUseCase accountUseCase;
     private final AccountSignUpUseCase accountSignUpUseCase;
@@ -55,20 +53,17 @@ public class AccountController {
     private String loginPageUrl;
 
     //    로그아웃 기능 구현
-    @Operation(summary = "logout", description = "로그아웃_에이전트, 로그아웃시 redirect 페이지로 이동")
+    @Operation(summary = "logout", description = "logout_agent, go to redirect page when logout")
     @GetMapping("accounts/logout")
-    public ResponseEntity<BasicResponse> logout(String redirectUrl, HttpServletRequest request)
+    public ResponseEntity<BasicResponse> logout(
+            @RequestParam String redirectUrl, HttpServletRequest request)
             throws URISyntaxException, GetExpiredTimeException {
-        //        7번부터 빼야 bearer(+스페이스바) 빼고 토큰만 추출 가능
-        String refreshToken = request.getHeader("Authorization").substring(7);
-
+        String refreshToken = extractRefreshTokenFromHeader(request.getHeader("Authorization"));
         accountUseCase.logout(refreshToken);
-        URI redirectUri = new URI(redirectUrl);
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setLocation(redirectUri);
-        log.info(redirectUrl + "으로 이동");
+        httpHeaders.setLocation(new URI(redirectUrl));
         BasicResponse result = new BasicResponse("로그아웃 성공", HttpStatus.OK);
-        return new ResponseEntity<>(result, httpHeaders, HttpStatus.OK);
+        return ResponseEntity.ok().headers(httpHeaders).body(result);
     }
 
     @Operation(summary = "이메일 중복 검증", description = "이메일 중복 확인하기")
@@ -110,52 +105,67 @@ public class AccountController {
             HttpServletRequest request,
             HttpServletResponse response)
             throws IOException {
-        // 기존 requestUrl을 쿠키로 설정한다.
-        log.info("requestUrl : " + requestUrl);
-        log.info("refreshToken : " + refreshToken);
-        HttpHeaders httpHeaders = new HttpHeaders();
-        // token이 있으면 검증 후 요청 url 으로 바로 redirect
+
         if (refreshToken != null) {
-            // 검증되지 않으면
+            // 토큰 검증
             Authentication authentication = jwtProviderUseCase.validateToken(request, refreshToken);
             if (!authentication.isAuthenticated()) {
+                // 검증 실패
                 BasicResponse result = new BasicResponse("유효하지 않은 토큰입니다.", HttpStatus.OK);
-                response.sendRedirect(
-                        loginPageUrl + (requestUrl == null ? "" : "?requestUrl=" + requestUrl));
+                redirectLoginWithRequestUrl(response, requestUrl);
                 return new ResponseEntity<>(result, HttpStatus.UNAUTHORIZED);
             }
-            // 검증 성공시 바로 redirect
-            response.sendRedirect(requestUrl);
-            return new ResponseEntity<>(httpHeaders, HttpStatus.PERMANENT_REDIRECT);
+            // 검증 성공 시 바로 redirect
+            redirect(response, requestUrl);
+            return new ResponseEntity<>(HttpStatus.PERMANENT_REDIRECT);
         }
-        //        token이 null이면 loginPage로 redirect
-        response.sendRedirect(
-                loginPageUrl + (requestUrl == null ? "" : "?requestUrl=" + requestUrl));
-        return new ResponseEntity<>(httpHeaders, HttpStatus.PERMANENT_REDIRECT);
+        // 토큰이 null이면 loginPage로 redirect
+        redirectLoginWithRequestUrl(response, requestUrl);
+        return new ResponseEntity<>(HttpStatus.PERMANENT_REDIRECT);
     }
 
-    @Operation(summary = "로그인 페이지 처리", description = "로그인완료 후 access,refresh,redirectUrl 전송")
+    private String extractRefreshTokenFromHeader(String authorizationHeader) {
+        // Extract the token except the "Bearer " prefix
+        return authorizationHeader.substring(7);
+    }
+
+    private void redirect(HttpServletResponse response, String requestUrl) throws IOException {
+        response.sendRedirect(requestUrl);
+    }
+
+    private void redirectLoginWithRequestUrl(HttpServletResponse response, String requestUrl)
+            throws IOException {
+        String redirectUrl = loginPageUrl + (requestUrl == null ? "" : "?requestUrl=" + requestUrl);
+        response.sendRedirect(redirectUrl);
+    }
+
+    @Operation(summary = "로그인 페이지 처리", description = "로그인 완료 후 access, refresh, redirectUrl 전송")
     @RequestMapping(
             value = "/accounts/login/process",
             method = {RequestMethod.GET, RequestMethod.OPTIONS})
-    public ResponseEntity<?> login(HttpServletResponse response, LoginRequestDto loginDto) {
+    public ResponseEntity<LoginResponseDtoWithRedirectUrl> login(
+            HttpServletResponse response, LoginRequestDto loginDto) {
         LoginResponseDto responseDto =
                 accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
         String redirectUrl = loginDto.getRedirectUrl();
-        // Cookie 삽입 ( refreshToken )
+        // Cookie 삽입 (refreshToken)
+
+        Cookie refreshTokenCookie = createRefreshTokenCookie(responseDto.getRefreshToken());
+        response.addCookie(refreshTokenCookie);
+
         LoginResponseDtoWithRedirectUrl loginResponseDtoWithRedirectUrl =
                 new LoginResponseDtoWithRedirectUrl(
                         responseDto.getAccessToken(), responseDto.getRefreshToken(), redirectUrl);
-        Cookie cookie = new Cookie("refresh_token", responseDto.getRefreshToken());
+
+        return ResponseEntity.ok(loginResponseDtoWithRedirectUrl);
+    }
+
+    private Cookie createRefreshTokenCookie(String refreshToken) {
+        Cookie cookie = new Cookie("refresh_token", refreshToken);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setSecure(true);
-        response.addCookie(cookie);
-
-//        Map<String, String> accessToken = new HashMap<>();
-//        accessToken.put("accessToken", loginResponseDtoWithRedirectUrl.getAccessToken());
-
-        return new ResponseEntity<>(loginResponseDtoWithRedirectUrl, HttpStatus.OK);
+        return cookie;
     }
 
     @PostAuthorize("hasRole('ROLE_USER')")
@@ -175,6 +185,7 @@ public class AccountController {
     }
 
     // 로그인 인증
+    @Deprecated
     @Operation(summary = "로그인 페이지 만료시간 포함 처리", description = "로그인완료 후 원래 페이지로 이동")
     @PostMapping("/accounts/login/process/expired")
     public ResponseEntity<LoginResponseDtoWithExpiredTime> loginWithExpiredTime(
@@ -201,33 +212,9 @@ public class AccountController {
         return new ResponseEntity<>(byAccessToken, HttpStatus.OK);
     }
 
-    public static void addCookie(
-            HttpServletResponse response, String name, String value, int maxAge) {
-        ResponseCookie cookie =
-                ResponseCookie.from(name, value)
-                        .path("/")
-                        .sameSite("None")
-                        .httpOnly(false)
-                        .secure(false)
-                        .maxAge(maxAge)
-                        .build();
-        addSameSiteCookieAttribute(response);
-        response.addHeader("Set-Cookie", cookie.toString());
-    }
-
-    private static void addSameSiteCookieAttribute(HttpServletResponse response) {
-        Collection<String> headers = response.getHeaders(HttpHeaders.SET_COOKIE);
-        boolean firstHeader = true;
-        // there can be multiple Set-Cookie attributes
-        for (String header : headers) {
-            if (firstHeader) {
-                response.setHeader(
-                        HttpHeaders.SET_COOKIE, String.format("%s; %s", header, "SameSite=None"));
-                firstHeader = false;
-                continue;
-            }
-            response.addHeader(
-                    HttpHeaders.SET_COOKIE, String.format("%s; %s", header, "SameSite=None"));
-        }
+    @GetMapping("/users/me")
+    public ResponseEntity<Account> findByMe() {
+        Account account = accountUseCase.findByMe().get();
+        return ResponseEntity.ok(account);
     }
 }

@@ -14,7 +14,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
 @RequiredArgsConstructor
-@ComponentScan(basePackages = {"com.econovation"})
 @SpringBootApplication
 @Slf4j
 public class IdpApiApplication implements ApplicationListener<ApplicationReadyEvent> {

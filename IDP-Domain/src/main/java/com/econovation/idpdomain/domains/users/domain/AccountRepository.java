@@ -20,13 +20,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
             "SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Account a WHERE a.profile.email = :email")
     boolean existsAccountByUserEmail(@Param("email") String email);
 
-    //    Optional<Account> findByUserEmail(String userEmail);
-
     @Query("SELECT u FROM Account u WHERE u.profile.name = :name")
     List<Account> findByUserName(@Param("name") String name);
-
-    //    @Query("SELECT u FROM Account u WHERE u.userEmail = :userEmail")
-    //    Optional<Account> findByUserEmail(@Param("userEmail") String userEmail);
 
     @Query("SELECT u FROM Account u WHERE u.profile.email = :email")
     Optional<Account> findByUserEmail(@Param("email") String email);
@@ -44,8 +39,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     @Query("SELECT u FROM Account u WHERE u.profile.name = :name AND u.profile.year = :year")
     Optional<Account> findUserByUserNameAndYear(
             @Param("name") String name, @Param("year") Integer year);
-
-    Optional<Account> findById(Long idpId);
 
     /* 유효성 검사 - 중복 체크
      * 중복 : true

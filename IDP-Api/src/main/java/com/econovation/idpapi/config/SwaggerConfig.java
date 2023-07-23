@@ -139,7 +139,6 @@ public class SwaggerConfig {
                                     }
                                 })
                         .collect(groupingBy(ExampleHolder::getCode));
-
         addExamplesToResponses(responses, statusWithExampleHolders);
     }
 

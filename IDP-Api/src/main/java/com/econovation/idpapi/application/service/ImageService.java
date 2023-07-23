@@ -2,6 +2,7 @@ package com.econovation.idpapi.application.service;
 
 
 import com.econovation.idpapi.application.port.out.LoadAccountPort;
+import com.econovation.idpapi.config.security.SecurityUtils;
 import com.econovation.idpdomain.domains.dto.ImageUploadDto;
 import com.econovation.idpdomain.domains.image.Image;
 import com.econovation.idpdomain.domains.image.ImageRepository;
@@ -37,7 +38,8 @@ public class ImageService {
     private String uploadFolder;
 
     /* 검색 */
-    public List<Image> imageSearch(Long idpId) {
+    public List<Image> imageSearch() {
+        Long idpId = SecurityUtils.getCurrentUserId();
         log.info("uploadFolder : " + uploadFolder);
         Account account = loadAccountPort.loadById(idpId);
         return imageRepository.findByAccount(account);

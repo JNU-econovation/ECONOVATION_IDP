@@ -39,7 +39,7 @@ public class JwtProvider implements JwtProviderUseCase {
 
     private final JwtProperties jwtProperties;
 
-    @Value("${spring.jwt.blacklist.access-token}")
+    @Value("${auth.jwt.blacklist.prefix}")
     private String blackListATPrefix;
 
     private Jws<Claims> getJws(String token) {
@@ -53,7 +53,7 @@ public class JwtProvider implements JwtProviderUseCase {
     }
 
     private Key getSecretKey() {
-        return Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
@@ -77,7 +77,7 @@ public class JwtProvider implements JwtProviderUseCase {
         return Jwts.builder()
                 .setIssuer(TOKEN_ISSUER)
                 .setIssuedAt(date)
-                .claim(TOKEN_TYPE,REFRESH_TOKEN) // 발행유저 정보 저장
+                .claim(TOKEN_TYPE, REFRESH_TOKEN) // 발행유저 정보 저장
                 .setExpiration(new Date(date.getTime() + tokenInvalidTime)) // 토큰 유효 시간 저장
                 .signWith(SignatureAlgorithm.HS256, secretKey) // 해싱 알고리즘 및 키 설정
                 .compact();
@@ -93,31 +93,37 @@ public class JwtProvider implements JwtProviderUseCase {
     // refreshToken 은 redis 에 저장해야한다.
     @Override
     public String createRefreshToken(Long idpId, String role) {
-//        String refreshToken = this.createToken(Math.toIntExact(idpId), role, tokenInvalidTime);
+        //        String refreshToken = this.createToken(Math.toIntExact(idpId), role,
+        // tokenInvalidTime);
 
         final Date issuedAt = new Date();
-//        integer MILLT_TOSECOND to Long
+        //        integer MILLT_TOSECOND to Long
         final Date refreshTokenExpiresIn =
-                new Date(issuedAt.getTime() + jwtProperties.getRefreshExp() * MILLI_TO_SECOND);
+                new Date(issuedAt.getTime() + jwtProperties.getRefresh() * MILLI_TO_SECOND);
         String refreshToken = buildRefreshToken(idpId, issuedAt, refreshTokenExpiresIn);
 
         redisService.setValues(
-                String.valueOf(idpId), refreshToken, Duration.ofMillis(jwtProperties.getRefreshExp() * MILLI_TO_SECOND));
+                String.valueOf(idpId),
+                refreshToken,
+                Duration.ofMillis(jwtProperties.getRefresh() * MILLI_TO_SECOND));
         return refreshToken;
     }
+
     public String generateAccessToken(Long id, String role) {
         final Date issuedAt = new Date();
         final Date accessTokenExpiresIn =
-                new Date(issuedAt.getTime() + jwtProperties.getAccessExp() * MILLI_TO_SECOND);
+                new Date(issuedAt.getTime() + jwtProperties.getAccess() * MILLI_TO_SECOND);
 
         return buildAccessToken(id, issuedAt, accessTokenExpiresIn, role);
     }
+
     public String generateRefreshToken(Long id) {
         final Date issuedAt = new Date();
         final Date refreshTokenExpiresIn =
-                new Date(issuedAt.getTime() + jwtProperties.getRefreshExp() * MILLI_TO_SECOND);
+                new Date(issuedAt.getTime() + jwtProperties.getRefresh() * MILLI_TO_SECOND);
         return buildRefreshToken(id, issuedAt, refreshTokenExpiresIn);
     }
+
     private String buildAccessToken(
             Long id, Date issuedAt, Date accessTokenExpiresIn, String role) {
         final Key encodedKey = getSecretKey();
@@ -131,7 +137,6 @@ public class JwtProvider implements JwtProviderUseCase {
                 .signWith(encodedKey)
                 .compact();
     }
-
 
     private String buildRefreshToken(Long id, Date issuedAt, Date accessTokenExpiresIn) {
         final Key encodedKey = getSecretKey();
@@ -178,7 +183,8 @@ public class JwtProvider implements JwtProviderUseCase {
             if (expiredAT != null) {
                 throw new ExpiredJwtException(null, null, null);
             }
-//            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            //            Jws<Claims> claimsJws =
+            // Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             log.info("validateToken : {}", token);
             return getAuthentication(token);
         } catch (MalformedJwtException | UnsupportedJwtException e) {
@@ -192,7 +198,7 @@ public class JwtProvider implements JwtProviderUseCase {
     }
 
     public boolean isAccessToken(String token) {
-        //npe
+        // npe
         log.info(getJws(token).getBody().get(TOKEN_TYPE).toString());
         return getJws(token).getBody().get(TOKEN_TYPE).equals(ACCESS_TOKEN);
     }

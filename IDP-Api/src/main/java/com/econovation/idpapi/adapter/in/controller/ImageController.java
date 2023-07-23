@@ -2,6 +2,7 @@ package com.econovation.idpapi.adapter.in.controller;
 
 
 import com.econovation.idpapi.application.service.ImageService;
+import com.econovation.idpapi.config.security.SecurityUtils;
 import com.econovation.idpcommon.exception.ImageIOException;
 import com.econovation.idpdomain.domains.dto.ImageUploadDto;
 import com.econovation.idpdomain.domains.image.Image;
@@ -41,12 +42,12 @@ public class ImageController {
     }
 
     @GetMapping("/image")
-    public void downloadImage(HttpServletResponse response, Integer idpId) throws IOException {
-        List<Image> images = imageService.imageSearch(Long.valueOf(idpId));
+    public void downloadImage(HttpServletResponse response) throws IOException {
+        Long idpId = SecurityUtils.getCurrentUserId();
+        List<Image> images = imageService.imageSearch();
 
         String url = imageService.downloadImage(images);
         String contentType = Files.probeContentType(Paths.get(url));
-
         HttpHeaders headers = new HttpHeaders();
         headers.setContentDisposition(
                 ContentDisposition.builder("attachment")

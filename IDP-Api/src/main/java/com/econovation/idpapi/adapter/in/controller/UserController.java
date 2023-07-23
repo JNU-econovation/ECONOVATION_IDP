@@ -11,6 +11,7 @@ import com.econovation.idpdomain.domains.users.domain.Account;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @AllArgsConstructor
 @CrossOrigin(origins = "*")
+@SecurityRequirement(name = "access-token")
 @Tag(name = "WebApplication User 제공 서비스", description = "유저 정보 조회")
 public class UserController {
     private final UserUseCase userService;
@@ -44,7 +46,6 @@ public class UserController {
     }
 
     @Operation(summary = "maxPage를 포함한 페이징 회원 조회", description = "isMaxpage = true : 전체 페이")
-    @ApiResponses({@ApiResponse(description = "Role에 따른 회원 조횐 return")})
     @GetMapping("/api/users/page/{page}/{isMaxpage}")
     public ResponseEntity<Map> findUserAll(
             @PathVariable int page, @PathVariable boolean isMaxpage) {
@@ -58,7 +59,6 @@ public class UserController {
     }
 
     @Operation(summary = "findUserById", description = "Id로 회원조회")
-    @ApiResponses({@ApiResponse(responseCode = "Account Object", description = "검색 유저 return")})
     @GetMapping("/api/users/{user-id}")
     public ResponseEntity<Account> findUserById(@PathVariable(value = "user-id") Long userId) {
         HttpHeaders headers = new HttpHeaders();
@@ -67,7 +67,6 @@ public class UserController {
     }
 
     @Operation(summary = "countUserByRole", description = "Role(USER,GUEST,ADMIN)로 회원수 조회")
-    @ApiResponses({@ApiResponse(description = "Role에 따른 회원 조횐 return")})
     @GetMapping("/api/users/count/{role}")
     public ResponseEntity<Long> countUserByRole(@PathVariable String role) {
         Long numberIsRole = userService.countUserByRole(role);
@@ -75,7 +74,6 @@ public class UserController {
     }
 
     @Operation(summary = "전체 회원 수 조회", description = "전체 회원 수 조회")
-    @ApiResponses({@ApiResponse(description = "Role에 따른 회원 조횐 return")})
     @GetMapping("/api/users/count")
     public ResponseEntity<Long> countAllUser() {
         Long numberAllAccount = userService.countAllUser();
@@ -83,7 +81,6 @@ public class UserController {
     }
 
     @Operation(summary = "이름으로 회원 조회", description = "동명이인 포함 회원 정보 조회")
-    @ApiResponses({@ApiResponse(description = "이름으로 회원 조회")})
     @GetMapping("/api/users")
     public ResponseEntity<List<Account>> findUserByUserName(String userName) {
         List<Account> userListByUserName = userService.findUserByUserName(userName);
@@ -100,7 +97,6 @@ public class UserController {
     }
 
     @Operation(summary = "Email 찾기 기능", description = "Email 찾기 ( 기수, 이름 ) 으로 조회")
-    @ApiResponses({@ApiResponse(description = "Email에 따른 회원 조횐 return")})
     @GetMapping("/api/users/find-email/")
     public ResponseEntity<String> findEmail(@Valid UserFindDto userFindDto) {
         Account userByYearAndUserName =
@@ -109,18 +105,14 @@ public class UserController {
         return new ResponseEntity<>(userByYearAndUserName.getProfile().getEmail(), HttpStatus.OK);
     }
 
-    //    @Operation(summary = "Email로 회원 조회", description = "이메일로 회원 조회")
-    //    @ApiResponses({
-    //            @ApiResponse(description = "Role에 따른 회원 조횐 return")
-    //    })
-    //    @GetMapping("/api/users/{userEmail}")
-    //    public ResponseEntity<Account> findUserByEmail(@PathVariable String userEmail) {
-    //        Account userByUserEmail = userService.findUserByUserEmail(userEmail);
-    //        return new ResponseEntity<>(userByUserEmail,HttpStatus.OK);
-    //    }
+    @Operation(summary = "Email로 회원 조회", description = "이메일로 회원 조회")
+    @GetMapping("/api/users/{userEmail}")
+    public ResponseEntity<Account> findUserByEmail(@PathVariable String userEmail) {
+        Account userByUserEmail = userService.findUserByUserEmail(userEmail);
+        return new ResponseEntity<>(userByUserEmail, HttpStatus.OK);
+    }
 
     @Operation(summary = "회원정보 수정", description = "로그인된 상태에서, 회원정보 수정")
-    @ApiResponses({@ApiResponse(description = "수정된 회원 조회 return")})
     @PostMapping("/api/users/")
     public ResponseEntity<Account> updateUser(
             HttpServletRequest request, UserUpdateRequestDto userUpdateRequestDto) {
@@ -133,7 +125,6 @@ public class UserController {
     }
 
     @Operation(summary = "회원삭제", description = "회원 삭제")
-    @ApiResponses({@ApiResponse(description = "회원 삭제 Response")})
     @DeleteMapping("/api/users/{userId}")
     public ResponseEntity<BasicResponse> deleteUser(@PathVariable Long userId) {
         userService.deleteUserById(userId);
@@ -142,7 +133,6 @@ public class UserController {
     }
 
     @Operation(summary = "비밀번호 수정", description = "비밀번호 수정")
-    @ApiResponses({@ApiResponse(description = "이메일 보낸 인증 Code")})
     @PostMapping("/api/users/update/password")
     public ResponseEntity<Account> setPassword(@Valid UserPasswordUpdateDto userPasswordUpdateDto) {
         Account account = userService.setPassword(userPasswordUpdateDto);

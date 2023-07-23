@@ -1,11 +1,9 @@
-package com.econovation.idpapi.config;
+package com.econovation.idp;
 
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class MailConfig {
@@ -19,10 +17,5 @@ public class MailConfig {
         javaMailSender.setPort(25);
 
         return javaMailSender;
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 }

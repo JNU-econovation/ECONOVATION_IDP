@@ -16,10 +16,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.PostPersist;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.DynamicInsert;
 
 @Entity
@@ -27,7 +29,9 @@ import org.hibernate.annotations.DynamicInsert;
 @AllArgsConstructor
 @NoArgsConstructor
 @DynamicInsert
+@Slf4j
 @Builder
+@Table(name = "accounts")
 public class Account extends BaseTimeEntity {
 
     @Id
@@ -39,21 +43,25 @@ public class Account extends BaseTimeEntity {
 
     @Embedded private Profile profile;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private AccountState accountState = AccountState.NORMAL;
 
     @Column(nullable = false)
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    private AccountRole accountRole = AccountRole.USER;
+    private AccountRole accountRole = AccountRole.GUEST;
 
     // 이메일 수신 여부
-    private Boolean receiveMail = Boolean.TRUE;
-
+    @Builder.Default
+    private Boolean receiveMail = Boolean.FALSE;
+    @Builder.Default
     private LocalDateTime lastLoginAt = LocalDateTime.now();
 
     @PostPersist
     public void registerEvent() {
-        AccountRegisterEvent userRegisterEvent = AccountRegisterEvent.builder().userId(id).build();
+        AccountRegisterEvent userRegisterEvent =
+                AccountRegisterEvent.builder().userId(id).year(profile.getYear()).build();
         Events.raise(userRegisterEvent);
     }
 
@@ -92,5 +100,26 @@ public class Account extends BaseTimeEntity {
 
     public Boolean isDeletedUser() {
         return accountState == AccountState.DELETED;
+    }
+
+    @Override
+    public String toString() {
+        return "Account{"
+                + "id="
+                + id
+                + ", password='"
+                + password
+                + '\''
+                + ", profile="
+                + profile
+                + ", accountState="
+                + accountState
+                + ", accountRole="
+                + accountRole
+                + ", receiveMail="
+                + receiveMail
+                + ", lastLoginAt="
+                + lastLoginAt
+                + '}';
     }
 }
