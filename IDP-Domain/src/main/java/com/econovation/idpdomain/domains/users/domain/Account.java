@@ -53,10 +53,8 @@ public class Account extends BaseTimeEntity {
     private AccountRole accountRole = AccountRole.GUEST;
 
     // 이메일 수신 여부
-    @Builder.Default
-    private Boolean receiveMail = Boolean.FALSE;
-    @Builder.Default
-    private LocalDateTime lastLoginAt = LocalDateTime.now();
+    @Builder.Default private Boolean receiveMail = Boolean.FALSE;
+    @Builder.Default private LocalDateTime lastLoginAt = LocalDateTime.now();
 
     @PostPersist
     public void registerEvent() {

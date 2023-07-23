@@ -1,6 +1,5 @@
 package com.econovation.idpapi.common.handler;
 
-import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
 import com.econovation.idpapi.application.port.out.LoadAccountPort;
 import com.econovation.idpapi.application.service.ConfirmationTokenService;
@@ -10,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
