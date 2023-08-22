@@ -1,4 +1,4 @@
-package com.econovation.idpapi.common.redis;
+package com.econovation.idp.redis;
 
 
 import java.time.Duration;

@@ -3,16 +3,16 @@ package com.econovation.idpapi.adapter.in.controller;
 
 import com.econovation.idpapi.application.port.in.AccountSignUpUseCase;
 import com.econovation.idpapi.application.port.in.AccountUseCase;
-import com.econovation.idpapi.application.port.in.JwtProviderUseCase;
+import com.econovation.idpapi.application.service.AccountJwtService;
 import com.econovation.idpapi.common.BasicResponse;
 import com.econovation.idpcommon.exception.GetExpiredTimeException;
+import com.econovation.idpcommon.jwt.JwtProvider;
 import com.econovation.idpdomain.domains.dto.LoginRequestDto;
 import com.econovation.idpdomain.domains.dto.LoginResponseDto;
 import com.econovation.idpdomain.domains.dto.LoginResponseDtoWithExpiredTime;
 import com.econovation.idpdomain.domains.dto.LoginResponseDtoWithRedirectUrl;
 import com.econovation.idpdomain.domains.dto.SignUpRequestDto;
 import com.econovation.idpdomain.domains.dto.UserResponseMatchedTokenDto;
-import com.econovation.idpdomain.domains.users.domain.Account;
 import io.reactivex.rxjava3.annotations.Nullable;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,7 +47,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
     private final AccountUseCase accountUseCase;
     private final AccountSignUpUseCase accountSignUpUseCase;
-    private final JwtProviderUseCase jwtProviderUseCase;
+    private final JwtProvider jwtProvider;
+    private final AccountJwtService accountJwtService;
 
     @Value("${login.page.url}")
     private String loginPageUrl;
@@ -78,7 +79,7 @@ public class AccountController {
     @GetMapping("/accounts/re-issue")
     public ResponseEntity<LoginResponseDto> reIssue(
             String refreshToken, HttpServletRequest request) {
-        if (!jwtProviderUseCase.validateToken(request, refreshToken).isAuthenticated()) {
+        if (!accountJwtService.validateToken(request, refreshToken).isAuthenticated()) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         LoginResponseDto responseDto = accountUseCase.reIssueAccessToken(request, refreshToken);
@@ -108,7 +109,7 @@ public class AccountController {
 
         if (refreshToken != null) {
             // 토큰 검증
-            Authentication authentication = jwtProviderUseCase.validateToken(request, refreshToken);
+            Authentication authentication = accountJwtService.validateToken(request, refreshToken);
             if (!authentication.isAuthenticated()) {
                 // 검증 실패
                 BasicResponse result = new BasicResponse("유효하지 않은 토큰입니다.", HttpStatus.OK);
@@ -173,7 +174,7 @@ public class AccountController {
     @GetMapping("/accounts/re-check")
     public ResponseEntity<BasicResponse> checkValideToken(
             HttpServletRequest request, String refreshToken) {
-        Authentication authentication = jwtProviderUseCase.validateToken(request, refreshToken);
+        Authentication authentication = accountJwtService.validateToken(request, refreshToken);
         if (!authentication.isAuthenticated()) {
             BasicResponse result = new BasicResponse("유효하지 않은 토큰입니다.", HttpStatus.OK);
             return new ResponseEntity<>(result, HttpStatus.UNAUTHORIZED);
@@ -193,7 +194,7 @@ public class AccountController {
             throws URISyntaxException, GetExpiredTimeException {
         LoginResponseDto responseDto =
                 accountUseCase.login(loginDto.getUserEmail(), loginDto.getPassword());
-        Date expiredTime = jwtProviderUseCase.getExpiredTime(responseDto.getRefreshToken());
+        Date expiredTime = jwtProvider.getExpiredTime(responseDto.getRefreshToken());
         URI redirectUri = new URI(redirectUrl);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(redirectUri);
@@ -210,11 +211,5 @@ public class AccountController {
         String accessToken = request.getHeader("Authorization").substring(7);
         UserResponseMatchedTokenDto byAccessToken = accountUseCase.findByAccessToken(accessToken);
         return new ResponseEntity<>(byAccessToken, HttpStatus.OK);
-    }
-
-    @GetMapping("/users/me")
-    public ResponseEntity<Account> findByMe() {
-        Account account = accountUseCase.findByMe().get();
-        return ResponseEntity.ok(account);
     }
 }

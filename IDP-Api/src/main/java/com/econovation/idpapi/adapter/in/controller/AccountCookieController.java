@@ -2,7 +2,7 @@ package com.econovation.idpapi.adapter.in.controller;
 
 
 import com.econovation.idpapi.application.port.in.AccountUseCase;
-import com.econovation.idpapi.application.port.in.JwtProviderUseCase;
+import com.econovation.idpapi.application.service.AccountJwtService;
 import com.econovation.idpdomain.domains.dto.LoginRequestDto;
 import com.econovation.idpdomain.domains.dto.LoginResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,7 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountCookieController {
     private final AccountUseCase accountUseCase;
     private Cookie[] cookies = null;
-    private final JwtProviderUseCase jwtProviderUseCase;
+    //    private final JwtProviderUseCase jwtProviderUseCase;
+    private final AccountJwtService accountJwtService;
 
     final long tokenInvalidTime = 1000L * 60 * 60; // 1h
 
@@ -96,7 +97,7 @@ public class AccountCookieController {
         cookies = request.getCookies();
         String refreshToken = getCookieValue(request, "refreshToken");
         log.info(refreshToken);
-        if (!jwtProviderUseCase.validateToken(request, refreshToken).isAuthenticated()) {
+        if (!accountJwtService.validateToken(request, refreshToken).isAuthenticated()) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         LoginResponseDto responseDto = accountUseCase.reIssueAccessToken(request, refreshToken);

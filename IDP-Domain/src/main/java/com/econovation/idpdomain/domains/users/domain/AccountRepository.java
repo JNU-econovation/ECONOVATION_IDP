@@ -12,32 +12,32 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AccountRepository extends JpaRepository<Account, Long> {
+public interface AccountRepository extends JpaRepository<Accounts, Long> {
 
-    List<Account> findAll();
+    List<Accounts> findAll();
 
     @Query(
-            "SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Account a WHERE a.profile.email = :email")
-    boolean existsAccountByUserEmail(@Param("email") String email);
+            "SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Accounts a WHERE a.profile.email = :email")
+    boolean existsAccountsByUserEmail(@Param("email") String email);
 
-    @Query("SELECT u FROM Account u WHERE u.profile.name = :name")
-    List<Account> findByUserName(@Param("name") String name);
+    @Query("SELECT u FROM Accounts u WHERE u.profile.name = :name")
+    List<Accounts> findByUserName(@Param("name") String name);
 
-    @Query("SELECT u FROM Account u WHERE u.profile.email = :email")
-    Optional<Account> findByUserEmail(@Param("email") String email);
+    @Query("SELECT u FROM Accounts u WHERE u.profile.email = :email")
+    Optional<Accounts> findByUserEmail(@Param("email") String email);
 
-    Page<Account> findAll(Pageable pageable);
+    Page<Accounts> findAll(Pageable pageable);
 
-    Slice<Account> findSliceBy(Pageable pageable);
+    Slice<Accounts> findSliceBy(Pageable pageable);
 
-    @Query("SELECT COUNT(a) FROM Account a WHERE a.accountRole = :role")
+    @Query("SELECT COUNT(a) FROM Accounts a WHERE a.accountRole = :role")
     Long countAllByRole(@Param("role") AccountRole role);
 
-    @Query("SELECT u FROM Account u WHERE u.password = :password")
-    Optional<Account> findByPassword(@Param("password") String password);
+    @Query("SELECT u FROM Accounts u WHERE u.password = :password")
+    Optional<Accounts> findByPassword(@Param("password") String password);
 
-    @Query("SELECT u FROM Account u WHERE u.profile.name = :name AND u.profile.year = :year")
-    Optional<Account> findUserByUserNameAndYear(
+    @Query("SELECT u FROM Accounts u WHERE u.profile.name = :name AND u.profile.year = :year")
+    Optional<Accounts> findUserByUserNameAndYear(
             @Param("name") String name, @Param("year") Integer year);
 
     /* 유효성 검사 - 중복 체크

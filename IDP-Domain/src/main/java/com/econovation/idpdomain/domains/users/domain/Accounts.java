@@ -1,6 +1,5 @@
 package com.econovation.idpdomain.domains.users.domain;
 
-
 import com.econovation.idpdomain.common.aop.domainEvent.Events;
 import com.econovation.idpdomain.common.events.user.AccountRegisterEvent;
 import com.econovation.idpdomain.domains.dto.NonAccountResponseDto;
@@ -16,7 +15,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.PostPersist;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,17 +24,16 @@ import org.hibernate.annotations.DynamicInsert;
 
 @Entity
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @DynamicInsert
 @Slf4j
 @Builder
-@Table(name = "accounts")
-public class Account extends BaseTimeEntity {
+public class Accounts extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "account_id")
+    @Column(name = "accounts_id")
     private Long id;
 
     private String password;
@@ -74,7 +71,7 @@ public class Account extends BaseTimeEntity {
         lastLoginAt = LocalDateTime.now();
     }
 
-    public Account(Profile profile, String password) {
+    public Accounts(Profile profile, String password) {
         this.profile = profile;
         this.password = password;
     }
@@ -83,7 +80,7 @@ public class Account extends BaseTimeEntity {
         this.profile = userUpdateRequestDto.toProfile(userUpdateRequestDto);
     }
 
-    public NonAccountResponseDto toNonLoginUser(Account account) {
+    public NonAccountResponseDto toNonLoginUser(Accounts account) {
         return new NonAccountResponseDto(
                 account.profile.getYear(), account.profile.getName(), account.getId());
     }

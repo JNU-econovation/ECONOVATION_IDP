@@ -1,12 +1,12 @@
 package com.econovation.idpapi.application.service;
 
 
-import com.econovation.idpapi.application.port.out.LoadAccountPort;
 import com.econovation.idpapi.config.security.SecurityUtils;
 import com.econovation.idpdomain.domains.dto.ImageUploadDto;
 import com.econovation.idpdomain.domains.images.Image;
 import com.econovation.idpdomain.domains.images.ImageRepository;
-import com.econovation.idpdomain.domains.users.domain.Account;
+import com.econovation.idpdomain.domains.users.domain.Accounts;
+import com.econovation.idpdomain.domains.users.port.LoadAccountPort;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,7 +20,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +30,7 @@ public class ImageService {
     private static final String NO_MATCH_IMAGE = "업로드 된 이미지가 없습니다";
     private final ImageRepository imageRepository;
     private final LoadAccountPort loadAccountPort;
-    private final ResourceLoader resourceLoader;
+    //    private final ResourceLoader resourceLoader;
 
     /* 이미지 업로드 폴더 */
     @Value("${file.path}")
@@ -41,7 +40,7 @@ public class ImageService {
     public List<Image> imageSearch() {
         Long idpId = SecurityUtils.getCurrentUserId();
         log.info("uploadFolder : " + uploadFolder);
-        Account account = loadAccountPort.loadById(idpId);
+        Accounts account = loadAccountPort.loadById(idpId);
         return imageRepository.findByAccount(account);
     }
 
@@ -53,7 +52,7 @@ public class ImageService {
         Path imageFilePath = Paths.get(uploadFolder + imageFileName);
 
         Long idpId = imageUploadDto.getIdpId();
-        Account account = loadAccountPort.loadById(idpId);
+        Accounts account = loadAccountPort.loadById(idpId);
 
         try {
             Path write = Files.write(imageFilePath, imageUploadDto.getFile().getBytes());

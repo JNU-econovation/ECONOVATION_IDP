@@ -3,7 +3,7 @@ package com.econovation.idpapi.adapter.in.controller;
 
 import com.econovation.idpapi.application.port.in.UserUseCase;
 import com.econovation.idpdomain.domains.dto.NonAccountResponseDto;
-import com.econovation.idpdomain.domains.users.domain.Account;
+import com.econovation.idpdomain.domains.users.domain.Accounts;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -30,7 +30,7 @@ public class NonUserController {
     public ResponseEntity<NonAccountResponseDto> findUserById(
             @PathVariable(value = "user-id") Long userId) {
         HttpHeaders headers = new HttpHeaders();
-        Account account = userService.findUserById(userId);
+        Accounts account = userService.findUserById(userId);
         NonAccountResponseDto nonAccountResponseDto = account.toNonLoginUser(account);
         return new ResponseEntity<>(nonAccountResponseDto, headers, HttpStatus.OK);
     }

@@ -47,7 +47,7 @@ public class SwaggerConfig {
     public GroupedOpenApi AccountApi() {
         return GroupedOpenApi.builder()
                 .group("AccountController")
-                .packagesToScan("com.econovation.idp.adapter.in.controller")
+//                .packagesToScan("com.econovation.idpapi.adapter.in.controller")
                 .pathsToExclude("/api/users/**")
                 .pathsToMatch("/api/accounts/**")
                 .build();
@@ -57,7 +57,7 @@ public class SwaggerConfig {
     public GroupedOpenApi UserApi() {
         return GroupedOpenApi.builder()
                 .group("UserController")
-                .packagesToScan("com.econovation.idp.adapter.in.controller")
+//                .packagesToScan("com.econovation.idpapi.adapter.in.controller")
                 .pathsToExclude("/api/accounts/**")
                 .pathsToMatch("/api/users/**")
                 .build();

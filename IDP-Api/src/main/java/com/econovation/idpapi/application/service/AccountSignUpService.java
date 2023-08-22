@@ -4,8 +4,8 @@ package com.econovation.idpapi.application.service;
 import com.econovation.idpapi.application.port.in.AccountSignUpUseCase;
 import com.econovation.idpapi.common.BasicResponse;
 import com.econovation.idpcommon.exception.BadRequestException;
-import com.econovation.idpdomain.domains.users.domain.Account;
 import com.econovation.idpdomain.domains.users.domain.AccountRepository;
+import com.econovation.idpdomain.domains.users.domain.Accounts;
 import com.econovation.idpdomain.domains.users.domain.Profile;
 import java.util.List;
 import java.util.Optional;
@@ -35,14 +35,14 @@ public class AccountSignUpService implements AccountSignUpUseCase {
             throw new BadRequestException("중복된 이메일입니다");
         }
         String encodePassword = passwordEncoder.encode(password);
-        Account newAccount = new Account(new Profile(userName, userEmail, year), encodePassword);
+        Accounts newAccount = new Accounts(new Profile(userName, userEmail, year), encodePassword);
         accountRepository.save(newAccount);
     }
 
     // 중복된 이메일 확인
     @Override
     public BasicResponse isDuplicateEmail(String email) {
-        boolean isDuplicate = accountRepository.existsAccountByUserEmail(email);
+        boolean isDuplicate = accountRepository.existsAccountsByUserEmail(email);
         if (isDuplicate) {
             return new BasicResponse("중복된 이메일입니다.", HttpStatus.CONFLICT);
         }
@@ -54,11 +54,11 @@ public class AccountSignUpService implements AccountSignUpUseCase {
     @Transactional
     public String sendfindingPasswordConfirmationCode(String name, Integer year)
             throws IllegalAccessException {
-        List<Account> byUserName =
+        List<Accounts> byUserName =
                 accountRepository.findByUserName(name).stream()
                         .filter(u -> u.getProfile().getYear().equals(year))
                         .collect(Collectors.toList());
-        Optional<Account> first = byUserName.stream().findFirst();
+        Optional<Accounts> first = byUserName.stream().findFirst();
         if (first.isEmpty()) {
             throw new IllegalAccessException("잘못된 이름과 기수를 입력했습니다.");
         }

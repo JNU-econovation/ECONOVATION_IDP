@@ -1,7 +1,7 @@
 package com.econovation.idpapi.config.jwt;
 
 
-import com.econovation.idpcommon.properties.JwtProperties;
+import com.econovation.idpapi.application.service.AccountJwtService;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -21,9 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
-    private final JwtProvider jwtProvider;
-    private final JwtProperties jwtProperties;
+    private final AccountJwtService accountJwtService;
 
     @Override
     protected void doFilterInternal(
@@ -32,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = resolveToken(request.getHeader("Authorization"));
         boolean isLogin = false;
         if (token != null) {
-            Authentication authentication = jwtProvider.validateToken(request, token);
+            Authentication authentication = accountJwtService.validateToken(request, token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             isLogin = true;
         }
@@ -59,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.info(request.getRequestURI().toString());
     }
 
-    private String resolveToken(String authorization) {
+    public String resolveToken(String authorization) {
         return authorization != null ? authorization.substring(7) : null;
     }
 }

@@ -13,7 +13,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
 @RequiredArgsConstructor
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.econovation")
 @Slf4j
 public class IdpApiApplication implements ApplicationListener<ApplicationReadyEvent> {
     private final Environment environment;

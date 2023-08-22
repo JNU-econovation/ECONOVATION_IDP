@@ -21,7 +21,9 @@ import org.springframework.stereotype.Service;
 public class ConfirmationTokenService {
     private final ConfirmationTokenRepository confirmationTokenRepository;
     private final EmailSenderService emailSenderService;
+
     //    @Value("${sending.email}")
+
     @Value("${mail.destination.url}")
     private String destinationEmail;
 

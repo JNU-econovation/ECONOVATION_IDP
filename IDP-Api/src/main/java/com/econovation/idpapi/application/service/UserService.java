@@ -5,9 +5,9 @@ import com.econovation.idpapi.application.port.in.UserUseCase;
 import com.econovation.idpcommon.exception.BadRequestException;
 import com.econovation.idpdomain.domains.dto.UserPasswordUpdateDto;
 import com.econovation.idpdomain.domains.dto.UserUpdateRequestDto;
-import com.econovation.idpdomain.domains.users.domain.Account;
 import com.econovation.idpdomain.domains.users.domain.AccountRepository;
 import com.econovation.idpdomain.domains.users.domain.AccountRole;
+import com.econovation.idpdomain.domains.users.domain.Accounts;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +38,7 @@ public class UserService implements UserUseCase {
 
     @Override
     @Transactional
-    public List<Account> findAll(Integer page) {
+    public List<Accounts> findAll(Integer page) {
         Pageable pageable = PageRequest.of(page, PAGE_PER_REQUEST);
         return userRepository.findAll(pageable).stream().collect(Collectors.toList());
     }
@@ -47,8 +47,8 @@ public class UserService implements UserUseCase {
     public Map<String, Object> findAllWithLastPageInPage(Integer page) {
         Pageable pageable = PageRequest.of(page, PAGE_PER_REQUEST);
 
-        Slice<Account> usersWithPagination = userRepository.findSliceBy(pageable);
-        List<Account> users = usersWithPagination.stream().collect(Collectors.toList());
+        Slice<Accounts> usersWithPagination = userRepository.findSliceBy(pageable);
+        List<Accounts> users = usersWithPagination.stream().collect(Collectors.toList());
         Map<String, Object> map = new HashMap();
         map.put("users", users);
         if (map.isEmpty()) throw new IllegalArgumentException(NOT_FOUND_USER_MESSAGE);
@@ -56,8 +56,8 @@ public class UserService implements UserUseCase {
     }
 
     @Transactional
-    public Account setPassword(UserPasswordUpdateDto userPasswordUpdateDto) {
-        Account user =
+    public Accounts setPassword(UserPasswordUpdateDto userPasswordUpdateDto) {
+        Accounts user =
                 findUserByYearAndUserName(
                         userPasswordUpdateDto.getUserName(), userPasswordUpdateDto.getYear());
         String encodedPassword = passwordEncoder.encode(userPasswordUpdateDto.getPassword());
@@ -74,7 +74,7 @@ public class UserService implements UserUseCase {
      * @return Account
      */
     @Transactional
-    public List<Account> findUserByRole(int page, String role) {
+    public List<Accounts> findUserByRole(int page, String role) {
         Pageable pageable = PageRequest.of(page, 8);
         return userRepository.findAll(pageable).stream()
                 .filter(u -> u.getAccountRole().equals(role))
@@ -100,7 +100,7 @@ public class UserService implements UserUseCase {
      * @return Account
      */
     @Transactional
-    public Account findUserById(Long id) {
+    public Accounts findUserById(Long id) {
         return userRepository
                 .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_USER_MESSAGE));
@@ -112,8 +112,8 @@ public class UserService implements UserUseCase {
      * @return List<UserResponseDto> 동명이인이 있을 수 있어서 List를 받는다.
      */
     @Transactional
-    public List<Account> findUserByUserName(String userName) {
-        List<Account> users = userRepository.findByUserName(userName);
+    public List<Accounts> findUserByUserName(String userName) {
+        List<Accounts> users = userRepository.findByUserName(userName);
         if (users.isEmpty()) {
             throw new IllegalArgumentException(NOT_FOUND_USER_MESSAGE);
         }
@@ -122,8 +122,8 @@ public class UserService implements UserUseCase {
 
     @Override
     @Transactional
-    public Account findUserByYearAndUserName(String userName, Integer year) {
-        Account findUser =
+    public Accounts findUserByYearAndUserName(String userName, Integer year) {
+        Accounts findUser =
                 userRepository.findByUserName(userName).stream()
                         .filter(m -> m.getProfile().getYear().equals(year))
                         .collect(Collectors.toList())
@@ -134,18 +134,18 @@ public class UserService implements UserUseCase {
         return findUser;
     }
     /**
-     * Get Account By One userEmail
+     * Get Accounts By One userEmail
      *
-     * @return Account
+     * @return Accounts
      */
     @Transactional
-    public Account findUserByUserEmail(String idpId) {
+    public Accounts findUserByUserEmail(String idpId) {
         return userRepository
                 .findById(Long.valueOf(idpId))
                 .orElseThrow(() -> new BadRequestException("없는 이메일입니다."));
     }
 
-    //    ----Account
+    //    ----Accounts
     // Authentication------------------------------------------------------------------
 
     /**
@@ -158,7 +158,7 @@ public class UserService implements UserUseCase {
      * ConfirmationToken findConfirmationToken =
      * confirmationTokenService.findByIdAndExpirationDateAfterAndExpired(uuid);
      * log.info(String.valueOf(findConfirmationToken.getId())); // 여기서 UserId가 Null Exception
-     * log.info(String.valueOf(findConfirmationToken.getUserId())); Account findUser =
+     * log.info(String.valueOf(findConfirmationToken.getUserId())); Accounts findUser =
      * userRepository.findById(findConfirmationToken.getUserId()) .orElseThrow(()->new
      * IllegalArgumentException(NOT_FOUND_USER_MESSAGE)); findConfirmationToken.useToken(); // 토큰 만료
      * 로직을 구현해주면 된다. ex) expired 값을 true로 변경 findUser.emailVerifiedSuccess(); // 유저의 이메일 인증 값 변경 로직을
@@ -167,13 +167,13 @@ public class UserService implements UserUseCase {
 
     //    -------------------------------------------------------------------------------------
     /**
-     * delete One Account Data @Param userId
+     * delete One Accounts Data @Param userId
      *
      * @return void
      */
     public void deleteUserById(final Long userId) {
         //        관리자만 삭제할 수 있게 관리자 인증 추가 예정
-        Account user =
+        Accounts user =
                 userRepository
                         .findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException(NOT_FOUND_USER_MESSAGE));
@@ -182,14 +182,14 @@ public class UserService implements UserUseCase {
     }
 
     /**
-     * update One Account Data @Param userEmail : String!, password : String!, year : Int!, userName
-     * : String!
+     * update One Accounts Data @Param userEmail : String!, password : String!, year : Int!,
+     * userName : String!
      *
      * @return boolean
      */
     @Override
-    public Account updateUser(UserUpdateRequestDto userUpdateRequestDto) {
-        Account user =
+    public Accounts updateUser(UserUpdateRequestDto userUpdateRequestDto) {
+        Accounts user =
                 userRepository
                         .findUserByUserNameAndYear(
                                 userUpdateRequestDto.getUserName(), userUpdateRequestDto.getYear())

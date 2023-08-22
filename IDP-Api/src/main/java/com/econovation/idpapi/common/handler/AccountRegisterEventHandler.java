@@ -1,10 +1,10 @@
 package com.econovation.idpapi.common.handler;
 
 
-import com.econovation.idpapi.application.port.out.LoadAccountPort;
 import com.econovation.idpapi.application.service.ConfirmationTokenService;
 import com.econovation.idpdomain.common.events.user.AccountRegisterEvent;
-import com.econovation.idpdomain.domains.users.domain.Account;
+import com.econovation.idpdomain.domains.users.domain.Accounts;
+import com.econovation.idpdomain.domains.users.port.LoadAccountPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -25,7 +25,7 @@ public class AccountRegisterEventHandler {
             phase = TransactionPhase.AFTER_COMPLETION)
     public void handleAccountRegisterEvent(AccountRegisterEvent accountRegisterEvent) {
         log.info(accountRegisterEvent.toString());
-        Account account = loadAccountPort.loadById(accountRegisterEvent.getUserId());
+        Accounts account = loadAccountPort.loadById(accountRegisterEvent.getUserId());
         mailService.createEmailConfirmationToken(account.getId(), account.getProfile().getEmail());
     }
 }

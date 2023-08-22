@@ -4,15 +4,14 @@ spring:
     activate:
       on-profile: local
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${DB_NAME}?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&tinyInt1isBit=false
+    url: jdbc:mysql://${MYSQL_HOST:econovation}:${MYSQL_PORT:3306}/${DB_NAME:econovation}?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&tinyInt1isBit=false
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maxLifetime: 580000
-      maximum-pool-size: 10
-    password: ${MYSQL_PASSWORD}
-    username: ${MYSQL_USERNAME:root}
+      maximum-pool-size: 20
+    password: ${MYSQL_PASSWORD:root}
+    username: ${MYSQL_USERNAME:dltjgus119@@}
   jpa:
-    generate-ddl: true
     show-sql: ${SHOW_SQL:true}
     properties:
       hibernate:
@@ -33,15 +32,6 @@ logging:
     org.springframework.orm.jpa: DEBUG
     org.springframework.transaction: DEBUG
     org.springframework.aop: DEBUG
-
-
----
-spring:
-  config:
-    activate:
-      on-profile: test
-  datasource:
-    url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false;MODE=MYSQL
 ---
 spring:
   config:
@@ -56,17 +46,33 @@ spring:
     password: ${MYSQL_PASSWORD}
     username: ${MYSQL_USERNAME}
   jpa:
+    show-sql: ${SHOW_SQL:true}
     generate-ddl: true
     properties:
       hibernate:
         default_batch_fetch_size: ${JPA_BATCH_FETCH_SIZE:100}
+        format_sql: ${FORMAT_SQL:true}
     hibernate:
       ddl-auto: update
+    sql:
+      init:
+        mode: always
+    open-in-view: false
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
 logging:
   level:
+    com.zaxxer.hikari.HikariConfig: DEBUG
+    com.zaxxer.hikari: TRACE
     org.springframework.orm.jpa: DEBUG
     org.springframework.transaction: DEBUG
+    org.springframework.aop: DEBUG
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false;MODE=MYSQL
 ---
 spring:
   config:
